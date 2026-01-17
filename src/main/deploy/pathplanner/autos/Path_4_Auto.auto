@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Start_4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Collect+Move_4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "End_4"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Blue_Autos",
+  "choreoAuto": false
+}
