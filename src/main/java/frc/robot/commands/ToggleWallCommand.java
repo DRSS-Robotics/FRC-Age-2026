@@ -4,44 +4,42 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
 public class ToggleWallCommand extends Command {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+
   private SuperstructureSubsystem m_wall;
+  private boolean willOpen;
+  
   /**
-   * Creates a new command
+   * When called, this Command will open and close the 
+   * {@link SuperstructureSubsystem}'s wall based on the supplied {@code boolean} argument. 
+   * Uses the {@link Constants.OperatorConstants OperatorConstants} encoder positions.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param wallSubsystem The {@link SuperstructureSubsystem Superstructure} subsystem
+   * @param shouldOpen Whether or not the wall should be open ({@code true} = wall is open,
+   * {@code false} = wall is closed)
    */
-//                               \/ this refers to the mechanism that opens and closes the wall on the intake
-  public void IntakeWallCommand(SuperstructureSubsystem wallSubsystem) {
-    //This opens and closes the wall so the intake can get in then not fall out. 
+
+  public ToggleWallCommand(SuperstructureSubsystem wallSubsystem, boolean shouldOpen) {
     m_wall = wallSubsystem;
-    // Use addRequirements() here to declare subsystem dependencies.
+    willOpen = shouldOpen;
+    
     addRequirements(wallSubsystem);
   }
 
-  // Called when the command is initially scheduled.
+
   @Override
   public void initialize() {
-    m_wall.setWallMotorPosition(0.5);
+    m_wall.setWallMotorPosition(willOpen ? 
+      Constants.OperatorConstants.kWallOpenPosition : 
+      Constants.OperatorConstants.kWallClosedPosition);
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    m_wall.setWallMotorPosition(-0.5);
     return true;
   }
 

@@ -1,8 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
+
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -13,9 +11,21 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  /**
+   * A collection of constants pertaining to the various subsystems under the control of the Operator.
+   * This includes things like their controller's USB port, the Fuel wall's open/closed positions, etc.
+   */
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+    /**
+     * Encoder position for the Fuel storage wall in its CLOSED state
+     */
     public static final double kWallClosedPosition = 0;
+
+    /**
+     * Encoder position for the Fuel storage wall in its OPEN state
+     */
     public static final double kWallOpenPosition = 0;
   }
 }
