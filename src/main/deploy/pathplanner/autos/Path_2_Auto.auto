@@ -32,6 +32,18 @@
         {
           "type": "path",
           "data": {
+            "pathName": "depot_collect"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "depot-shoot"
           }
         },

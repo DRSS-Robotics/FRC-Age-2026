@@ -12,7 +12,7 @@
         "y": 4.0447444444444445
       },
       "isLocked": false,
-      "linkedName": "2path2Up"
+      "linkedName": "2path2"
     },
     {
       "anchor": {
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -178.75463573323168
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "Path_2_Paths",

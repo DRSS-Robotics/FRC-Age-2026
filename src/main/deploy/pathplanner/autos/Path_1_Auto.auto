@@ -36,6 +36,25 @@
           }
         },
         {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "2_Collect"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Back_To_Shoot"

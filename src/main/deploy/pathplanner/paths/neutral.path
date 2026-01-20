@@ -8,27 +8,36 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0822777777777777,
-        "y": 2.661033333333334
+        "x": 1.5950086792055573,
+        "y": -0.9875732261050252
       },
       "isLocked": false,
       "linkedName": "5path2"
     },
     {
       "anchor": {
-        "x": 6.9545,
-        "y": 2.6610333333333336
+        "x": 7.334533333333334,
+        "y": 1.3552777777777771
       },
       "prevControl": {
-        "x": 5.9545,
-        "y": 2.6610333333333336
+        "x": 7.685333333333333,
+        "y": 1.4527222222222222
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "5path3"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.23983402489627212,
+      "rotationDegrees": -5.511932082533369
+    },
+    {
+      "waypointRelativePos": 0.42904564315352645,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,7 +51,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Path_5_Paths",
