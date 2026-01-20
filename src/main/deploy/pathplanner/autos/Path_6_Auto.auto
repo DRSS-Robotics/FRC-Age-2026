@@ -11,15 +11,47 @@
           }
         },
         {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "6Path_Collect"
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "6Path_Collect2"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "6Path_Collect2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              }
+            ]
           }
         }
       ]

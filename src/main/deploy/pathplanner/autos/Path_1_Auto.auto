@@ -65,6 +65,12 @@
           "data": {
             "pathName": "End"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "HangLv1"
+          }
         }
       ]
     }

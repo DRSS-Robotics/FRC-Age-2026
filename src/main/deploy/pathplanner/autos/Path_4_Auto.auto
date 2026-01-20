@@ -11,15 +11,53 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Collect+Move_4"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Collect+Move_4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "End_4"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
           }
         }
       ]

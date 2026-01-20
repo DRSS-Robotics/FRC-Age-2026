@@ -4,20 +4,21 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.SuperstructureSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class ExpandStorageAutoCommand extends Command {
+public class ToggleWallCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ExampleSubsystem m_subsystem;
-
+  private SuperstructureSubsystem m_wall;
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new command
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ExpandStorageAutoCommand(SuperstructureSubsystem wallSubsystem) {
+//                               \/ this refers to the mechanism that opens and closes the wall on the intake
+  public void IntakeWallCommand(SuperstructureSubsystem wallSubsystem) {
+    //This opens and closes the wall so the intake can get in then not fall out. 
     m_wall = wallSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(wallSubsystem);
@@ -25,13 +26,13 @@ public class ExpandStorageAutoCommand extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    m_wall.setWallMotorPosition(0.5);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    m_wall.setWallMotorPosition(0.5);
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -40,6 +41,8 @@ public class ExpandStorageAutoCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    m_wall.setWallMotorPosition(-0.5);
+    return true;
   }
+
 }
