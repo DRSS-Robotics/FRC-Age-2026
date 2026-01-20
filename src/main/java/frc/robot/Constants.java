@@ -17,6 +17,8 @@ public final class Constants {
   public static class SuperstructureConstants {
     public static final int kIntakeMotorId = 5;
     public static final int kStorageMotorId = 6;
+    public static final int kAgitatorMotorId = 6;
+    public static final int kTransferMotorId = 6;
     public static final double kDefaultIntakeSpeed = 16;
 
     /**

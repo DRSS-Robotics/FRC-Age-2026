@@ -21,7 +21,9 @@ public class RobotContainer {
   private final SuperstructureSubsystem m_superstructure = 
     new SuperstructureSubsystem(
       SuperstructureConstants.kIntakeMotorId, 
-      SuperstructureConstants.kStorageMotorId);
+      SuperstructureConstants.kStorageMotorId,
+      SuperstructureConstants.kAgitatorMotorId,
+      SuperstructureConstants.kTransferMotorId);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =

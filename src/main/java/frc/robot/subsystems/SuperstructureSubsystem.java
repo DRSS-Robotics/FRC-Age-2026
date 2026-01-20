@@ -27,6 +27,18 @@ public class SuperstructureSubsystem extends SubsystemBase {
     private PositionVoltage storageMotorRequest;
     private Angle storageWallSetpoint = Degrees.of(0);
 
+    private TalonFX m_agitatorMotor;
+    private StorageWallState agitatorState;
+    private Slot0Configs agitatorMotorConfigs;
+    private PositionVoltage agitatorMotorRequest;
+    private AngularVelocity agitatorMotorSetSpeed = DegreesPerSecond.of(0);
+
+    private TalonFX m_transferMotor;
+    private StorageWallState transferMotorState;
+    private Slot0Configs transferMotorConfigs;
+    private PositionVoltage transferMotorRequest;
+    private AngularVelocity transferMotorSetSpeed = DegreesPerSecond.of(0);
+
     public static Angle storageClosedAngle = Degrees.of(SuperstructureConstants.kStorageClosedRotations);
     public static Angle storageOpenAngle = Degrees.of(SuperstructureConstants.kStorageOpenRotations);
     public static Angle storageAngleTolerance = Degrees.of(SuperstructureConstants.kStorageStateTolerance);
@@ -36,9 +48,11 @@ public class SuperstructureSubsystem extends SubsystemBase {
     /**
      * Subsystem that encompasses both the over-the-bumper intake as well as Fuel storage.
      */
-    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId) {
+    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int agitatorMotorId, int transferMotorId) {
         m_intakeMotor = new TalonFX(intakeMotorId);
         m_storageMotor = new TalonFX(wallMotorId);
+        m_agitatorMotor = new TalonFX(agitatorMotorId);
+        m_transferMotor = new TalonFX(transferMotorId);
         
         // TODO: use actual PID values instead of placeholder
         intakeMotorConfigs = new Slot0Configs();
@@ -57,6 +71,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
         storageMotorConfigs.kD = 0;
         m_storageMotor.getConfigurator().apply(storageMotorConfigs);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
+     
     }
 
 
@@ -161,4 +176,27 @@ public class SuperstructureSubsystem extends SubsystemBase {
         // special case for manual control
         kCustom
     }
+
+    public void runAgitatorMotor(double speed) {
+        runAgitatorMotor(DegreesPerSecond.of(speed));
+    }
+
+
+
+    public void runAgitatorMotor(AngularVelocity speed) {
+        agitatorMotorSetSpeed = speed;
+        m_agitatorMotor.setControl(agitatorMotorRequest.withVelocity(speed));
+    }
+
+    public void runTransferMotor(double speed) {
+        runTransferMotor(DegreesPerSecond.of(speed));
+    }
+
+
+
+    public void runTransferMotor(AngularVelocity speed) {
+        transferMotorSetSpeed = speed;
+        m_transferMotor.setControl(transferMotorRequest.withVelocity(speed));
+    }
+
 }
