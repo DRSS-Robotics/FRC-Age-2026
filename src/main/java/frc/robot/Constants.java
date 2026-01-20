@@ -1,7 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -18,14 +16,15 @@ public final class Constants {
   
   public static class SuperstructureConstants {
 
-    public static final int kIntakeMotorId = 0;
-    public static final int kStorageMotorId = 0;
+    public static final int kIntakeMotorId = 5;
+    public static final int kStorageMotorId = 6;
+    public static final double kDefaultIntakeSpeed = 16;
 
     /**
      * A degree value that affects the tolerance of when the Fuel storage wall is
      * considered to be closed/open.
      */
-    public static final double kStorageStateTolerance = 0.1;
+    public static final double kStorageStateTolerance = 1;
     
     /**
      * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED state
@@ -35,6 +34,6 @@ public final class Constants {
     /**
      * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
      */
-    public static final double kStorageOpenRotations = 0;
+    public static final double kStorageOpenRotations = 800;
   }
 }

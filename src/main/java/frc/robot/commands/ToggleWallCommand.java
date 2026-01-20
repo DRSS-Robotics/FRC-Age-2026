@@ -4,15 +4,18 @@
 
 package frc.robot.commands;
 
-import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.subsystems.SuperstructureSubsystem.StorageWallState;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ToggleWallCommand extends Command {
-
+  
   private SuperstructureSubsystem m_wall;
   private boolean willOpen;
-  
+
+
+
   /**
    * When called, this Command will open and close the 
    * {@link SuperstructureSubsystem}'s wall based on the supplied {@code boolean} argument. 
@@ -22,21 +25,27 @@ public class ToggleWallCommand extends Command {
    * @param shouldOpen Whether or not the wall should be open ({@code true} = wall is open,
    * {@code false} = wall is closed)
    */
-
-  public ToggleWallCommand(SuperstructureSubsystem wallSubsystem, boolean shouldOpen) {
+  public ToggleWallCommand(SuperstructureSubsystem wallSubsystem) {
     m_wall = wallSubsystem;
-    willOpen = shouldOpen;
-    
     addRequirements(wallSubsystem);
   }
-
-
+  
+  
+  
   @Override
   public void initialize() {
-    //m_wall.setWallMotorPosition(willOpen ? 
-      //Constants.OperatorConstants.kWallOpenPosition : 
-      //Constants.OperatorConstants.kWallClosedPosition);
+    // if the storage wall is either closing or on its way to closing,
+    // open it (defaults to closing otherwise)
+    StorageWallState state = m_wall.getStorageState();
+    willOpen = (state == StorageWallState.kIsClosed || 
+                state == StorageWallState.kIsClosing);
+
+    m_wall.setWallMotorPosition(willOpen ? 
+      SuperstructureConstants.kStorageOpenRotations : 
+      SuperstructureConstants.kStorageClosedRotations);
   }
+
+
 
   @Override
   public boolean isFinished() {

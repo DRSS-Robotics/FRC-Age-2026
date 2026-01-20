@@ -1,10 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands;
 
 import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.Constants.SuperstructureConstants;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
@@ -13,20 +12,22 @@ public class ToggleIntakeCommand extends Command {
   private SuperstructureSubsystem m_intake;
 
   /**
-   * Creates a new command
-   *
-   * @param subsystem The subsystem used by this command.
+   * Toggles the intake on/off, based on its current state and the default
+   * intake speed in {@link SuperstructureConstants#kDefaultIntakeSpeed}
    */
   public ToggleIntakeCommand(SuperstructureSubsystem intakeSubsystem) {
     m_intake = intakeSubsystem;
-    // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(intakeSubsystem);
   }
   
 
   @Override
   public void initialize() {
-    m_intake.runIntake(-0.5);
+    if (m_intake.getIntakeSpeed().isEquivalent(DegreesPerSecond.of(0))) {
+        m_intake.runIntake(SuperstructureConstants.kDefaultIntakeSpeed);
+      } else {
+        m_intake.runIntake(0);
+    }
   }
 
   @Override

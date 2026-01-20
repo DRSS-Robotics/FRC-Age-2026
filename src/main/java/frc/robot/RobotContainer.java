@@ -5,19 +5,23 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-
-import frc.robot.remote_manager.RemoteUpdateManager;
+import frc.robot.Constants.SuperstructureConstants;
+import frc.robot.commands.ToggleIntakeCommand;
+import frc.robot.commands.ToggleWallCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
+
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
 public class RobotContainer {
   // TODO: set motor id's instead of using placeholders
-  private final SuperstructureSubsystem m_Superstructure = new SuperstructureSubsystem(0, 0);
+  private final SuperstructureSubsystem m_Superstructure = 
+    new SuperstructureSubsystem(
+      SuperstructureConstants.kIntakeMotorId, 
+      SuperstructureConstants.kStorageMotorId);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -33,7 +37,8 @@ public class RobotContainer {
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_driverController.b().onTrue(new ToggleIntakeCommand(m_Superstructure));
+    m_driverController.a().onTrue(new ToggleWallCommand(m_Superstructure));
   }
 
   /**

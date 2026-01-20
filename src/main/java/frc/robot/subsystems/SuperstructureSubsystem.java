@@ -19,6 +19,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
     private TalonFX m_intakeMotor;
     private Slot0Configs intakeMotorConfigs;
     private VelocityVoltage intakeMotorRequest;
+    private AngularVelocity intakeMotorSetSpeed = DegreesPerSecond.of(0);
 
     private TalonFX m_storageMotor;
     private StorageWallState storageState;
@@ -50,8 +51,8 @@ public class SuperstructureSubsystem extends SubsystemBase {
         
         // TODO: use actual PID values instead of placeholder
         storageMotorConfigs = new Slot0Configs();
-        storageMotorConfigs.kV = 0;
-        storageMotorConfigs.kP = 1;
+        storageMotorConfigs.kV = 0.02;
+        storageMotorConfigs.kP = 6;
         storageMotorConfigs.kI = 0;
         storageMotorConfigs.kD = 0;
         m_storageMotor.getConfigurator().apply(storageMotorConfigs);
@@ -70,7 +71,14 @@ public class SuperstructureSubsystem extends SubsystemBase {
 
 
     public void runIntake(AngularVelocity speed) {
+        intakeMotorSetSpeed = speed;
         m_intakeMotor.setControl(intakeMotorRequest.withVelocity(speed));
+    }
+
+
+
+    public AngularVelocity getIntakeSpeed() {
+        return intakeMotorSetSpeed;
     }
     
     
@@ -95,7 +103,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
      */
     public void setWallMotorPosition(Angle newPosition) {
         if (newPosition.lt(storageClosedAngle) || 
-                newPosition.gt(storageOpenAngle)) {
+            newPosition.gt(storageOpenAngle)) {
             System.out.println(
                 "Superstructure storage wall setpoint is outside bounds, ignoring request");
             return;
@@ -113,10 +121,11 @@ public class SuperstructureSubsystem extends SubsystemBase {
     public StorageWallState getStorageState() {
         Angle storageWallCurrentPosition = m_storageMotor.getPosition(true).getValue();
 
-        // messy, but i can't see a more elegant way of doing this
-        if (storageWallCurrentPosition.isNear(storageClosedAngle, storageAngleTolerance)) {
+        if (storageWallCurrentPosition.isNear(storageClosedAngle, storageAngleTolerance) && 
+            storageWallCurrentPosition.isNear(storageWallSetpoint, storageAngleTolerance)) {
             storageState = StorageWallState.kIsClosed; 
-        } else if (storageWallCurrentPosition.isNear(storageOpenAngle, storageAngleTolerance)) {
+        } else if (storageWallCurrentPosition.isNear(storageOpenAngle, storageAngleTolerance) && 
+            storageWallCurrentPosition.isNear(storageWallSetpoint, storageAngleTolerance)) {
             storageState = StorageWallState.kIsOpen; 
         } else if (storageWallSetpoint.isNear(storageClosedAngle, storageAngleTolerance)) {
             storageState = StorageWallState.kIsClosing; 
@@ -130,6 +139,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
     } 
 
     
+    
     /**
      * Describes the current state of the Fuel storage wall. {@code kIsClosed} means 
      * that the wall has reached the {@link SuperstructureConstants#kStorageClosedRotations 
@@ -142,12 +152,12 @@ public class SuperstructureSubsystem extends SubsystemBase {
      * <p> Possible values: {@link #kIsClosed}, {@link #kIsClosing}, {@link #kIsOpen}, 
      * {@link #kIsOpening}, {@link #kCustom}
      */
-    public enum StorageWallState {
+    public static enum StorageWallState {
         kIsClosed,
         kIsClosing,
         kIsOpen,
         kIsOpening,
-
+    
         // special case for manual control
         kCustom
     }
