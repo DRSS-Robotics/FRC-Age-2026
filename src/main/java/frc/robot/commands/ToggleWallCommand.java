@@ -33,9 +33,9 @@ public class ToggleWallCommand extends Command {
 
   @Override
   public void initialize() {
-    m_wall.setWallMotorPosition(willOpen ? 
-      Constants.OperatorConstants.kWallOpenPosition : 
-      Constants.OperatorConstants.kWallClosedPosition);
+    //m_wall.setWallMotorPosition(willOpen ? 
+      //Constants.OperatorConstants.kWallOpenPosition : 
+      //Constants.OperatorConstants.kWallClosedPosition);
   }
 
   @Override

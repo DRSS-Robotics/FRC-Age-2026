@@ -1,94 +1,154 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.ClosedLoopConfig;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.SuperstructureConstants;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+
 public class SuperstructureSubsystem extends SubsystemBase {
+    
+    private TalonFX m_intakeMotor;
+    private Slot0Configs intakeMotorConfigs;
+    private VelocityVoltage intakeMotorRequest;
 
-        private TalonFX m_intakeMotor;
-        private Slot0Configs intakeMotorConfigs;
-        private VelocityVoltage intakeMotorRequests;
+    private TalonFX m_storageMotor;
+    private StorageWallState storageState;
+    private Slot0Configs storageMotorConfigs;
+    private PositionVoltage storageMotorRequest;
+    private Angle storageWallSetpoint = Degrees.of(0);
+
+    public static Angle storageClosedAngle = Degrees.of(SuperstructureConstants.kStorageClosedRotations);
+    public static Angle storageOpenAngle = Degrees.of(SuperstructureConstants.kStorageOpenRotations);
+    public static Angle storageAngleTolerance = Degrees.of(SuperstructureConstants.kStorageStateTolerance);
+
+
+
+    /**
+     * Subsystem that encompasses both the over-the-bumper intake as well as Fuel storage.
+     */
+    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId) {
+        m_intakeMotor = new TalonFX(intakeMotorId);
+        m_storageMotor = new TalonFX(wallMotorId);
         
-
-        private TalonFX m_wallMotor;
-        private boolean wallIsOpen;
-        private Slot0Configs wallMotorConfigs;
-        private PositionVoltage wallMotorRequests;
-
-        /**
-         * Subsystem that encompasses both the over-the-bumper intake as well as Fuel storage.
-         */
-        public SuperstructureSubsystem(int intakeMotorId, int wallMotorId) {
-            m_intakeMotor = new TalonFX(intakeMotorId);
-            m_wallMotor = new TalonFX(wallMotorId);
-            
-            // TODO: use actual PID values instead of placeholder
-            intakeMotorConfigs = new Slot0Configs();
-            intakeMotorConfigs.kV = 0;
-            intakeMotorConfigs.kP = 1;
-            intakeMotorConfigs.kI = 0;
-            intakeMotorConfigs.kD = 0;
-            m_intakeMotor.getConfigurator().apply(intakeMotorConfigs);
-            intakeMotorRequests = new VelocityVoltage(0).withSlot(0);
-            
-            // TODO: use actual PID values instead of placeholder
-            wallMotorConfigs = new Slot0Configs();
-            wallMotorConfigs.kV = 0;
-            wallMotorConfigs.kP = 1;
-            wallMotorConfigs.kI = 0;
-            wallMotorConfigs.kD = 0;
-            m_wallMotor.getConfigurator().apply(wallMotorConfigs);
-            wallMotorRequests = new PositionVoltage(0).withSlot(0);
-        }
-
-
-        public void runIntake(double speed) {
-            m_wallMotor.setControl(wallMotorRequests.withVelocity(speed));
-        }
+        // TODO: use actual PID values instead of placeholder
+        intakeMotorConfigs = new Slot0Configs();
+        intakeMotorConfigs.kV = 0;
+        intakeMotorConfigs.kP = 1;
+        intakeMotorConfigs.kI = 0;
+        intakeMotorConfigs.kD = 0;
+        m_intakeMotor.getConfigurator().apply(intakeMotorConfigs);
+        intakeMotorRequest = new VelocityVoltage(0).withSlot(0);
         
-        /**
-         * Sets the PID setpoint of the wall motor. Values exceeding the bounds in 
-         * {@link OperatorConstants} will automagically be ignored 
-         * @param position encoder setpoint value
-         */
-        public void setWallMotorPosition(double position) {
-            if (position < OperatorConstants.kWallClosedPosition 
-                || position > OperatorConstants.kWallOpenPosition)
-            {
-                    System.out.println("Superstructure wall setpoint is outside bounds, ignoring request");
-                    return;
-            }
+        // TODO: use actual PID values instead of placeholder
+        storageMotorConfigs = new Slot0Configs();
+        storageMotorConfigs.kV = 0;
+        storageMotorConfigs.kP = 1;
+        storageMotorConfigs.kI = 0;
+        storageMotorConfigs.kD = 0;
+        m_storageMotor.getConfigurator().apply(storageMotorConfigs);
+        storageMotorRequest = new PositionVoltage(0).withSlot(0);
+    }
 
-            // wall should be considered "open" even if set to a half-open value
-            wallIsOpen = position > OperatorConstants.kWallClosedPosition;
-            m_wallMotor.setControl(wallMotorRequests.withPosition(position));
+
+
+    /**
+     * @param speed in degrees per second
+     */
+    public void runIntake(double speed) {
+        runIntake(DegreesPerSecond.of(speed));
+    }
+
+
+
+    public void runIntake(AngularVelocity speed) {
+        m_intakeMotor.setControl(intakeMotorRequest.withVelocity(speed));
+    }
+    
+    
+
+    /**
+     * Sets the PID setpoint (in DEGREES) of the wall motor. Values exceeding the 
+     * bounds in {@link SuperstructureConstants} will automatically be ignored 
+     * @param newPosition rotational setpoint value.
+     * 
+     * @see #setWallMotorPosition(Angle)
+     */
+    public void setWallMotorPosition(double newPosition) {
+        setWallMotorPosition(Degrees.of(newPosition));
+    }
+
+
+
+    /**
+     * Sets the PID setpoint of the wall motor. Values exceeding the 
+     * bounds in {@link SuperstructureConstants} will automatically be ignored 
+     * @param newPosition rotational setpoint value.
+     */
+    public void setWallMotorPosition(Angle newPosition) {
+        if (newPosition.lt(storageClosedAngle) || 
+                newPosition.gt(storageOpenAngle)) {
+            System.out.println(
+                "Superstructure storage wall setpoint is outside bounds, ignoring request");
+            return;
         }
 
-        /**
-         * @return a boolean representing the wall's state ({@code true} = wall is open, {@code false} = wall is closed).
-         * Specifically, returns whether or not the LAST SETPOINT is set to the open state or closed state. (e.g. if the
-         * operator accidentally closes the wall when they didn't mean to, they should be able to interrupt the wall closing
-         * without having to wait for it to fully close)
-         */
-        public boolean getWallState() {
-            return wallIsOpen;
-        } 
+        storageWallSetpoint = newPosition;
+        m_storageMotor.setControl(storageMotorRequest.withPosition(newPosition));
+    }
 
+
+
+    /**
+     * @return a {@link StorageWallState} enum representing the storage wall's state
+     */
+    public StorageWallState getStorageState() {
+        Angle storageWallCurrentPosition = m_storageMotor.getPosition(true).getValue();
+
+        // messy, but i can't see a more elegant way of doing this
+        if (storageWallCurrentPosition.isNear(storageClosedAngle, storageAngleTolerance)) {
+            storageState = StorageWallState.kIsClosed; 
+        } else if (storageWallCurrentPosition.isNear(storageOpenAngle, storageAngleTolerance)) {
+            storageState = StorageWallState.kIsOpen; 
+        } else if (storageWallSetpoint.isNear(storageClosedAngle, storageAngleTolerance)) {
+            storageState = StorageWallState.kIsClosing; 
+        } else if (storageWallSetpoint.isNear(storageOpenAngle, storageAngleTolerance)) {
+            storageState = StorageWallState.kIsOpening; 
+        } else {
+            storageState = StorageWallState.kCustom;
+        }
+
+        return storageState;
+    } 
+
+    
+    /**
+     * Describes the current state of the Fuel storage wall. {@code kIsClosed} means 
+     * that the wall has reached the {@link SuperstructureConstants#kStorageClosedRotations 
+     * closed position} and is currently idling. {@code kIsClosing} is similar, with the 
+     * distinction that it instead means the wall is currently on the way to that setpoint.
+     * 
+     * <p> The {@code kIsOpen} and {@code kIsOpening} states represent the same, in reverse 
+     * (using the {@link SuperstructureConstants#kStorageOpenRotations open position})
+     * 
+     * <p> Possible values: {@link #kIsClosed}, {@link #kIsClosing}, {@link #kIsOpen}, 
+     * {@link #kIsOpening}, {@link #kCustom}
+     */
+    public enum StorageWallState {
+        kIsClosed,
+        kIsClosing,
+        kIsOpen,
+        kIsOpening,
+
+        // special case for manual control
+        kCustom
+    }
 }

@@ -11,21 +11,30 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  /**
-   * A collection of constants pertaining to the various subsystems under the control of the Operator.
-   * This includes things like their controller's USB port, the Fuel wall's open/closed positions, etc.
-   */
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
 
-    /**
-     * Encoder position for the Fuel storage wall in its CLOSED state
-     */
-    public static final double kWallClosedPosition = 0;
+  }
+  
+  public static class SuperstructureConstants {
+
+    public static final int kIntakeMotorId = 0;
+    public static final int kStorageMotorId = 0;
 
     /**
-     * Encoder position for the Fuel storage wall in its OPEN state
+     * A degree value that affects the tolerance of when the Fuel storage wall is
+     * considered to be closed/open.
      */
-    public static final double kWallOpenPosition = 0;
+    public static final double kStorageStateTolerance = 0.1;
+    
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED state
+     */
+    public static final double kStorageClosedRotations = 0;
+  
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
+     */
+    public static final double kStorageOpenRotations = 0;
   }
 }
