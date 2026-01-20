@@ -10,9 +10,8 @@ import frc.robot.subsystems.SuperstructureSubsystem.StorageWallState;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ToggleWallCommand extends Command {
-  
+
   private SuperstructureSubsystem m_wall;
-  private boolean willOpen;
 
 
 
@@ -22,8 +21,6 @@ public class ToggleWallCommand extends Command {
    * Uses the {@link Constants.OperatorConstants OperatorConstants} encoder positions.
    *
    * @param wallSubsystem The {@link SuperstructureSubsystem Superstructure} subsystem
-   * @param shouldOpen Whether or not the wall should be open ({@code true} = wall is open,
-   * {@code false} = wall is closed)
    */
   public ToggleWallCommand(SuperstructureSubsystem wallSubsystem) {
     m_wall = wallSubsystem;
@@ -37,7 +34,7 @@ public class ToggleWallCommand extends Command {
     // if the storage wall is either closing or on its way to closing,
     // open it (defaults to closing otherwise)
     StorageWallState state = m_wall.getStorageState();
-    willOpen = (state == StorageWallState.kIsClosed || 
+    boolean willOpen = (state == StorageWallState.kIsClosed || 
                 state == StorageWallState.kIsClosing);
 
     m_wall.setWallMotorPosition(willOpen ? 

@@ -10,6 +10,7 @@ import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
 
+import com.ctre.phoenix6.StatusCode;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,8 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 public class RobotContainer {
-  // TODO: set motor id's instead of using placeholders
-  private final SuperstructureSubsystem m_Superstructure = 
+  private final SuperstructureSubsystem m_superstructure = 
     new SuperstructureSubsystem(
       SuperstructureConstants.kIntakeMotorId, 
       SuperstructureConstants.kStorageMotorId);
@@ -37,8 +37,8 @@ public class RobotContainer {
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    m_driverController.b().onTrue(new ToggleIntakeCommand(m_Superstructure));
-    m_driverController.a().onTrue(new ToggleWallCommand(m_Superstructure));
+    m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    m_driverController.a().onTrue(new ToggleWallCommand(m_superstructure));
   }
 
   /**
