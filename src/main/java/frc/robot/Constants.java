@@ -20,6 +20,7 @@ public final class Constants {
     public static final int kAgitatorMotorId = 6;
     public static final int kTransferMotorId = 6;
     public static final double kDefaultIntakeSpeed = 16;
+    public static final double kDefaultTransferSpeed = 16;
 
     /**
      * A degree value that affects the tolerance of when the Fuel storage wall is

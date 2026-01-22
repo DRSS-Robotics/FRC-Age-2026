@@ -109,6 +109,12 @@ public class SuperstructureSubsystem extends SubsystemBase {
 
 
 
+    public AngularVelocity getAgitatorSpeed() {
+        return agitatorMotorSetSpeed;
+    }
+
+
+
     public void runTransferMotor(double speed) {
         runTransferMotor(DegreesPerSecond.of(speed));
     }
@@ -118,6 +124,12 @@ public class SuperstructureSubsystem extends SubsystemBase {
     public void runTransferMotor(AngularVelocity speed) {
         transferMotorSetSpeed = speed;
         m_transferMotor.setControl(transferMotorRequest.withVelocity(speed));
+    }
+
+
+
+    public AngularVelocity getTransferSpeed() {
+        return transferMotorSetSpeed;
     }
     
     
