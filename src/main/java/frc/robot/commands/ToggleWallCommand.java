@@ -31,7 +31,7 @@ public class ToggleWallCommand extends Command {
   
   @Override
   public void initialize() {
-    // if the storage wall is either closing or on its way to closing,
+    // if the storage wall is either fully closed or on its way to closing,
     // open it (defaults to closing otherwise)
     StorageWallState state = m_wall.getStorageState();
     boolean willOpen = (state == StorageWallState.kIsClosed || 

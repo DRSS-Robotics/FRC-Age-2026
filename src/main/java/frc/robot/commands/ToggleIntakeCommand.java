@@ -11,6 +11,8 @@ public class ToggleIntakeCommand extends Command {
 
   private SuperstructureSubsystem m_intake;
 
+
+
   /**
    * Toggles the intake on/off, based on its current state and the default
    * intake speed in {@link SuperstructureConstants#kDefaultIntakeSpeed}
@@ -21,6 +23,7 @@ public class ToggleIntakeCommand extends Command {
   }
   
 
+
   @Override
   public void initialize() {
     if (m_intake.getIntakeSpeed().isEquivalent(DegreesPerSecond.of(0))) {
@@ -29,6 +32,8 @@ public class ToggleIntakeCommand extends Command {
         m_intake.runIntake(0);
     }
   }
+
+  
 
   @Override
   public void execute() {}

@@ -3,12 +3,13 @@ package frc.robot.subsystems;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Utils;
 import frc.robot.Constants.SuperstructureConstants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -17,24 +18,24 @@ import com.ctre.phoenix6.hardware.TalonFX;
 public class SuperstructureSubsystem extends SubsystemBase {
     
     private TalonFX m_intakeMotor;
-    private Slot0Configs intakeMotorConfigs;
+    private SlotConfigs intakeMotorConfigs;
     private VelocityVoltage intakeMotorRequest;
     private AngularVelocity intakeMotorSetSpeed = DegreesPerSecond.of(0);
 
     private TalonFX m_storageMotor;
     private StorageWallState storageState;
-    private Slot0Configs storageMotorConfigs;
+    private SlotConfigs storageMotorConfigs;
     private PositionVoltage storageMotorRequest;
     private Angle storageWallSetpoint = Degrees.of(0);
 
     private TalonFX m_agitatorMotor;
-    private Slot0Configs agitatorMotorConfigs;
-    private PositionVoltage agitatorMotorRequest;
+    private SlotConfigs agitatorMotorConfigs;
+    private VelocityVoltage agitatorMotorRequest;
     private AngularVelocity agitatorMotorSetSpeed = DegreesPerSecond.of(0);
 
     private TalonFX m_transferMotor;
-    private Slot0Configs transferMotorConfigs;
-    private PositionVoltage transferMotorRequest;
+    private SlotConfigs transferMotorConfigs;
+    private VelocityVoltage transferMotorRequest;
     private AngularVelocity transferMotorSetSpeed = DegreesPerSecond.of(0);
 
     public static Angle storageClosedAngle = Degrees.of(SuperstructureConstants.kStorageClosedRotations);
@@ -53,22 +54,21 @@ public class SuperstructureSubsystem extends SubsystemBase {
         m_transferMotor = new TalonFX(transferMotorId);
         
         // TODO: use actual PID values instead of placeholder
-        intakeMotorConfigs = new Slot0Configs();
-        intakeMotorConfigs.kV = 0;
-        intakeMotorConfigs.kP = 1;
-        intakeMotorConfigs.kI = 0;
-        intakeMotorConfigs.kD = 0;
-        m_intakeMotor.getConfigurator().apply(intakeMotorConfigs);
+        intakeMotorConfigs = 
+            Utils.configureTalonGains(m_intakeMotor, 0, 0, 0, 0, 0);
         intakeMotorRequest = new VelocityVoltage(0).withSlot(0);
-        
-        // TODO: use actual PID values instead of placeholder
-        storageMotorConfigs = new Slot0Configs();
-        storageMotorConfigs.kV = 0.02;
-        storageMotorConfigs.kP = 6;
-        storageMotorConfigs.kI = 0;
-        storageMotorConfigs.kD = 0;
-        m_storageMotor.getConfigurator().apply(storageMotorConfigs);
+
+        storageMotorConfigs = 
+            Utils.configureTalonGains(m_storageMotor, 0, 0, 0, 0, 0);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
+
+        agitatorMotorConfigs = 
+            Utils.configureTalonGains(m_agitatorMotor, 0, 0, 0, 0, 0);
+        agitatorMotorRequest = new VelocityVoltage(0).withSlot(0);
+
+        transferMotorConfigs = 
+            Utils.configureTalonGains(m_transferMotor, 0, 0, 0, 0, 0);
+        transferMotorRequest = new VelocityVoltage(0).withSlot(0);
      
     }
 
@@ -92,6 +92,32 @@ public class SuperstructureSubsystem extends SubsystemBase {
 
     public AngularVelocity getIntakeSpeed() {
         return intakeMotorSetSpeed;
+    }
+
+
+
+    public void runAgitatorMotor(double speed) {
+        runAgitatorMotor(DegreesPerSecond.of(speed));
+    }
+
+
+
+    public void runAgitatorMotor(AngularVelocity speed) {
+        agitatorMotorSetSpeed = speed;
+        m_agitatorMotor.setControl(agitatorMotorRequest.withVelocity(speed));
+    }
+
+
+
+    public void runTransferMotor(double speed) {
+        runTransferMotor(DegreesPerSecond.of(speed));
+    }
+
+
+
+    public void runTransferMotor(AngularVelocity speed) {
+        transferMotorSetSpeed = speed;
+        m_transferMotor.setControl(transferMotorRequest.withVelocity(speed));
     }
     
     
@@ -173,28 +199,6 @@ public class SuperstructureSubsystem extends SubsystemBase {
     
         // special case for manual control
         kCustom
-    }
-
-    public void runAgitatorMotor(double speed) {
-        runAgitatorMotor(DegreesPerSecond.of(speed));
-    }
-
-
-
-    public void runAgitatorMotor(AngularVelocity speed) {
-        agitatorMotorSetSpeed = speed;
-        m_agitatorMotor.setControl(agitatorMotorRequest.withVelocity(speed));
-    }
-
-    public void runTransferMotor(double speed) {
-        runTransferMotor(DegreesPerSecond.of(speed));
-    }
-
-
-
-    public void runTransferMotor(AngularVelocity speed) {
-        transferMotorSetSpeed = speed;
-        m_transferMotor.setControl(transferMotorRequest.withVelocity(speed));
     }
 
 }

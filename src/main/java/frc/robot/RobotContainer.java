@@ -10,8 +10,6 @@ import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
 
-import com.ctre.phoenix6.StatusCode;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
