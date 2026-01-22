@@ -5,7 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem;
+import frc.robot.subsystems.shooter.OuttakeSubsystem;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 

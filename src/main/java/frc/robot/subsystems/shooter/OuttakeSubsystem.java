@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 //import edu.wpi.first.wpilibj2.command.Command;
@@ -20,8 +20,8 @@ public class OuttakeSubsystem extends SubsystemBase {
   private TalonFX m_outtakeMotor;
   private Slot0Configs outtakeMotorConfigs;
   private VelocityVoltage outtakeMotorRequest;
-  public OuttakeSubsystem(int outtakeMotorId) {
-    m_outtakeMotor = new TalonFX(outtakeMotorId);
+  public OuttakeSubsystem(int outtakeMotorID, int turretCANcoderID) {
+    m_outtakeMotor = new TalonFX(outtakeMotorID);
 
     outtakeMotorConfigs = new Slot0Configs();
     //Placeholder PID values
@@ -56,6 +56,7 @@ public void runOuttakeMotor(AngularVelocity speed) {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
   }
 
   @Override

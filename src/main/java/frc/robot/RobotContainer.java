@@ -9,8 +9,8 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.EnableOuttake;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.TestMotor;
+import frc.robot.subsystems.shooter.OuttakeSubsystem;
 import frc.robot.commands.TestMotorOff;
 import frc.robot.commands.TestMotorOn;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,8 +40,8 @@ public class RobotContainer {
     configureBindings();
   }
 
-  private final CommandXboxController m_operatorController =
-  new CommandXboxController(OperatorConstants.kOperatorControllerPort);
+  // private final CommandXboxController m_operatorController =
+  // new CommandXboxController(OperatorConstants.kOperatorControllerPort);
 
 
   /**
@@ -63,7 +63,7 @@ public class RobotContainer {
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
     m_driverController.y().whileTrue(new TestMotorOn(m_testMotor));
     
-    m_operatorController.b().whileTrue(new EnableOuttake(outtakeSubsystem));
+   // m_operatorController.b().whileTrue(new EnableOuttake(outtakeSubsystem));
   
   
   }
