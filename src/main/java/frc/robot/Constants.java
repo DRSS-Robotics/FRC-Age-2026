@@ -15,5 +15,8 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+    // Vision Constants
+    public static final String kLimelightName = null; // Assumes name is "limelight"
   }
 }
