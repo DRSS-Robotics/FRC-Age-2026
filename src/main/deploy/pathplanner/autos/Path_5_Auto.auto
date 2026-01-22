@@ -7,32 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "start"
+            "pathName": "5Start"
           }
         },
         {
-          "type": "race",
+          "type": "wait",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake1"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
-                }
-              }
-            ]
+            "waitTime": 3.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "shoot"
+            "pathName": "5Shoot"
           }
         },
         {
@@ -48,7 +35,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 2.0
                 }
               }
             ]
@@ -57,13 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "neutral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "collect"
+            "pathName": "5EndCollect"
           }
         },
         {
@@ -71,15 +52,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Intake1"
+                  "pathName": "5End"
                 }
               },
               {
-                "type": "wait",
+                "type": "named",
                 "data": {
-                  "waitTime": 3.0
+                  "name": "Intake1"
                 }
               }
             ]
@@ -89,6 +70,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Blue_Autos",
+  "folder": null,
   "choreoAuto": false
 }

@@ -5,19 +5,37 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "3Path_Start"
+                  "pathName": "10Path_Start"
                 }
               },
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Shoot"
+                  "pathName": "10Path_Score"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "10Path_Human"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "10Path_Return"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "10Path_End"
                 }
               }
             ]
@@ -30,28 +48,10 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Shoot"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
+                  "name": "OpenWall"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3Path_End"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "HangLv1"
           }
         }
       ]

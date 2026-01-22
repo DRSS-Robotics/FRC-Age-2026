@@ -5,44 +5,19 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "start"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "OpenWall"
+                  "pathName": "12_start"
                 }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "To_Depot"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
+              },
               {
                 "type": "named",
                 "data": {
                   "name": "Intake1"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
                 }
               }
             ]
@@ -55,7 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "2_Collect"
+                  "pathName": "12_collect"
                 }
               },
               {
@@ -68,9 +43,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Back_To_Shoot"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "12_depot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              }
+            ]
           }
         },
         {
@@ -78,30 +66,56 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Shoot"
+                  "pathName": "12_shoot"
                 }
               },
               {
-                "type": "wait",
+                "type": "named",
                 "data": {
-                  "waitTime": 3.0
+                  "name": "Shoot"
                 }
               }
             ]
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "End"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "12_human"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "HangLv1"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "12_hang"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "HangLv1"
+                }
+              }
+            ]
           }
         }
       ]

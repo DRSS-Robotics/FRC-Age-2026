@@ -17,6 +17,19 @@
               {
                 "type": "named",
                 "data": {
+                  "name": "OpenWall"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
                   "name": "Intake1"
                 }
               },
@@ -64,6 +77,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Blue_Autos",
+  "folder": null,
   "choreoAuto": false
 }

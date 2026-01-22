@@ -40,6 +40,19 @@
           "data": {
             "commands": [
               {
+                "type": "named",
+                "data": {
+                  "name": "OpenWall"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
                 "type": "path",
                 "data": {
                   "pathName": "6Path_Collect2"
@@ -58,6 +71,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Blue_Autos",
+  "folder": null,
   "choreoAuto": false
 }

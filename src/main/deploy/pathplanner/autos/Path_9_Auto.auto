@@ -7,26 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "start-depot"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake1"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
-                }
-              }
-            ]
+            "pathName": "9_Start"
           }
         },
         {
@@ -43,21 +24,78 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "depot_collect"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "9_Collect"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Intake1"
+            "pathName": "9_Shoot"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "depot-shoot"
+            "pathName": "9_Human"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "9_Back_To_Shoot"
           }
         },
         {
@@ -73,7 +111,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 2.0
                 }
               }
             ]
@@ -82,13 +120,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "depot-end"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "HangLv1"
+            "pathName": "9_Hang"
           }
         }
       ]

@@ -15,6 +15,19 @@
           "data": {
             "commands": [
               {
+                "type": "named",
+                "data": {
+                  "name": "OpenWall"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
                 "type": "path",
                 "data": {
                   "pathName": "7collect"
@@ -36,34 +49,34 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
-                }
-              },
               {
                 "type": "named",
                 "data": {
                   "name": "Shoot"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 5.0
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "7hang"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Blue_Autos",
+  "folder": null,
   "choreoAuto": false
 }
