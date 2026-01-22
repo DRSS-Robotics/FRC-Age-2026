@@ -28,13 +28,11 @@ public class SuperstructureSubsystem extends SubsystemBase {
     private Angle storageWallSetpoint = Degrees.of(0);
 
     private TalonFX m_agitatorMotor;
-    private StorageWallState agitatorState;
     private Slot0Configs agitatorMotorConfigs;
     private PositionVoltage agitatorMotorRequest;
     private AngularVelocity agitatorMotorSetSpeed = DegreesPerSecond.of(0);
 
     private TalonFX m_transferMotor;
-    private StorageWallState transferMotorState;
     private Slot0Configs transferMotorConfigs;
     private PositionVoltage transferMotorRequest;
     private AngularVelocity transferMotorSetSpeed = DegreesPerSecond.of(0);
