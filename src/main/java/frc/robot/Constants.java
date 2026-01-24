@@ -20,5 +20,9 @@ public final class Constants {
     public static final double kHangGroundRotations = 0;
     public static final double kHangL1Rotations = 0;
     public static final double kHangLevelTolerance = 0;
+    /**
+     *DPS is Degrees Per Second
+     */
+    public static final double kHangManualDriveDPSScale = 0;
   }
 }
