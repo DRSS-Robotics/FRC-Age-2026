@@ -79,8 +79,7 @@ public class HangSubsystem extends SubsystemBase {
           storageState = StorageWallState.kIsOpening; 
       } else {
           storageState = StorageWallState.kCustom;
-      }
-  
+      } 
       return storageState;
     }
 } 
