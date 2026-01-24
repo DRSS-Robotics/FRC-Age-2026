@@ -28,12 +28,15 @@ public class RotateToHub extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    Pose3d robotPose = new Pose3d(m_robotContainer.m_poseEstimator.getEstimatedPosition);
+    Pose3d hubPose = m_robotContainer.hubPose;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+
+  }
 
   // Called once the command ends or is interrupted.
   @Override

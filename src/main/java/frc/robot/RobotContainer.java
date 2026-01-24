@@ -28,6 +28,9 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
   private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem(0);
+  // TODO: actually initialize a SwerveDrivePoseEstimator
+  private SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator();
+  private final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
