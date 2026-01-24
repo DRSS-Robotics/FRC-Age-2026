@@ -30,7 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "7collect"
+                  "pathName": "7shooot"
                 }
               },
               {
@@ -45,7 +45,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "7shoot"
+            "pathName": "7depot"
           }
         },
         {
@@ -70,7 +70,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "7hang"
+            "pathName": "7neutral"
           }
         }
       ]

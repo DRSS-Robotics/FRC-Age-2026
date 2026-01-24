@@ -30,13 +30,22 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-      NamedCommands.registerCommand("Shoot");//Add Command instince later
+      NamedCommands.registerCommand("runOuttakeMotor", new ShooterCommandAuto(m_outtakeMotor);
       NamedCommands.registerCommand("HangLv1");//Add Command instince later
+      NamedCommands.registerCommand("LowerHang");//Add Command instince later
       NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_intake));
       NamedCommands.registerCommand("Wallout", new ExpandStorageAutoCommand(m_wall));
+      NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_transfer))
     
-      autoChooser = AutoBuilder.buildAutoChooser("Defult");
-
+      autoChooser = AutoBuilder.buildAutoChooser("Default");
+      //Fix later
+      // this.autoChooser = new LoggedDashboardChooser<>("Auto Routine", AutoBuilder.buildAutoChooser()); // Loads all FRC PathPlanner auto routines
+      // this.autoChooser.addOption("Left", this.autoLeftCommand());
+      // this.autoChooser.addOption("Left with Push", this.autoLeftWithPushCommand());
+      // this.autoChooser.addOption("Centre H", this.autoCentreHCommand());
+      // this.autoChooser.addOption("Drive Forward", this.autoDriveForwardCommand());
+      // this.autoChooser.addOption("Centre G", this.autoCentreGCommand());
+      // this.autoChooser.addOption("Right", this.autoRightCommand());
       SmartDashboard.putData("Auto Mode", autoChooser);
 
     // Configure the trigger bindings

@@ -5,40 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "sequential",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "10Path_Start"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "10Path_Score"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "10Path_Human"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "10Path_Return"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "10Path_End"
-                }
-              }
-            ]
+            "pathName": "10Path_Start"
           }
         },
         {
@@ -48,7 +17,69 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "OpenWall"
+                  "name": "Intake1"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "10Path_Score"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "10Path_Human"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "10Path_Return"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "10Path_End"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "HangLv1"
                 }
               }
             ]

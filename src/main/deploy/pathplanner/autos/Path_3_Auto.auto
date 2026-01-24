@@ -5,22 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "3Path_Start"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              }
-            ]
+            "pathName": "3Path_Start"
           }
         },
         {
@@ -38,6 +25,12 @@
                 "data": {
                   "waitTime": 3.0
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Translocater"
+                }
               }
             ]
           }
@@ -49,9 +42,28 @@
           }
         },
         {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "HangLv1"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "HangLv1"
+            "name": "LowerHang"
           }
         }
       ]

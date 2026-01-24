@@ -1,6 +1,4 @@
-ShooterCommandAuto {
-    
-}// Copyright (c) FIRST and other WPILib contributors.
+// Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -10,7 +8,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class ShooterCommandAuto extends Command {
+public class TranslocatorAutoCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ExampleSubsystem m_subsystem;
 
@@ -19,21 +17,21 @@ public class ShooterCommandAuto extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ShooterCommandAuto(ExampleSubsystem subsystem) {
-    m_subsystem = subsystem;
+  public ExampleCommand(TransferSubsystem transfer) { //May change later 
+    m_transfer = transfer;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
+    addRequirements(transfer);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    runTransfer() //Change later
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    Shoot();//PLACEHOLDER!!! CHANGE FOR LATER
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -45,7 +43,3 @@ public class ShooterCommandAuto extends Command {
     return false;
   }
 }
-
-  public void execute(){
-    Shoot(runOuttakeMotor(DegreesPerSecond.of(speed));
-  }

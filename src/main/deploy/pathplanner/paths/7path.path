@@ -3,32 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.218010563380282,
-        "y": 2.99705985915493
+        "x": 7.695140845077917,
+        "y": 4.322429577472333
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.840774647887325,
-        "y": 3.348362676056338
+        "x": 6.976566901415945,
+        "y": 8.33047535212022
       },
       "isLocked": false,
-      "linkedName": "11path1"
+      "linkedName": "7path4"
     },
     {
       "anchor": {
-        "x": 1.6431514084507048,
-        "y": 3.811443661971831
+        "x": 2.106232394373995,
+        "y": 3.747570422541602
       },
       "prevControl": {
-        "x": 2.72899647887324,
-        "y": 3.7475704225352118
+        "x": 1.6750880281768121,
+        "y": 8.873397887330334
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "7path5"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4275362318840582,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.5265700483091789,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -45,10 +54,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Auto_11_Paths",
+  "folder": "Auto_7_Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -91.73570458933047
   },
   "useDefaultConstraints": true
 }

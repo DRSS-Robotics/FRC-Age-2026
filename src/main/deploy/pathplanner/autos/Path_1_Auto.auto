@@ -34,28 +34,9 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Intake1"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
                 "type": "path",
                 "data": {
-                  "pathName": "2_Collect"
+                  "pathName": "collect"
                 }
               },
               {
@@ -88,6 +69,12 @@
                 "data": {
                   "waitTime": 3.0
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Translocater"
+                }
               }
             ]
           }
@@ -99,9 +86,28 @@
           }
         },
         {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "HangLv1"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "HangLv1"
+            "name": "LowerHang"
           }
         }
       ]

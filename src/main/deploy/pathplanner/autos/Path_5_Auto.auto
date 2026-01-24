@@ -11,9 +11,22 @@
           }
         },
         {
-          "type": "wait",
+          "type": "race",
           "data": {
-            "waitTime": 3.0
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
           }
         },
         {
@@ -37,14 +50,33 @@
                 "data": {
                   "waitTime": 2.0
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Translocater"
+                }
               }
             ]
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "5EndCollect"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "5EndCollect"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "OpenWall"
+                }
+              }
+            ]
           }
         },
         {

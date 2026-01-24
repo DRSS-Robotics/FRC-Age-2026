@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Start_4"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Start_4"
+                }
+              },
               {
                 "type": "named",
                 "data": {
@@ -68,6 +68,12 @@
                 "type": "wait",
                 "data": {
                   "waitTime": 3.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Translocater"
                 }
               }
             ]

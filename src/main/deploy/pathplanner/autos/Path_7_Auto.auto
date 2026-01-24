@@ -17,26 +17,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "OpenWall"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "7collect"
+                  "name": "Intake1"
                 }
               },
               {
-                "type": "named",
+                "type": "wait",
                 "data": {
-                  "name": "Intake1"
+                  "waitTime": 3.0
                 }
               }
             ]
@@ -45,13 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "7shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
+            "pathName": "7shooot"
           }
         },
         {
@@ -67,7 +48,70 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 3.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "7depot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "OpenWall"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "7neutral"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "7path"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "77hang"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "HangLv1"
                 }
               }
             ]

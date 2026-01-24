@@ -9,12 +9,6 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "start-depot"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "OpenWall"
@@ -24,15 +18,15 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "11start"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "depot_collect"
-                }
-              },
               {
                 "type": "named",
                 "data": {
@@ -45,7 +39,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "depot-shoot"
+            "pathName": "11shoot"
           }
         },
         {
@@ -53,15 +47,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              },
-              {
                 "type": "wait",
                 "data": {
                   "waitTime": 3.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
                 }
               },
               {
@@ -76,7 +70,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "depot-end"
+            "pathName": "11collect"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "11neutral"
           }
         },
         {
@@ -86,13 +86,38 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "HangLv1"
+                  "name": "Intake1"
                 }
-              },
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "11path"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "11hang"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
               {
                 "type": "wait",
                 "data": {
                   "waitTime": 1.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "HangLv1"
                 }
               }
             ]
