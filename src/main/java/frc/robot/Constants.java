@@ -17,6 +17,17 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
 
     // Vision Constants
-    public static final String kLimelightName = null; // Assumes name is "limelight"
+    public static final String kLimelightName = "limelight";
+    // Offsets are measured in meters and degrees
+    // TODO: fill in all offset values
+    public static final double kLimelightForwardOffset = 0.0;
+    public static final double kLimelightSideOffset = 0.0;
+    public static final double kLimelightHeightOffset = 0.0;
+    public static final double kLimelightRollOffset = 0.0;
+    public static final double kLimelightPitchOffset = 15.0;
+    public static final double kLimelightYawOffset = 0.0;
+    // TODO: get correct driver camera name
+    public static final String kDriverCameraName = "";
+
   }
 }

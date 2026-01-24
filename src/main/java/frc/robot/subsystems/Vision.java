@@ -11,21 +11,34 @@ import frc.robot.LimelightHelpers;
 
 public class Vision extends SubsystemBase {
 
+  public static enum Camera {
+    kLimelight,
+    kDriverCamera
+  }
+  public Camera currentCamera = Camera.kDriverCamera;
+
+  private HTTPCamera limelight;
+  private UsbCamera driverCamera;
+
   /** Creates a new Vision. */
   public Vision() {
+    // Initialize Limelight
     LimelightHelpers.setPipelineIndex(Constants.kLimelightName, 0);
-    /*
-    TODO: set camera position relative to robot
-    LimelightHelpers.setCameraPose_RobotSpace("", 
-        0.5,    // Forward offset (meters)
-        0.0,    // Side offset (meters)
-        0.5,    // Height offset (meters)
-        0.0,    // Roll (degrees)
-        30.0,   // Pitch (degrees)
-        0.0     // Yaw (degrees)
+    LimelightHelpers.setCameraPose_RobotSpace(Constants.kLimelightName, 
+      Constants.kLimelightForwardOffset,
+      Constants.kLimelightSideOffset,
+      Constants.kLimelightHeightOffset,
+      Constants.kLimelightRollOffset,
+      Constants.kLimelightPitchOffset,
+      Constants.kLimelightYawOffset
     );
-    */
-}
+    limelight = new HTTPCamera(Constants.kLimelightName, "http://limelight.local:5801/stream.mjpg");
+
+    // Initialize driver camera
+    driverCamera = new UsbCamera(Constants.kDriverCameraName, 0);
+
+    // TODO: Initialize output stream 
+  }
 
   /**
    * Example command factory method.
@@ -45,36 +58,35 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    /* 
-    The following code uses April tag data to update the swerve drive post estimate.
-    This could be useful in the future.
-    make sure to properly retrive m_poseEstimator
+    // The following code uses April tag data to update the swerve drive pose estimate.
+    // TODO: import m_poseEstimator and m_gyro
 
-    double robotYaw = m_gyro.getYaw();  
+    double robotYaw = m_gyro.getYaw();
     LimelightHelpers.SetRobotOrientation(Constants.kLimelightName, robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.kLimelightName);
 
     m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
     m_poseEstimator.addVisionMeasurement(
-        limelightMeasurement.pose,
-        limelightMeasurement.timestampSeconds
+      limelightMeasurement.pose,
+      limelightMeasurement.timestampSeconds
     );
-    }*/
-
-    // Get April tag detections
+    
+  }
+    
+  // Not sure if this function will be used but it seems useful to have
+  public RawFiducial getAprilTag(int id) {
     RawFiducial[] fiducials = LimelightHelpers.getRawFiducials(Constants.kLimelightName);
     for (RawFiducial fiducial : fiducials) {
-        /*fiducial.id;               // Tag ID
-        fiducial.txnc;             // X offset (no crosshair)
-        fiducial.tync;             // Y offset (no crosshair)
-        fiducial.ta;               // Target area
-        fiducial.distToCamera;     // Distance to camera
-        fiducial.distToRobot;      // Distance to robot
-        fiducial.ambiguity;        // Tag pose ambiguity*/
-    
-        // TODO: do something with detection data
-    }    
+      if (fiducial.id == id) {
+        return fiducial
+      }
+    }
+    return null
+  }
+
+  public void setCamera(Camera camera) {
+    // TODO: implement camera switching logic
   }
 
   @Override
