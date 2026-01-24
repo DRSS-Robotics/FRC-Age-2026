@@ -20,7 +20,9 @@ public class OuttakeSubsystem extends SubsystemBase {
   private TalonFX m_outtakeMotor;
   private Slot0Configs outtakeMotorConfigs;
   private VelocityVoltage outtakeMotorRequest;
-  public OuttakeSubsystem(int outtakeMotorID, int turretCANcoderID) {
+  private TalonFX m_pitchMotor;
+  private TurretControl m_turretController;
+  public OuttakeSubsystem(int outtakeMotorID, int turretMotorID, int turretCANcoderID) {
     m_outtakeMotor = new TalonFX(outtakeMotorID);
 
     outtakeMotorConfigs = new Slot0Configs();
@@ -31,6 +33,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     outtakeMotorConfigs.kD = 0;
     m_outtakeMotor.getConfigurator().apply(outtakeMotorConfigs);
     outtakeMotorRequest = new VelocityVoltage(0).withSlot(0);
+
+    m_turretController = new TurretControl(turretMotorID, turretCANcoderID);
   }
 
    
@@ -46,12 +50,9 @@ public class OuttakeSubsystem extends SubsystemBase {
    * @return value of some boolean subsystem state, such as a digital sensor.
    */
   public void runOuttakeMotor(double speed) {
-    runOuttakeMotor(DegreesPerSecond.of(speed));
-}
-
-public void runOuttakeMotor(AngularVelocity speed) {
-        m_outtakeMotor.setControl(outtakeMotorRequest.withVelocity(speed));
-    }
+    AngularVelocityUnit veloc = DegreesPerSecond.of(speed);
+    m_outtakeMotor.setControl(outtakeMotorRequest.withVelocity(veloc));
+  }
 
   @Override
   public void periodic() {

@@ -35,12 +35,26 @@ public class ShotCalculator {
    *
    * @return value of some boolean subsystem state, such as a digital sensor.
    */
-    public void runOuttakeMotor(double speed) {
-        runOuttakeMotor(DegreesPerSecond.of(speed));
+
+    public double calcShotPitch(double horizDist, double power, double h_launcher){
+        double a = (Constants.kGravIN * Math.pow(horizDist, 2)) / (2 * Math.pow(power, 2));
+        double b = -horizDist;
+        double c = -h_launcher + a + 72;
+        double discrim = Math.pow(b, 2) - (4 * a * c);
+        // simplifying it down, if the discrimininant is below zero for this shot calc, it is not possible
+        double s_angle;
+        if(discrim >= 0){
+            s_angle = Math.atan((-b + Math.sqrt(discrim)) / (2 * a));
+        }
+
     }
 
-    public void runOuttakeMotor(AngularVelocity speed) {
-        m_outtakeMotor.setControl(outtakeMotorRequest.withVelocity(speed));
+    public double calcShotPower(double horizDist, double pitch, double h_launcher){
+        
+        double numerator = Constants.kGravIN * Math.pow(horizDist, 2);
+        double denominator = 2 * (-72 + d * tan(pitch) + h_launcher) * Math.pow(Math.cos(53), 2);
+        double power = Math.sqrt(numerator / denominator);
+
     }
 
 
