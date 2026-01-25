@@ -6,77 +6,47 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
 
 public class Vision extends SubsystemBase {
 
-  public static enum Camera {
-    kLimelight,
-    kDriverCamera
-  }
-  public Camera currentCamera = Camera.kDriverCamera;
-
   private HTTPCamera limelight;
   private UsbCamera driverCamera;
 
-  /** Creates a new Vision. */
+  /** Creates a new Vision subsystem */
   public Vision() {
     // Initialize Limelight
-    LimelightHelpers.setPipelineIndex(Constants.kLimelightName, 0);
-    LimelightHelpers.setCameraPose_RobotSpace(Constants.kLimelightName, 
-      Constants.kLimelightForwardOffset,
-      Constants.kLimelightSideOffset,
-      Constants.kLimelightHeightOffset,
-      Constants.kLimelightRollOffset,
-      Constants.kLimelightPitchOffset,
-      Constants.kLimelightYawOffset
+    LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName, 
+      VisionConstants.kLimelightForwardOffset,
+      VisionConstants.kLimelightSideOffset,
+      VisionConstants.kLimelightHeightOffset,
+      VisionConstants.kLimelightRollOffset,
+      VisionConstants.kLimelightPitchOffset,
+      VisionConstants.kLimelightYawOffset
     );
-    limelight = new HTTPCamera(Constants.kLimelightName, "http://limelight.local:5801/stream.mjpg");
+    limelight = new HTTPCamera(VisionConstants.kLimelightName, VisionConstants.kLimelightStreamURL);
+  
+    // Initialize and start streaming driver camera
+    driverCamera = CameraServer.getInstance().startAutomaticCapture(VisionConstants.kDriverCameraName, VisionConstants.kDriverCameraId);
+  }
 
-    // Initialize driver camera
-    driverCamera = new UsbCamera(Constants.kDriverCameraName, 0);
+  /** Switch camera stream to Limelight */
+  public void useLimelight() {
+    CameraServer.getInstance().getServer().setSource(limelight);
+  }
 
-    // TODO: Initialize output stream 
+  /** Switch camera stream to driver camera */
+  public void useDriverCamera() {
+    CameraServer.getInstance().getServer().setSource(driverCamera);
   }
 
   /**
-   * Example command factory method.
-   *
-   * @return a command
+   * Returns April tag detection data (RawFiducial) if detected, otherwise null.
+   * Not sure if this function will be used but it seems useful to have.
    */
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
-
-  @Override
-  public void periodic() {
-    // The following code uses April tag data to update the swerve drive pose estimate.
-    // TODO: import m_poseEstimator and m_gyro
-
-    double robotYaw = m_gyro.getYaw();
-    LimelightHelpers.SetRobotOrientation(Constants.kLimelightName, robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
-
-    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.kLimelightName);
-
-    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
-    m_poseEstimator.addVisionMeasurement(
-      limelightMeasurement.pose,
-      limelightMeasurement.timestampSeconds
-    );
-    
-  }
-    
-  // Not sure if this function will be used but it seems useful to have
   public RawFiducial getAprilTag(int id) {
-    RawFiducial[] fiducials = LimelightHelpers.getRawFiducials(Constants.kLimelightName);
+    RawFiducial[] fiducials = LimelightHelpers.getRawFiducials(VisionConstants.kLimelightName);
     for (RawFiducial fiducial : fiducials) {
       if (fiducial.id == id) {
         return fiducial
@@ -85,8 +55,17 @@ public class Vision extends SubsystemBase {
     return null
   }
 
-  public void setCamera(Camera camera) {
-    // TODO: implement camera switching logic
+  @Override
+  public void periodic() {
+    // Use April tag data to update swerve drive pose estimate (MegaTag2)
+    // TODO: import m_gyro and m_poseEstimator
+    LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
+    // only update if angular velocity is less than 360 degrees per second and at least 1 tag is detected
+    if (Math.abs(m_gyro.getRate()) < 360 && mt2.tagCount > 0) {
+      m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+      m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    }
   }
 
   @Override

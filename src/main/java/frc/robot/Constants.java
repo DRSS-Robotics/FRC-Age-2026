@@ -15,9 +15,11 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
-
-    // Vision Constants
+  }
+  public static class VisionConstants {
     public static final String kLimelightName = "limelight";
+    public static final String klimelightStreamURL = "http://limelight.local:5801/stream.mjpg";
+
     // Offsets are measured in meters and degrees
     // TODO: fill in all offset values
     public static final double kLimelightForwardOffset = 0.0;
@@ -26,8 +28,9 @@ public final class Constants {
     public static final double kLimelightRollOffset = 0.0;
     public static final double kLimelightPitchOffset = 15.0;
     public static final double kLimelightYawOffset = 0.0;
-    // TODO: get correct driver camera name
-    public static final String kDriverCameraName = "";
 
+    // TODO: get correct driver camera name and id
+    public static final String kDriverCameraName = "";
+    public static final int kDriverCameraId = 0;
   }
 }

@@ -8,7 +8,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class SwapCameraKart extends Command {
+public class SwapCamera extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Vision m_vision;
 
@@ -17,29 +17,27 @@ public class SwapCameraKart extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public SwapCameraKart(Vision vision) {
+  public SwapCamera(Vision vision) {
     m_vision = vision;
   
-    
-    
     // Use addRequirements() here to declare subsystem dependencies.
     // addRequirements(subsystem);
-}
+  }
 
-// Called when the command is initially scheduled.
-@Override
-public void initialize() {
-    Vision.setCamera(Vision.Camera.kLimelight);
-}
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+      m_vision.useLimelight();
+  }
 
-// Called every time the scheduler runs while the command is scheduled.
-@Override
-public void execute() {}
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {}
 
-// Called once the command ends or is interrupted.
-@Override
-public void end(boolean interrupted) {
-    Vision.setCamera(Vision.Camera.kDriverCamera);
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
+    m_vision.useDriverCamera();
   }
 
   // Returns true when the command should end.
