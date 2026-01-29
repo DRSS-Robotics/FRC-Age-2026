@@ -135,7 +135,7 @@ public class HangSubsystem extends SubsystemBase {
           hangCurrentPosition.isNear(hangSetpoint, hangLevelTolerance)) {
           hangState = HangState.kIsL1; 
       } else if (hangSetpoint.isNear(hangGroundElevation, hangLevelTolerance)) {
-          hangState = HangState.kIsGrounded; 
+          hangState = HangState.kIsGoingToGround; 
       } else if (hangSetpoint.isNear(hangL1Elevation, hangLevelTolerance)) {
           hangState = HangState.kIsGoingToL1; 
       } else {
@@ -160,7 +160,7 @@ public class HangSubsystem extends SubsystemBase {
      */
     public static enum HangState {
       kIsGrounded,
-      kIsGrounding,
+      kIsGoingToGround,
       kIsL1,
       kIsGoingToL1,
   

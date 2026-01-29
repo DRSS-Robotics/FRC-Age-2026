@@ -30,7 +30,7 @@ public class ToggleHangLevelCommand extends Command {
   public void initialize() {
     HangState state = m_hang.getHangState();
     boolean willOpen = (state == HangState.kIsGrounded || 
-                state == HangState.kIsGrounding);
+                state == HangState.kIsGoingToGround);
 
     m_hang.setHangMotorPosition(willOpen ? 
       HangConstants.kHangL1Rotations : 
