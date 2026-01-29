@@ -4,14 +4,17 @@
 
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 //import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;;
 //import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -20,9 +23,13 @@ public class OuttakeSubsystem extends SubsystemBase {
   private TalonFX m_outtakeMotor;
   private Slot0Configs outtakeMotorConfigs;
   private VelocityVoltage outtakeMotorRequest;
+
   private TalonFX m_pitchMotor;
+  private PositionVoltage pitchMotorRequest;
+  private Slot0Configs pitchMotorConfigs;
+
   public TurretControl m_turretController;
-  public OuttakeSubsystem(int outtakeMotorID, int turretMotorID, int turretCANcoderID) {
+  public OuttakeSubsystem(int outtakeMotorID, int turretMotorID, int turretCANcoderID, int pitchMotorID) {
     m_outtakeMotor = new TalonFX(outtakeMotorID);
 
     outtakeMotorConfigs = new Slot0Configs();
@@ -33,6 +40,20 @@ public class OuttakeSubsystem extends SubsystemBase {
     outtakeMotorConfigs.kD = 0;
     m_outtakeMotor.getConfigurator().apply(outtakeMotorConfigs);
     outtakeMotorRequest = new VelocityVoltage(0).withSlot(0);
+
+    m_pitchMotor = new TalonFX(pitchMotorID);
+
+    pitchMotorConfigs = new Slot0Configs();
+    //Placeholder PID values
+    pitchMotorConfigs.kV = 0;
+    pitchMotorConfigs.kP = 1;
+    pitchMotorConfigs.kI = 0;
+    pitchMotorConfigs.kD = 0;
+    m_pitchMotor.getConfigurator().apply(pitchMotorConfigs);
+    pitchMotorRequest = new PositionVoltage(0).withSlot(0);
+
+
+    
 
     //m_turretController = new TurretControl(turretMotorID, turretCANcoderID);
   }
@@ -46,6 +67,18 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public void runOuttakeMotor(AngularVelocity speed) {
     m_outtakeMotor.setControl(outtakeMotorRequest.withVelocity(speed));
+  }
+
+
+
+  public void setPitchMotorPosition(double degrees) {
+    setPitchMotorPosition(Degrees.of(degrees));
+  }
+
+
+
+  public void setPitchMotorPosition(Angle degrees) {
+    m_pitchMotor.setControl(pitchMotorRequest.withPosition(degrees));
   }
 
 

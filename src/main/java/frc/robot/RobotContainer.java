@@ -31,7 +31,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
-  public final OuttakeSubsystem m_outtakeSubsystem = new OuttakeSubsystem(0, 0, 0);
+  public final OuttakeSubsystem m_outtakeSubsystem = new OuttakeSubsystem(0, 0, 0, 0);
   
   // TODO: actually initialize a SwerveDrivePoseEstimator
   // public SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator();
