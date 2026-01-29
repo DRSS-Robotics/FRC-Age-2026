@@ -21,7 +21,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   private Slot0Configs outtakeMotorConfigs;
   private VelocityVoltage outtakeMotorRequest;
   private TalonFX m_pitchMotor;
-  private TurretControl m_turretController;
+  public TurretControl m_turretController;
   public OuttakeSubsystem(int outtakeMotorID, int turretMotorID, int turretCANcoderID) {
     m_outtakeMotor = new TalonFX(outtakeMotorID);
 

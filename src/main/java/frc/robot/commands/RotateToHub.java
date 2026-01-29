@@ -4,7 +4,10 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.shooter.*;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
@@ -20,7 +23,7 @@ public class RotateToHub extends Command {
    */
   public RotateToHub(RobotContainer robotContainer) {
     m_robotContainer = robotContainer;
-    m_turretController = robotContainer.OuttakeSubsystem.m_turretController;
+    m_turretController = m_robotContainer.m_outtakeSubsystem.m_turretController;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_turretController);
   }
@@ -28,7 +31,7 @@ public class RotateToHub extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    Pose3d robotPose = new Pose3d(m_robotContainer.m_poseEstimator.getEstimatedPosition);
+    // Pose3d robotPose = new Pose3d(m_robotContainer.m_poseEstimator.getEstimatedPosition);
     Pose3d hubPose = m_robotContainer.hubPose;
   }
 

@@ -15,6 +15,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.commands.TestMotorOff;
 import frc.robot.commands.TestMotorOn;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -29,10 +31,11 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
-  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem(0, 0, 0);
+  public final OuttakeSubsystem m_outtakeSubsystem = new OuttakeSubsystem(0, 0, 0);
+  
   // TODO: actually initialize a SwerveDrivePoseEstimator
-  //private SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator();
-  // private final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
+  // public SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator();
+  public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
