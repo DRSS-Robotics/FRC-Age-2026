@@ -6,11 +6,11 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.EnableOuttake;
+import frc.robot.commands.RunLaunchMotor;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.TestMotor;
-import frc.robot.subsystems.shooter.OuttakeSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.commands.TestMotorOff;
 import frc.robot.commands.TestMotorOn;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,7 +27,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
-  private final OuttakeSubsystem outtakeSubsystem = new OuttakeSubsystem(0);
+  private final ShooterSubsystem outtakeSubsystem = new ShooterSubsystem(0, 0);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
