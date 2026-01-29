@@ -21,7 +21,7 @@ public class OuttakeSubsystem extends SubsystemBase {
   private Slot0Configs outtakeMotorConfigs;
   private VelocityVoltage outtakeMotorRequest;
   private TalonFX m_pitchMotor;
-  private TurretControl m_turretController;
+  //private TurretControl m_turretController;
   public OuttakeSubsystem(int outtakeMotorID, int turretMotorID, int turretCANcoderID) {
     m_outtakeMotor = new TalonFX(outtakeMotorID);
 
@@ -34,7 +34,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     m_outtakeMotor.getConfigurator().apply(outtakeMotorConfigs);
     outtakeMotorRequest = new VelocityVoltage(0).withSlot(0);
 
-    m_turretController = new TurretControl(turretMotorID, turretCANcoderID);
+    //m_turretController = new TurretControl(turretMotorID, turretCANcoderID);
   }
 
    
@@ -48,7 +48,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     m_outtakeMotor.setControl(outtakeMotorRequest.withVelocity(speed));
   }
 
-  
+
 
   @Override
   public void periodic() {
