@@ -38,21 +38,17 @@ public class OuttakeSubsystem extends SubsystemBase {
   }
 
    
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
   public void runOuttakeMotor(double speed) {
-    AngularVelocityUnit veloc = DegreesPerSecond.of(speed);
-    m_outtakeMotor.setControl(outtakeMotorRequest.withVelocity(veloc));
+    runOuttakeMotor(DegreesPerSecond.of(speed));
   }
+
+
+
+  public void runOuttakeMotor(AngularVelocity speed) {
+    m_outtakeMotor.setControl(outtakeMotorRequest.withVelocity(speed));
+  }
+
+  
 
   @Override
   public void periodic() {
