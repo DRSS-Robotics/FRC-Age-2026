@@ -5,9 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.Constants.HangConstants;
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.HangSubsystem;
-import frc.robot.subsystems.HangSubsystem.HangState;
 
 import java.util.function.Supplier;
 
