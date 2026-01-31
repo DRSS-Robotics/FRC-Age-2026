@@ -1,8 +1,11 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ShooterConstants;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -18,6 +21,11 @@ public class ShooterSubsystem extends SubsystemBase {
   private Slot0Configs pitchMotorConfigs;
   private VelocityVoltage launchRequest;
   private PositionVoltage pitchRequest;
+  private Angle targetPosition;
+
+  public static final Angle MIN_PITCH_ANGLE = Degrees.of(ShooterConstants.kMinPitchDegrees);
+  public static final Angle MAX_PITCH_ANGLE = Degrees.of(ShooterConstants.kMaxPitchDegrees);
+
   public ShooterSubsystem(int launchMotorId, int pitchMotorId) {
     
     m_launchMotor = new TalonFX(launchMotorId);
@@ -47,9 +55,32 @@ public class ShooterSubsystem extends SubsystemBase {
     runLaunchMotor(DegreesPerSecond.of(speed));
 }
 
-public void runLaunchMotor(AngularVelocity speed) {
-        m_launchMotor.setControl(launchRequest.withVelocity(speed));
+  public void runLaunchMotor(AngularVelocity speed) {
+    m_launchMotor.setControl(launchRequest.withVelocity(speed));
+  }
+
+
+  public void setPitchMotorPosition(double degrees) {
+    setPitchMotorPosition(Degrees.of(degrees));
+
+  }
+
+  public void setPitchMotorPosition(Angle angle) {
+    if (angle.lt(MIN_PITCH_ANGLE) || angle.gt(MAX_PITCH_ANGLE)) {
+      return;
     }
+
+    targetPosition = angle;
+    m_pitchMotor.setControl(pitchRequest.withPosition(angle));
+  }
+
+
+
+  public Angle getDistanceFromTarget() {
+    Angle current = m_pitchMotor.getPosition().getValue();
+    return Degrees.of(targetPosition.minus(current).abs(Degrees));
+  }
+
 
   @Override
   public void periodic() {

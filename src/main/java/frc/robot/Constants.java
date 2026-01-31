@@ -18,4 +18,13 @@ public final class Constants {
   }
   
   public static final double kGravIN = 0;
+
+  public static class ShooterConstants {
+    public static final double kShooterManualDriveDPSScale = 1;
+    public static final double kShooterAngleTolerance = 1;
+    public static final double kSetPitchPositionTimeoutSeconds = 1;
+
+    public static final double kMinPitchDegrees = 0;
+    public static final double kMaxPitchDegrees = 0;
+  }
 }
