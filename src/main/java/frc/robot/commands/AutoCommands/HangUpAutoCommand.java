@@ -2,31 +2,35 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.AutoCommands;
 
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.Constants.HangConstants;
+import frc.robot.subsystems.HangSubsystem;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import static edu.wpi.first.units.Units.Degrees;
 
 /** An example command that uses an example subsystem. */
-public class TranslocatorAutoCommand extends Command {
+public class HangUpAutoCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ExampleSubsystem m_subsystem;
+  private final HangSubsystem m_hang;
+  public static Angle hangL1Elevation = Degrees.of(HangConstants.kHangL1Rotations);
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ExampleCommand(TransferSubsystem transfer) { //May change later 
-    m_transfer = transfer;
+  public HangUpAutoCommand(HangSubsystem hang) {
+    m_hang = hang;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(transfer);
+    addRequirements(hang);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    runTransfer() //Change later
+    m_hang.setHangMotorPosition(hangL1Elevation);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

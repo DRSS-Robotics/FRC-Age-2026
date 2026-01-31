@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 /**
@@ -15,5 +11,41 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+  }
+  public static final double kGravIN = 0;
+  public static class SuperstructureConstants {
+    public static final int kIntakeMotorId = 5;
+    public static final int kStorageMotorId = 6;
+    public static final int kAgitatorMotorId = 6;
+    public static final int kTransferMotorId = 6;
+    public static final double kDefaultIntakeSpeed = 16;
+    public static final double kDefaultTransferSpeed = 16;
+
+    /**
+     * A degree value that affects the tolerance of when the Fuel storage wall is
+     * considered to be closed/open.
+     */
+    public static final double kStorageStateTolerance = 1;
+    
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED state
+     */
+    public static final double kStorageClosedRotations = 0;
+  
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
+     */
+    public static final double kStorageOpenRotations = 800;
+  }
+
+   public static class HangConstants {
+    public static final double kHangGroundRotations = 0;
+    public static final double kHangL1Rotations = 0;
+    public static final double kHangLevelTolerance = 0;
+    /**
+     *DPS is Degrees Per Second
+     */
+    public static final double kHangManualDriveDPSScale = 0;
   }
 }

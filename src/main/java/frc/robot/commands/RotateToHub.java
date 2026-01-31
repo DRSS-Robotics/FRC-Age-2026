@@ -4,34 +4,41 @@
 
 // package frc.robot.commands;
 
+// import frc.robot.RobotContainer;
 // import frc.robot.subsystems.ExampleSubsystem;
-// import frc.robot.subsystems.shooter.OuttakeSubsystem;
+// import frc.robot.subsystems.shooter.*;
+// import edu.wpi.first.math.geometry.Pose3d;
 // import edu.wpi.first.wpilibj2.command.Command;
 
 // /** An example command that uses an example subsystem. */
-// public class ShooterCommandAuto extends Command {
+// public class RotateToHub extends Command {
 //   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-//   private final OuttakeSubsystem m_outtakeMotor;
+//   private final RobotContainer m_robotContainer;
+//   private final TurretControl m_turretController;
 
 //   /**
 //    * Creates a new ExampleCommand.
 //    *
 //    * @param subsystem The subsystem used by this command.
 //    */
-//   public ShooterCommandAuto(OuttakeSubsystem outtakeMotor) {
-//     m_outtakeMotor = outtakeMotor;
+//   public RotateToHub(RobotContainer robotContainer) {
+//     m_robotContainer = robotContainer;
+//     m_turretController = m_robotContainer.m_outtakeSubsystem.m_turretController;
 //     // Use addRequirements() here to declare subsystem dependencies.
-//     addRequirements(outtakeMotor);
+//     addRequirements(m_turretController);
 //   }
 
 //   // Called when the command is initially scheduled.
 //   @Override
-//   public void initialize() {}
+//   public void initialize() {
+//     // Pose3d robotPose = new Pose3d(m_robotContainer.m_poseEstimator.getEstimatedPosition);
+//     Pose3d hubPose = m_robotContainer.hubPose;
+//   }
 
 //   // Called every time the scheduler runs while the command is scheduled.
 //   @Override
 //   public void execute() {
-//     //Shoot(runOuttakeMotor(DegreesPerSecond.of(speed));//PLACEHOLDER!!! CHANGE FOR LATER
+
 //   }
 
 //   // Called once the command ends or is interrupted.

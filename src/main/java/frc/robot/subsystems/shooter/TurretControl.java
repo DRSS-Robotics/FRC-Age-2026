@@ -13,24 +13,28 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 
-public class OuttakeSubsystem extends SubsystemBase {
-  private TalonFX m_outtakeMotor;
-  private Slot0Configs outtakeMotorConfigs;
-  private VelocityVoltage outtakeMotorRequest;
-  public OuttakeSubsystem(int outtakeMotorID, int turretCANcoderID) {
-    m_outtakeMotor = new TalonFX(outtakeMotorID);
+public class TurretControl extends SubsystemBase {
+  private TalonFX m_turretMotor;
+  private Slot0Configs turretMotorConfigs;
+  private VelocityVoltage turretMotorRequest;
+  private CANcoder m_turretCANcoder;
 
-    outtakeMotorConfigs = new Slot0Configs();
+  public TurretControl(int turretMotorID, int turretCANcoderID) {
+    m_turretMotor = new TalonFX(turretMotorID);
+    m_turretCANcoder = new CANcoder(turretCANcoderID);
+
+    turretMotorConfigs = new Slot0Configs();
     //Placeholder PID values
-    outtakeMotorConfigs.kV = 0;
-    outtakeMotorConfigs.kP = 1;
-    outtakeMotorConfigs.kI = 0;
-    outtakeMotorConfigs.kD = 0;
-    m_outtakeMotor.getConfigurator().apply(outtakeMotorConfigs);
-    outtakeMotorRequest = new VelocityVoltage(0).withSlot(0);
+    turretMotorConfigs.kV = 0;
+    turretMotorConfigs.kP = 1;
+    turretMotorConfigs.kI = 0;
+    turretMotorConfigs.kD = 0;
+    m_turretMotor.getConfigurator().apply(turretMotorConfigs);
+    turretMotorRequest = new VelocityVoltage(0).withSlot(0);
   }
 
    
@@ -46,12 +50,8 @@ public class OuttakeSubsystem extends SubsystemBase {
    * @return value of some boolean subsystem state, such as a digital sensor.
    */
   public void runOuttakeMotor(double speed) {
-    runOuttakeMotor(DegreesPerSecond.of(speed));
-}
-
-public void runOuttakeMotor(AngularVelocity speed) {
-        m_outtakeMotor.setControl(outtakeMotorRequest.withVelocity(speed));
-    }
+    
+  }
 
   @Override
   public void periodic() {
