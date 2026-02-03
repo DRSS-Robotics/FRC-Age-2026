@@ -114,36 +114,43 @@ public interface TestableSubsystem {
                     name = "Unknown Testable";
                 }
 
-            
+                boolean logMask = false;
 
                 switch (testResult) {
-                    case SUCCESS:
-                        output += "SUCCESS: " + name + (verboseLog ? ", result: \"" : "");
+
+                    case SUCCESS: 
+                        logMask = (getLogSelection() & LOG_SUCCESS) == LOG_SUCCESS;
+                        output += "SUCCESS: " + name;
                         break;
 
                     case KNOWN_FAILURE:
+                        // unknown error if no log is provided
                         if (!verboseLog) {
                             testResult = TestResult.UNKNOWN_FAILURE;
                         } else {
-                            output += "KNOWN FAILURE: " + name + (verboseLog ? ", result: \"" : "");
+                            logMask = (getLogSelection() & LOG_KNOWN_FAILURE) == LOG_KNOWN_FAILURE;
+                            output += "KNOWN FAILURE: " + name;
                             break;
                         }
 
                     case UNKNOWN_FAILURE:
+                        logMask = (getLogSelection() & LOG_UNKNOWN_FAILURE) == LOG_UNKNOWN_FAILURE;
                         output += "UNKNOWN FAILURE: " + name + "...";
                         break;
 
                     default:
                         break;
                 }
-
-                
+     
                 if (verboseLog) {
                     Optional<String> result = getLoggableResult(testResult);
-                    output += result.get() + "\"";
+                    output += ", result: \"" + result.get() + "\"";
                 }
 
-                System.out.println(output);
+                if (logMask) {
+                    System.out.println(output);
+                }
+
                 return true;       
             }
 
