@@ -28,11 +28,6 @@ public class SuperstructureSubsystem extends SubsystemBase {
     private PositionVoltage storageMotorRequest;
     private Angle storageWallSetpoint = Degrees.of(0);
 
-    private TalonFX m_agitatorMotor;
-    private SlotConfigs agitatorMotorConfigs;
-    private VelocityVoltage agitatorMotorRequest;
-    private AngularVelocity agitatorMotorSetSpeed = DegreesPerSecond.of(0);
-
     private TalonFX m_transferMotor;
     private SlotConfigs transferMotorConfigs;
     private VelocityVoltage transferMotorRequest;
@@ -47,10 +42,9 @@ public class SuperstructureSubsystem extends SubsystemBase {
     /**
      * Subsystem that encompasses both the over-the-bumper intake as well as Fuel storage.
      */
-    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int agitatorMotorId, int transferMotorId) {
+    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int transferMotorId) {
         m_intakeMotor = new TalonFX(intakeMotorId);
         m_storageMotor = new TalonFX(wallMotorId);
-        m_agitatorMotor = new TalonFX(agitatorMotorId);
         m_transferMotor = new TalonFX(transferMotorId);
         
         // TODO: use actual PID values instead of placeholder
@@ -61,10 +55,6 @@ public class SuperstructureSubsystem extends SubsystemBase {
         storageMotorConfigs = 
             Utils.configureTalonGains(m_storageMotor, 0, 0, 0, 0, 0);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
-
-        agitatorMotorConfigs = 
-            Utils.configureTalonGains(m_agitatorMotor, 0, 0, 0, 0, 0);
-        agitatorMotorRequest = new VelocityVoltage(0).withSlot(0);
 
         transferMotorConfigs = 
             Utils.configureTalonGains(m_transferMotor, 0, 0, 0, 0, 0);
@@ -92,25 +82,6 @@ public class SuperstructureSubsystem extends SubsystemBase {
 
     public AngularVelocity getIntakeSpeed() {
         return intakeMotorSetSpeed;
-    }
-
-
-
-    public void runAgitatorMotor(double speed) {
-        runAgitatorMotor(DegreesPerSecond.of(speed));
-    }
-
-
-
-    public void runAgitatorMotor(AngularVelocity speed) {
-        agitatorMotorSetSpeed = speed;
-        m_agitatorMotor.setControl(agitatorMotorRequest.withVelocity(speed));
-    }
-
-
-
-    public AngularVelocity getAgitatorSpeed() {
-        return agitatorMotorSetSpeed;
     }
 
 

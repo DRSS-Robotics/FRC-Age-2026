@@ -21,7 +21,6 @@ public class RobotContainer {
     new SuperstructureSubsystem(
       SuperstructureConstants.kIntakeMotorId, 
       SuperstructureConstants.kStorageMotorId,
-      SuperstructureConstants.kAgitatorMotorId,
       SuperstructureConstants.kTransferMotorId);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
