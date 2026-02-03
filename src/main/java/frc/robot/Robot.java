@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Vision;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -48,7 +49,7 @@ public class Robot extends TimedRobot {
     // Update pose estimate with Limelight
     // TODO: define/get m_poseEstimator and angularVelocity
     // note: angularVelocity is in degrees per second
-    m_vision.updatePoseEstimate(m_poseEstimator, angularVelocity);
+    // m_vision.updatePoseEstimate(m_poseEstimator, angularVelocity);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

@@ -10,6 +10,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.math.VecBuilder;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
 
