@@ -24,5 +24,10 @@ public final class Constants {
      *DPS is Degrees Per Second
      */
     public static final double kHangManualDriveDPSScale = 0;
+    
+    public static final int idealHangPositionLeft = 0;
+    public static final int idealHangPositionMiddle = 0;
+    public static final int idealHangPositionRight = 0;
+    public static final int idealHangAngle = 0;
   }
 }
