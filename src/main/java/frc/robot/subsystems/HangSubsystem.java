@@ -16,13 +16,8 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.Constants.HangConstants;
 public class HangSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
 
   public static Angle hangGroundElevation = Degrees.of(HangConstants.kHangGroundRotations);
   public static Angle hangL1Elevation = Degrees.of(HangConstants.kHangL1Rotations);
@@ -135,7 +130,7 @@ public class HangSubsystem extends SubsystemBase {
           hangCurrentPosition.isNear(hangSetpoint, hangLevelTolerance)) {
           hangState = HangState.kIsL1; 
       } else if (hangSetpoint.isNear(hangGroundElevation, hangLevelTolerance)) {
-          hangState = HangState.kIsGrounded; 
+          hangState = HangState.kIsGoingToGround; 
       } else if (hangSetpoint.isNear(hangL1Elevation, hangLevelTolerance)) {
           hangState = HangState.kIsGoingToL1; 
       } else {
@@ -160,7 +155,7 @@ public class HangSubsystem extends SubsystemBase {
      */
     public static enum HangState {
       kIsGrounded,
-      kIsGrounding,
+      kIsGoingToGround,
       kIsL1,
       kIsGoingToL1,
   
