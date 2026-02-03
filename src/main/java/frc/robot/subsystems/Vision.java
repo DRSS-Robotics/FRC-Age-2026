@@ -6,17 +6,35 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.MjpegServer;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
 
 public class Vision extends SubsystemBase {
 
-  private HTTPCamera limelight;
+  private HttpCamera limelight;
   private UsbCamera driverCamera;
+  private MjpegServer outputStream;
 
   /** Creates a new Vision subsystem */
   public Vision() {
     // Initialize Limelight
+    updateLimelightPosition();
+    limelight = new HttpCamera(VisionConstants.kLimelightName, VisionConstants.kLimelightStreamURL);
+
+    // Initialize driver camera
+    driverCamera = new UsbCamera(VisionConstants.kDriverCameraName, VisionConstants.kDriverCameraId);
+
+    // Initialize output stream and start streaming driver camera
+    outputStream = new MjpegServer(VisionConstants.kOutputStreamName, VisionConstants.kOutputStreamPort);
+    useDriverCamera();
+  }
+
+  public void updateLimelightPosition() {
+    // TODO: add whiteboard calculations
     LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName, 
       VisionConstants.kLimelightForwardOffset,
       VisionConstants.kLimelightSideOffset,
@@ -25,48 +43,32 @@ public class Vision extends SubsystemBase {
       VisionConstants.kLimelightPitchOffset,
       VisionConstants.kLimelightYawOffset
     );
-    limelight = new HTTPCamera(VisionConstants.kLimelightName, VisionConstants.kLimelightStreamURL);
-  
-    // Initialize and start streaming driver camera
-    driverCamera = CameraServer.getInstance().startAutomaticCapture(VisionConstants.kDriverCameraName, VisionConstants.kDriverCameraId);
   }
 
   /** Switch camera stream to Limelight */
   public void useLimelight() {
-    CameraServer.getInstance().getServer().setSource(limelight);
+    outputStream.setSource(limelight);
   }
 
   /** Switch camera stream to driver camera */
   public void useDriverCamera() {
-    CameraServer.getInstance().getServer().setSource(driverCamera);
+    outputStream.setSource(driverCamera);
   }
 
-  /**
-   * Returns April tag detection data (RawFiducial) if detected, otherwise null.
-   * Not sure if this function will be used but it seems useful to have.
-   */
-  public RawFiducial getAprilTag(int id) {
-    RawFiducial[] fiducials = LimelightHelpers.getRawFiducials(VisionConstants.kLimelightName);
-    for (RawFiducial fiducial : fiducials) {
-      if (fiducial.id == id) {
-        return fiducial
-      }
-    }
-    return null
-  }
-
-  @Override
-  public void periodic() {
+  public void updatePoseEstimate(SwerveDrivePoseEstimator m_poseEstimator, double angularVelocity) {
+    updateLimelightPosition();
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
-    // TODO: import m_gyro and m_poseEstimator
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at least 1 tag is detected
-    if (Math.abs(m_gyro.getRate()) < 360 && mt2.tagCount > 0) {
-      m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+    if (Math.abs(angularVelocity) < 360 && mt2.tagCount > 0) {
+      m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
       m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
     }
   }
+
+  @Override
+  public void periodic() {}
 
   @Override
   public void simulationPeriodic() {
