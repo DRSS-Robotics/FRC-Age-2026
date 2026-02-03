@@ -13,17 +13,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RunLaunchMotor extends Command {
 
   private final ShooterSubsystem m_subsystem;
+  private final double power;
 
-  public RunLaunchMotor(ShooterSubsystem shooter) {
+  public RunLaunchMotor(ShooterSubsystem shooter, double speed) {
     m_subsystem = shooter;
     addRequirements(shooter);
+    power = speed;
   }
 
 
   @Override
   public void initialize() {
     m_subsystem.runLaunchMotor(
-      DegreesPerSecond.of(25)
+      DegreesPerSecond.of(power)
     );
   }
 
@@ -34,8 +36,7 @@ public class RunLaunchMotor extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    m_subsystem.runLaunchMotor(
-      DegreesPerSecond.of(0));
+    m_subsystem.runLaunchMotor(DegreesPerSecond.of(0));
   }
 
 

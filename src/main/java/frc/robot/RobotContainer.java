@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoShoot;
 import frc.robot.commands.Autos;
 import frc.robot.commands.RunLaunchMotor;
 import frc.robot.commands.ExampleCommand;
@@ -30,7 +31,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
-  //public final OuttakeSubsystem m_outtakeSubsystem = new OuttakeSubsystem(0, 0, 0, 0);
+  public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem(Constants.ShooterConstants.kPowerID);
   
   // TODO: actually initialize a SwerveDrivePoseEstimator
   // public SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator();
@@ -45,6 +46,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    new AutoShoot(m_shooterSubsystem, 100);
   }
 
   // private final CommandXboxController m_operatorController =

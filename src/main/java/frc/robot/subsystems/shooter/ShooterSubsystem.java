@@ -26,7 +26,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static final Angle MIN_PITCH_ANGLE = Degrees.of(ShooterConstants.kMinPitchDegrees);
   public static final Angle MAX_PITCH_ANGLE = Degrees.of(ShooterConstants.kMaxPitchDegrees);
 
-  public ShooterSubsystem(int launchMotorId, int pitchMotorId) {
+  public ShooterSubsystem(int launchMotorId) {
     
     m_launchMotor = new TalonFX(launchMotorId);
     launchMotorConfigs = new Slot0Configs();
@@ -38,15 +38,15 @@ public class ShooterSubsystem extends SubsystemBase {
     m_launchMotor.getConfigurator().apply(launchMotorConfigs);
     launchRequest = new VelocityVoltage(0).withSlot(0);
     
-    m_pitchMotor = new TalonFX(pitchMotorId);
-    pitchMotorConfigs = new Slot0Configs();
-    //Placeholder PID values
-    pitchMotorConfigs.kV = 0;
-    pitchMotorConfigs.kP = 1;
-    pitchMotorConfigs.kI = 0;
-    pitchMotorConfigs.kD = 0;
-    m_pitchMotor.getConfigurator().apply(pitchMotorConfigs);
-    pitchRequest = new PositionVoltage(0).withSlot(0);
+    // m_pitchMotor = new TalonFX(pitchMotorId);
+    // pitchMotorConfigs = new Slot0Configs();
+    // //Placeholder PID values
+    // pitchMotorConfigs.kV = 0;
+    // pitchMotorConfigs.kP = 1;
+    // pitchMotorConfigs.kI = 0;
+    // pitchMotorConfigs.kD = 0;
+    // m_pitchMotor.getConfigurator().apply(pitchMotorConfigs);
+    // pitchRequest = new PositionVoltage(0).withSlot(0);
   }
 
    

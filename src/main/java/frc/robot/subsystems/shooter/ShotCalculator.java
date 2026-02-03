@@ -18,12 +18,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 
 public class ShotCalculator {
-    double l_pitch;
-    double power; 
-    public ShotCalculator() {
-        int l_pitch;
-    }
-
    
   /**
    * Example command factory method.
@@ -37,7 +31,7 @@ public class ShotCalculator {
    * @return value of some boolean subsystem state, such as a digital sensor.
    */
 
-    public double calcShotPitch(double horizDist, double power, double h_launcher){
+    public static double calcShotPitch(double horizDist, double power, double h_launcher){
         double a = (Constants.kGravIN * Math.pow(horizDist, 2)) / (2 * Math.pow(power, 2));
         double b = -horizDist;
         double c = -h_launcher + a + 72;
@@ -55,7 +49,7 @@ public class ShotCalculator {
         }
     }
 
-    public double calcShotPower(double horizDist, double pitch, double h_launcher){
+    public static double calcShotPower(double horizDist, double pitch, double h_launcher){
         
         double numerator = Constants.kGravIN * Math.pow(horizDist, 2);
         double denominator = 2 * (-72 + horizDist * Math.tan(pitch) + h_launcher) * Math.pow(Math.cos(pitch), 2);

@@ -4,42 +4,40 @@
 
 package frc.robot.commands;
 
-import frc.robot.RobotContainer;
+import frc.robot.Constants;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.shooter.*;
-import edu.wpi.first.math.geometry.Pose3d;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShotCalculator;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class RotateToHub extends Command {
+public class AutoShoot extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem m_shooterSubsystem;
-  private final TurretControl m_turretController;
+  private double horizDist;
+  private double power;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public RotateToHub(ShooterSubsystem shooterSubsystem) {
+  public AutoShoot(ShooterSubsystem shooterSubsystem, double horizDist) {
     m_shooterSubsystem = shooterSubsystem;
-    m_turretController = m_shooterSubsystem.m_turretController;
+    this.horizDist = horizDist;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_turretController);
+    addRequirements(m_shooterSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // Pose3d robotPose = new Pose3d(m_robotContainer.m_poseEstimator.getEstimatedPosition);
-    Pose3d hubPose = Constants.hubPose;
+    new AutoShootPower(m_shooterSubsystem, horizDist);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override

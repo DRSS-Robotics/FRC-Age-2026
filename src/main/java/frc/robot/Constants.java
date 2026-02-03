@@ -26,5 +26,13 @@ public final class Constants {
 
     public static final double kMinPitchDegrees = 0;
     public static final double kMaxPitchDegrees = 0;
+
+    // TODO: set value
+    public static final int kPowerID = 0;
+    public static final double kPitch = 65;
+    public static final double kHeight = 20;
+
+    // TODO: must do experimenting to find this, see what power/voltage values equal what inches per second
+    public static final double kPowerScalingFactor = 0;
   }
 }
