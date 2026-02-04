@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public interface TestableSubsystem {
 
-    public TestCommandBase getTestCommand();
+    public abstract TestCommandBase getTestCommand();
 
     public static final byte LOG_NONE            = 0b000;
     public static final byte LOG_ALL             = 0b111;

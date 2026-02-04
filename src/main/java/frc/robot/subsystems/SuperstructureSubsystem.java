@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.TestableSubsystem;
 import frc.robot.Utils;
 import frc.robot.Constants.SuperstructureConstants;
 
@@ -15,7 +16,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 
-public class SuperstructureSubsystem extends SubsystemBase {
+public class SuperstructureSubsystem extends SubsystemBase implements TestableSubsystem {
     
     private TalonFX m_intakeMotor;
     private SlotConfigs intakeMotorConfigs;
