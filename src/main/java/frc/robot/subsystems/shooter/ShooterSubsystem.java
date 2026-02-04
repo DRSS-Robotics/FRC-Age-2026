@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -7,6 +8,8 @@ import frc.robot.Constants.ShooterConstants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -26,9 +29,11 @@ public class ShooterSubsystem extends SubsystemBase {
   public static final Angle MIN_PITCH_ANGLE = Degrees.of(ShooterConstants.kMinPitchDegrees);
   public static final Angle MAX_PITCH_ANGLE = Degrees.of(ShooterConstants.kMaxPitchDegrees);
 
-  public ShooterSubsystem(int launchMotorId) {
+  private final TurretControl m_turretController;
+
+  public ShooterSubsystem(int launchMotorID, int turretMotorID, Supplier<Pose3d> poseSupplier) {
     
-    m_launchMotor = new TalonFX(launchMotorId);
+    m_launchMotor = new TalonFX(launchMotorID);
     launchMotorConfigs = new Slot0Configs();
     //Placeholder PID values
     launchMotorConfigs.kV = 0;
@@ -38,6 +43,8 @@ public class ShooterSubsystem extends SubsystemBase {
     m_launchMotor.getConfigurator().apply(launchMotorConfigs);
     launchRequest = new VelocityVoltage(0).withSlot(0);
     
+    m_turretController = new TurretControl(turretMotorID);
+
     // m_pitchMotor = new TalonFX(pitchMotorId);
     // pitchMotorConfigs = new Slot0Configs();
     // //Placeholder PID values
@@ -49,11 +56,15 @@ public class ShooterSubsystem extends SubsystemBase {
     // pitchRequest = new PositionVoltage(0).withSlot(0);
   }
 
+  public TurretControl getTurretControl(){
+    return m_turretController;
+  }
+
    
 
   public void runLaunchMotor(double speed) {
     runLaunchMotor(DegreesPerSecond.of(speed));
-}
+  }
 
   public void runLaunchMotor(AngularVelocity speed) {
     m_launchMotor.setControl(launchRequest.withVelocity(speed));

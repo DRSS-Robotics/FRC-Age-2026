@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import frc.robot.Constants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShotCalculator;
@@ -41,8 +41,8 @@ public class AutoShootPower extends Command {
   public void execute() {
     previousCommand.cancel();
 
-    power = ShotCalculator.calcShotPower(horizDist, Constants.ShooterConstants.kPitch, Constants.ShooterConstants.kHeight);
-    power *= Constants.ShooterConstants.kPowerScalingFactor;
+    power = ShotCalculator.calcShotPower(horizDist, ShooterConstants.kPitch, ShooterConstants.kHeight);
+    power *= ShooterConstants.kPowerScalingFactor;
     previousCommand = new RunLaunchMotor(m_shooterSubsystem, power);
 
     System.out.println("shoot running");

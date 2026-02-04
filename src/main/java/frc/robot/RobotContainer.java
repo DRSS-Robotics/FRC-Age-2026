@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.*;
 import frc.robot.commands.AutoShoot;
 import frc.robot.commands.Autos;
 import frc.robot.commands.RunLaunchMotor;
@@ -14,9 +14,15 @@ import frc.robot.subsystems.TestMotor;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.commands.TestMotorOff;
 import frc.robot.commands.TestMotorOn;
+
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -31,11 +37,15 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
-  public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem(Constants.ShooterConstants.kPowerID);
+  private final Supplier<Pose3d> poseSupplier;
+  private final ShooterSubsystem m_shooterSubsystem;
   
   // TODO: actually initialize a SwerveDrivePoseEstimator
-  // public SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator();
+  private final SwerveDrivePoseEstimator3d m_poseEstimator;
+  // SwerveDrivePoseEstimator3d(SwerveDriveKinematics kinematics, Rotation3d gyroAngle, SwerveModulePosition[] modulePositions, Pose3d initialPoseMeters)
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
+
+    
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -76,6 +86,12 @@ public class RobotContainer {
   
   
   }
+
+  public Pose3d getRobotPose3d(){
+
+  }
+
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

@@ -4,9 +4,13 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants.FieldConstants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.*;
+
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -15,15 +19,18 @@ public class RotateToHub extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem m_shooterSubsystem;
   private final TurretControl m_turretController;
+  private final Pose3d hubPose = FieldConstants.kHubPose;
+  private final Supplier<Pose3d> robotPose;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public RotateToHub(ShooterSubsystem shooterSubsystem) {
+  public RotateToHub(ShooterSubsystem shooterSubsystem, Supplier<Pose3d> poseSupplier) {
     m_shooterSubsystem = shooterSubsystem;
-    m_turretController = m_shooterSubsystem.m_turretController;
+    m_turretController = m_shooterSubsystem.getTurretControl();
+    robotPose = 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_turretController);
   }
@@ -32,7 +39,7 @@ public class RotateToHub extends Command {
   @Override
   public void initialize() {
     // Pose3d robotPose = new Pose3d(m_robotContainer.m_poseEstimator.getEstimatedPosition);
-    Pose3d hubPose = Constants.hubPose;
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.

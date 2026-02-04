@@ -23,9 +23,8 @@ public class TurretControl extends SubsystemBase {
   private VelocityVoltage turretMotorRequest;
   private CANcoder m_turretCANcoder;
 
-  public TurretControl(int turretMotorID, int turretCANcoderID) {
+  public TurretControl(int turretMotorID) {
     m_turretMotor = new TalonFX(turretMotorID);
-    m_turretCANcoder = new CANcoder(turretCANcoderID);
 
     turretMotorConfigs = new Slot0Configs();
     //Placeholder PID values

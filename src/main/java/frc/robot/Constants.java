@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -29,10 +31,16 @@ public final class Constants {
 
     // TODO: set value
     public static final int kPowerID = 0;
+    public static final int kTurretID = 0;
     public static final double kPitch = 65;
     public static final double kHeight = 20;
 
     // TODO: must do experimenting to find this, see what power/voltage values equal what inches per second
     public static final double kPowerScalingFactor = 0;
+  }
+
+  public static class FieldConstants {
+    // TODO: find pose of the hub, might be online somewhere for a value
+    public static final Pose3d kHubPose = new Pose3d();
   }
 }
