@@ -11,6 +11,7 @@ import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
 
@@ -19,6 +20,9 @@ public class Vision extends SubsystemBase {
   private HttpCamera limelight;
   private UsbCamera driverCamera;
   private MjpegServer outputStream;
+
+  // This is just used for testing purposes, it should be false during competition
+  private final boolean logPoseEstimate = false;
 
   /** Creates a new Vision subsystem */
   public Vision() {
@@ -58,6 +62,7 @@ public class Vision extends SubsystemBase {
 
   public void updatePoseEstimate(SwerveDrivePoseEstimator m_poseEstimator, double angularVelocity) {
     updateLimelightPosition();
+
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
@@ -65,6 +70,17 @@ public class Vision extends SubsystemBase {
     if (Math.abs(angularVelocity) < 360 && mt2.tagCount > 0) {
       m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
       m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    }
+
+    // log pose estimate
+    // note that measurements are assumed to be in meters
+    if (logPoseEstimate) {
+      Pose2d estimatedPosition = m_poseEstimator.getEstimatedPosition();
+      System.out.print("pose estimate: (");
+      System.out.print(estimatedPosition.getX());
+      System.out.print(", ");
+      System.out.print(estimatedPosition.getY());
+      System.out.println(")");
     }
   }
 
