@@ -36,5 +36,13 @@ public final class Constants {
      * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
      */
     public static final double kStorageOpenRotations = 800;
+
+
+
+    public static final double kMaxTestIntakeSpeedErrorPercentage = 3.;
+    public static final double kMaxTestIntakeTimeToSpinUp = 0.25 ; 
+    public static final double kMinTestIntakeTimeToMaintainSpeed = 20; 
+    public static final double kTestIntakeTargetDPS = 540; 
   }
+
 }

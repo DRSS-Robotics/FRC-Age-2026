@@ -26,7 +26,7 @@ public class ToggleIntakeCommand extends Command {
 
   @Override
   public void initialize() {
-    if (m_intake.getIntakeSpeed().isEquivalent(DegreesPerSecond.of(0))) {
+    if (m_intake.getIntakeSpeedSetpoint().isEquivalent(DegreesPerSecond.of(0))) {
         m_intake.runIntake(SuperstructureConstants.kDefaultIntakeSpeed);
       } else {
         m_intake.runIntake(0);
