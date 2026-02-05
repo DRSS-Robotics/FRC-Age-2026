@@ -15,11 +15,13 @@ import edu.wpi.first.math.geometry.Pose3d;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static final int kPigeonID = 50;
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
   
-  public static final double kGravIN = 0;
 
   public static class ShooterConstants {
     public static final double kShooterManualDriveDPSScale = 1;
@@ -42,5 +44,6 @@ public final class Constants {
   public static class FieldConstants {
     // TODO: find pose of the hub, might be online somewhere for a value
     public static final Pose3d kHubPose = new Pose3d();
+    public static final double kGravIN = 0;
   }
 }

@@ -17,12 +17,16 @@ import frc.robot.commands.TestMotorOn;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -37,14 +41,16 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
-  private final Supplier<Pose3d> poseSupplier;
+  private final Supplier<Pose3d> m_poseSupplier;
   private final ShooterSubsystem m_shooterSubsystem;
   
   // TODO: actually initialize a SwerveDrivePoseEstimator
   private final SwerveDrivePoseEstimator3d m_poseEstimator;
-  // SwerveDrivePoseEstimator3d(SwerveDriveKinematics kinematics, Rotation3d gyroAngle, SwerveModulePosition[] modulePositions, Pose3d initialPoseMeters)
+  private final SwerveModulePosition emptyPos = new SwerveModulePosition();
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
 
+  private final ChassisSpeeds currentSpeed = new ChassisSpeeds();
+  public final Pigeon2 m_pigeon = new Pigeon2(Constants.kPigeonID);
     
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -56,7 +62,14 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
-    new AutoShoot(m_shooterSubsystem, 100);
+    m_poseEstimator = new SwerveDrivePoseEstimator3d(m_drivetrain.getKinematics(), 
+                                                    m_drivetrain.getRotation3d(), 
+                                                    getModulePositions(), 
+                                                    new Pose3d(0,0,0, null));
+    
+    m_poseSupplier = () -> m_poseEstimator.getEstimatedPosition();
+    m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, m_poseSupplier);
+    // new AutoShoot(m_shooterSubsystem, 100);
   }
 
   // private final CommandXboxController m_operatorController =
@@ -101,5 +114,19 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return Autos.exampleAuto(m_exampleSubsystem);
+  }
+
+  public void updateOdometry() {
+    m_drive
+    m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drivetrain.getRotation3d(), getModulePositions());
+  }
+
+  public SwerveModulePosition[] getModulePositions() {
+    var modules = m_drivetrain.getModules();
+    SwerveModulePosition[] modpos = new SwerveModulePosition[4];
+    for(int x = 0; x < 4; x++) {
+      modpos[x] = modules[x].getPosition();
+    }
+    return modpos;
   }
 }
