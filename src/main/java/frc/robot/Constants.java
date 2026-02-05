@@ -25,9 +25,15 @@ public final class Constants {
      */
     public static final double kHangManualDriveDPSScale = 0;
     
+
+    //automation stuff
     public static final int idealHangPositionLeft = 0;
-    public static final int idealHangPositionMiddle = 0;
     public static final int idealHangPositionRight = 0;
-    public static final int idealHangAngle = 0;
+    
+    public static final int hangLeftX = 0;
+    public static final int hangLeftY = 0;
+    public static final int hangRightX = 0;
+    public static final int hangRightY = 0;
+
   }
 }
