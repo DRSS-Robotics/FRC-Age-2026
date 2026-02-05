@@ -23,7 +23,7 @@ public class RotateYawMotor extends Command {
 
   @Override
   public void initialize() {
-    m_subsystem.rotateYawMotor(
+    m_subsystem.setYawMotorPosition(
       Degrees.of(25)
     );
   }
@@ -35,7 +35,7 @@ public class RotateYawMotor extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    m_subsystem.rotateYawMotor(
+    m_subsystem.setYawMotorPosition(
       Degrees.of(0));
   }
 
