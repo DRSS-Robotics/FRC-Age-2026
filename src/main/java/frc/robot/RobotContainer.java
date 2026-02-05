@@ -22,12 +22,23 @@ import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
 import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.pathfinding.*;
+import com.pathplanner.lib.util.FileVersionException;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,7 +60,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
+  private String adaptivePathPath;
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final SendableChooser<Command> autoChooser;
@@ -78,6 +89,7 @@ public class RobotContainer {
       //NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_transfer));//Add when we get translocator subsystem
     
       autoChooser = AutoBuilder.buildAutoChooser("Default");
+      adaptivePathPath = String.valueOf(autoChooser);
       //Fix later
       // this.autoChooser = new LoggedDashboardChooser<>("Auto Routine", AutoBuilder.buildAutoChooser()); // Loads all FRC PathPlanner auto routines
       // this.autoChooser.addOption("Left", this.autoLeftCommand());
@@ -87,6 +99,31 @@ public class RobotContainer {
       // this.autoChooser.addOption("Centre G", this.autoCentreGCommand());
       // this.autoChooser.addOption("Right", this.autoRightCommand());
       SmartDashboard.putData("Auto Mode", autoChooser);
+ 
+      try {
+       PathPlannerPath path = PathPlannerPath.fromPathFile("start");
+      } catch (FileVersionException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      
+   PathConstraints constraints = new PathConstraints(
+        3.0, 4.0,
+        Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+      Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+        path,
+        constraints);
+
+     // PathPlannerPath path = new PathPlannerPath(null, constraints, null, null);
+
+
 
     // Configure the trigger bindings
     configureBindings();
