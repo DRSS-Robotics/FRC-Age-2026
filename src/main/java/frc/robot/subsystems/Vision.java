@@ -12,8 +12,13 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.Degrees;
+import edu.wpi.first.units.DegreesPerSecond;
+import edu.wpi.first.units.measure.Angle;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
+import java.util.function.Supplier;
+import java.lang.Math;
 
 public class Vision extends SubsystemBase {
 
@@ -25,7 +30,7 @@ public class Vision extends SubsystemBase {
   private final boolean logPoseEstimate = false;
 
   /** Creates a new Vision subsystem */
-  public Vision() {
+  public Vision(Supplier<Angle> turretAngleSupplier) {
     // Initialize Limelight
     updateLimelightPosition();
     limelight = new HttpCamera(VisionConstants.kLimelightName, VisionConstants.kLimelightStreamURL);
@@ -39,14 +44,21 @@ public class Vision extends SubsystemBase {
   }
 
   public void updateLimelightPosition() {
-    // TODO: add whiteboard calculations
+    double turretAngle = turretAngleSupplier.get().in(Degrees);
+
+    // The Limelight's position is modeled in polar coordinates (<distance from Limelight to center>, <turret angle>)
+    // These coordinates are converted to Cartesian coordinates to find the position relative to the center of the turret
+    double limelightForwardOffset = VisionConstants.kLLCenterDist * Math.sin(turretAngle);
+    double limelightSideOffset = VisionConstants.kLLCenterDist * Math.cos(turretAngle);
+
+    // Set the Limelight position in robot space using offset constants
     LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName, 
-      VisionConstants.kLimelightForwardOffset,
-      VisionConstants.kLimelightSideOffset,
-      VisionConstants.kLimelightHeightOffset,
-      VisionConstants.kLimelightRollOffset,
-      VisionConstants.kLimelightPitchOffset,
-      VisionConstants.kLimelightYawOffset
+      /* forward offset */ VisionConstants.kTurretForwardOffset + limelightForwardOffset,
+      /* side offset    */ VisionConstants.kTurretSideOffset + limelightSideOffset,
+      /* height offset  */ VisionConstants.kLimelightHeightOffset,
+      /* roll offset    */ 0,
+      /* pitch offset   */ VisionConstants.kLimelightPitchOffset,
+      /* yaw offset     */ turretAngle
     );
   }
 
@@ -60,15 +72,15 @@ public class Vision extends SubsystemBase {
     outputStream.setSource(driverCamera);
   }
 
-  public void updatePoseEstimate(SwerveDrivePoseEstimator m_poseEstimator, double angularVelocity) {
+  public void updatePoseEstimate(SwerveDrivePoseEstimator m_poseEstimator, Pigeon2 m_pigeon) {
     updateLimelightPosition();
 
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at least 1 tag is detected
-    if (Math.abs(angularVelocity) < 360 && mt2.tagCount > 0) {
-      m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+    if (Math.abs(((m_pigeon.getAngularVelocityZWorld()).getValue()).in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
+      m_poseEstimator.sangularVelocityetVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
       m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
     }
 

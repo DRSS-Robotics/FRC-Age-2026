@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.units.measure.Angle;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -21,14 +23,13 @@ public final class Constants {
     public static final String kLimelightName = "limelight";
     public static final String kLimelightStreamURL = "http://limelight.local:5801/stream.mjpg";
 
-    // Offsets are measured in meters and degrees
     // TODO: fill in all offset values
-    public static final double kLimelightForwardOffset = 0.0;
-    public static final double kLimelightSideOffset = 0.0;
+    // measured in meters and degrees
+    public static final double kLLCenterDist = 0.0;
+    public static final double kTurretForwardOffset = 0.0; // from center of robot
+    public static final double kTurretSideOffset = 0.0; // from center of robot
     public static final double kLimelightHeightOffset = 0.0;
-    public static final double kLimelightRollOffset = 0.0;
-    public static final double kLimelightPitchOffset = 15.0;
-    public static final double kLimelightYawOffset = 0.0;
+    public static final double kLimelightPitchOffset = -15.0;
     
     public static final String kOutputStreamName = "Guh";
     public static final int kOutputStreamPort = 3141;

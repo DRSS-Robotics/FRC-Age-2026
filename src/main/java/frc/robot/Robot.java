@@ -47,9 +47,8 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     // Update pose estimate with Limelight
-    // TODO: define/get m_poseEstimator and angularVelocity
-    // note: angularVelocity is in degrees per second
-    // m_vision.updatePoseEstimate(m_poseEstimator, angularVelocity);
+    // TODO: define/get m_poseEstimator and m_pigeon
+    // m_vision.updatePoseEstimate(m_poseEstimator, m_pigeon);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
