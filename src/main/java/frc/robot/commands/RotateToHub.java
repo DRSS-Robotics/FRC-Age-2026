@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Inches;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -38,7 +39,6 @@ public class RotateToHub extends Command {
     m_turretController = shooterSubsystem.getTurretControl();
     this.poseSupplier = poseSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_turretController);
   }
 
   // Called when the command is initially scheduled.
@@ -62,11 +62,30 @@ public class RotateToHub extends Command {
       ShooterConstants.kHeight,new Rotation3d()));
 
     Transform3d huboffset = currentPose.minus(hubPose);
-    
-
-    m_turretController.setTurretPosition(Degrees.of());
+    m_turretController.setTurretPosition(Degrees.of(getQuadrantOffset()+getAngleToHub()));
   }
-
+  private int getQuadrantOffset(Transform3d toHub) {
+    int binaryID = 0;
+    if (huboffset.getMeasureX().in(Inches)>0) {
+        binaryID+=2;
+    }
+    if (huboffset.getMeasureY().in(Inches)>0) {
+        binaryID+=1;
+    }
+    switch (binaryID) {
+        case 0:
+            return 0;
+        case 1:
+            return 270;
+        case 2:
+            return 90;
+        case 3:
+            return 180;
+    }
+  }
+  private double getAngleToHub(Transform3d toHub) {
+    return Math.atan(toHub.getMeasureY().in(Inches)/toHub.getMeasureX().in(Inches));
+  }
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {}

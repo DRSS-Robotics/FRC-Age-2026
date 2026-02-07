@@ -60,16 +60,17 @@ public class RobotContainer {
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
+      m_poseEstimator = new SwerveDrivePoseEstimator3d(m_drivetrain.getKinematics(), 
+      m_drivetrain.getRotation3d(), 
+      getModulePositions(),
+      new Pose3d(0,0,0, null));
+      
+      m_poseSupplier = () -> getRobotPose3d();
+      m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, m_poseSupplier);
+      m_turret = new TurretControl(ShooterConstants.kTurretID);
+      // new AutoShoot(m_shooterSubsystem, 100);
+      // Configure the trigger bindings
     configureBindings();
-    m_poseEstimator = new SwerveDrivePoseEstimator3d(m_drivetrain.getKinematics(), 
-                                                    m_drivetrain.getRotation3d(), 
-                                                    getModulePositions(),
-                                                    new Pose3d(0,0,0, null));
-    
-    m_poseSupplier = () -> getRobotPose3d();
-    m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, m_poseSupplier);
-    // new AutoShoot(m_shooterSubsystem, 100);
   }
 
   // private final CommandXboxController m_operatorController =
@@ -89,6 +90,7 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
+    m_turret.setDefaultCommand(new RotateToHub(m_shooterSubsystem, m_poseSupplier));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
