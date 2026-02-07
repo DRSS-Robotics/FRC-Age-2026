@@ -62,7 +62,7 @@ public class RotateToHub extends Command {
       ShooterConstants.kHeight,new Rotation3d()));
 
     Transform3d huboffset = currentPose.minus(hubPose);
-    m_turretController.setTurretPosition(Degrees.of(getQuadrantOffset()+getAngleToHub()));
+    m_turretController.setTurretPosition(Degrees.of(getQuadrantOffset(toHub)+getAngleToHub(toHub)));
   }
   private int getQuadrantOffset(Transform3d toHub) {
     int binaryID = 0;
@@ -84,7 +84,10 @@ public class RotateToHub extends Command {
     }
   }
   private double getAngleToHub(Transform3d toHub) {
-    return Math.atan(toHub.getMeasureY().in(Inches)/toHub.getMeasureX().in(Inches));
+    return (Math.atan(
+        abs(
+            toHub.getMeasureY().in(Inches)/toHub.getMeasureX().in(Inches)
+        )) * 180 / Math.PI);
   }
   // Called once the command ends or is interrupted.
   @Override
