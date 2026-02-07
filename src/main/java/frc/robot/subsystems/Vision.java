@@ -14,6 +14,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Meters;
 import edu.wpi.first.units.Degrees;
+import edu.wpi.first.units.Radians;
 import edu.wpi.first.units.DegreesPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.Constants.VisionConstants;
@@ -45,12 +46,12 @@ public class Vision extends SubsystemBase {
   }
 
   public void updateLimelightPosition() {
-    double turretAngle = turretAngleSupplier.get().in(Degrees);
+    Angle turretAngle = turretAngleSupplier.get();
 
     // The Limelight's position is modeled in polar coordinates (<distance from Limelight to center>, <turret angle>)
     // These coordinates are converted to Cartesian coordinates to find the position relative to the center of the turret
-    double limelightForwardOffset = VisionConstants.kLLCenterDist.in(Meters) * Math.sin(turretAngle);
-    double limelightSideOffset = VisionConstants.kLLCenterDist.in(Meters) * Math.cos(turretAngle);
+    double limelightForwardOffset = VisionConstants.kLLCenterDist.in(Meters) * Math.sin(turretAngle.in(Radians));
+    double limelightSideOffset = VisionConstants.kLLCenterDist.in(Meters) * Math.cos(turretAngle.in(Radians));
 
     // Set the Limelight position in robot space using offset constants
     LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName, 
@@ -59,7 +60,7 @@ public class Vision extends SubsystemBase {
       /* height offset  */ VisionConstants.kLimelightHeightOffset.in(Meters),
       /* roll offset    */ 0,
       /* pitch offset   */ VisionConstants.kLimelightPitchOffset.in(Meters),
-      /* yaw offset     */ turretAngle
+      /* yaw offset     */ turretAngle.in(Degrees)
     );
   }
 
