@@ -14,9 +14,14 @@ public class AutoHang extends Command {
   public int hangTag;
   public boolean canItHang = false;
   public boolean isItAuto;
-  private int alignmentThreshold = 10;
-  private int idealHangPositionLeft = HangConstants.idealHangPositionLeft;
-  private int idealHangPositionRight = HangConstants.idealHangPositionRight;
+  public int alignmentThreshold = 10;
+  public int idealHangPositionLeft;
+  public int idealHangPositionRight;
+  public double distanceNeededToHangX;
+  public double distanceNeededToHangY;
+
+  private int hangTagNumbers;
+  private final int iHP;
 
   //private final VisionSubsystem m_vision;
 
@@ -25,8 +30,9 @@ public class AutoHang extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public AutoHang(HangSubsystem hangSubsystem, int idealHangPosition boolean isItAuto) { 
+  public AutoHang(HangSubsystem hangSubsystem, int idealHangPosition, boolean isItAuto) { 
     m_hang = hangSubsystem;
+    iHP = idealHangPosition;
     //It doesn't exist in this branch, but add the vison subsystem too
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(hangSubsystem);
@@ -36,42 +42,39 @@ public class AutoHang extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //Detect april tag
-    hangTag = getAprilTag(hangTagNumbers); //could potentially use the .nearest with this as well, Make sure it's closest and the hanging tag
-    double distanceX = m_vision.getDistanceToAprilTag(hangTag);
-    double distanceY = m_vision.getDistanceToAprilTag(hangTag);
-
-    //I think for april tag we need pose stuff
-    //double distanceX = m_vision.updatePoseEstimate();
-
-
-    //Calculate distance to ideal hang
-    switch (idealHangPosition){
-      case idealHangPositionLeft: 
-      double distanceNeededToHangX = HangConstants.hangLeftX - distanceX;
-      double distanceNeededToHangY = HangConstants.hangLeftY - distanceY;
-        break;
-      case idealHangPositionRight:
-        double distanceNeededToHangX = HangConstants.hangRightX - distanceX;
-        double distanceNeededToHangY = HangConstants.hangRightY - distanceY;
-
-        break;
-      default:
-        System.out.println("You shouldn't see this message unless something went terribly wrong, you probably put the wrong variable guh D:");
-    }
-    
-
-    double robotMovingThisMuchX = distanceNeededToHangX - distanceX;
-    double robotMovingThisMuchY = distanceNeededToHangY - distanceY;
-
-
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    while(robotMovingThisMuchX >= 0 && robotMovingThisMuchX <= alignmentThreshold && robotMovingThisMuchY >= 0 && robotMovingThisMuchY <= alignmentThreshold && isitAuto != true){
+    //Detect april tag
+    //hangTag = getAprilTag(hangTagNumbers); //could potentially use the .nearest with this as well, Make sure it's closest and the hanging tag
+
+   //We gotta use the pose estimate from the vision subsystem
+    //double distanceX = m_vision.updatePoseEstimate();
+
+
+
+    double distanceX = 12; //Change these to the actual way I am getting distance
+    double distanceY = 12;
+
+
+    //I think for april tag we need pose stuff
+    //double distanceX = m_vision.updatePoseEstimate();
+
+    //Calculate distance to ideal hang
+    if (iHP == idealHangPositionLeft){
+      distanceNeededToHangX = HangConstants.hangLeftX - distanceX;
+      distanceNeededToHangY = HangConstants.hangLeftY - distanceY;
+    }
+    else if(iHP == idealHangPositionRight){
+        distanceNeededToHangX = HangConstants.hangRightX - distanceX;
+        distanceNeededToHangY = HangConstants.hangRightY - distanceY;
+      }
+    
+      double robotMovingThisMuchX = distanceNeededToHangX - distanceX;
+      double robotMovingThisMuchY = distanceNeededToHangY - distanceY;
+    while(robotMovingThisMuchX >= 0 && robotMovingThisMuchX <= alignmentThreshold && robotMovingThisMuchY >= 0 && robotMovingThisMuchY <= alignmentThreshold && isItAuto != true){
       System.out.println("Move X by: " + robotMovingThisMuchX);
       System.out.println("Move Y by: " + robotMovingThisMuchY);
       //SmartDashboard.putBoolean("Move X by:", robotMovingThisMuchX);
@@ -93,11 +96,8 @@ public class AutoHang extends Command {
 
     //Autonomous Hang v
     if(isItAuto){
-      while(robotMovingThisMuchX <= 0 && robotMovingThisMuchX >= alignmentThreshold && robotMovingThisMuchY >= 0 && robotMovingThisMuchY <= alignmentThreshold && isitAuto){
+      while(robotMovingThisMuchX <= 0 && robotMovingThisMuchX >= alignmentThreshold && robotMovingThisMuchY >= 0 && robotMovingThisMuchY <= alignmentThreshold && isItAuto){
         if(robotMovingThisMuchX != 0 && robotMovingThisMuchY != 0) { //TODO add threshold?
-          moveRobotX(robotMovingThisMuchX); //I am aware this is not how you move, I will fix later
-          //aligning the X first would be good, Y overshoot doesn't matter cause of the physical limitaion
-          moveRobotY(robotMovingThisMuchY);
           //Auto said that the movement is covered by path planner
           //Potentially I could make a path
           //Though I think I will see if there is some sort of align april tag command that I could offset to be correct
@@ -105,8 +105,8 @@ public class AutoHang extends Command {
 
           System.out.println("You are bad to hang D:");
         }
-        else if(robotMovingThisMuchX >= 0 && robotMovingThisMuchX <= alignmentThreshold && robotMovingThisMuchY == 0 && robotMovingThisMuchY <= alignmentThreshold && isitAuto){
-          stopMoving(please);
+        else if(robotMovingThisMuchX >= 0 && robotMovingThisMuchX <= alignmentThreshold && robotMovingThisMuchY == 0 && robotMovingThisMuchY <= alignmentThreshold && isItAuto){
+          //stopMoving(please);
           canItHang = true;
           System.out.println("You are good to hang :D");
           //SmartDashboard.putBoolean("Hang?", canitHang);
@@ -133,9 +133,8 @@ public class AutoHang extends Command {
 
 //TODO: Research how to use path planner for the movement, check in with teleop about other thing?
 //TODO: Stop moving code
+
 //TODO: Correct April tag stuff, drawing on camera feed with Luka?
+
 //TODO: Recheck the logic, walk through it
 //TODO: Add comments explaining code
-
-//TODO move to a programming laptop!!! (if you can :D)
-

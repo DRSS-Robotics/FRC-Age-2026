@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -27,13 +30,15 @@ public final class Constants {
     
 
     //automation stuff
-    public static final int idealHangPositionLeft = 0;
-    public static final int idealHangPositionRight = 0;
-    
     public static final int hangLeftX = 0;
     public static final int hangLeftY = 0;
+    public static final Rotation2d hangLeftRotate = Rotation2d.fromDegrees(-120);
+    public static final Pose2d hangLeftPose = new Pose2d(hangLeftX, hangLeftY, hangLeftRotate);
+
     public static final int hangRightX = 0;
     public static final int hangRightY = 0;
+    public static final Rotation2d hangRightRotate = Rotation2d.fromDegrees(-120);
+    public static final Pose2d hangRightPose = new Pose2d(hangRightX, hangRightY, hangRightRotate);
 
   }
 }
