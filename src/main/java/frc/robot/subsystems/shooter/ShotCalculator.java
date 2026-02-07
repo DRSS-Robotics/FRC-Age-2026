@@ -7,7 +7,7 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.units.measure.AngularVelocity;
 //import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 //import static edu.wpi.first.units.Units.Degrees;
@@ -32,7 +32,7 @@ public class ShotCalculator {
    */
 
     public static double calcShotPitch(double horizDist, double power, double h_launcher){
-        double a = (Constants.kGravIN * Math.pow(horizDist, 2)) / (2 * Math.pow(power, 2));
+        double a = (FieldConstants.kGravIN * Math.pow(horizDist, 2)) / (2 * Math.pow(power, 2));
         double b = -horizDist;
         double c = -h_launcher + a + 72;
         double discrim = Math.pow(b, 2) - (4 * a * c);
@@ -51,7 +51,7 @@ public class ShotCalculator {
 
     public static double calcShotPower(double horizDist, double pitch, double h_launcher){
         
-        double numerator = Constants.kGravIN * Math.pow(horizDist, 2);
+        double numerator = FieldConstants.kGravIN * Math.pow(horizDist, 2);
         double denominator = 2 * (-72 + horizDist * Math.tan(pitch) + h_launcher) * Math.pow(Math.cos(pitch), 2);
         double power = Math.sqrt(numerator / denominator);
 

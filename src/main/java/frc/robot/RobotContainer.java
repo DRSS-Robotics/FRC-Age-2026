@@ -64,10 +64,10 @@ public class RobotContainer {
     configureBindings();
     m_poseEstimator = new SwerveDrivePoseEstimator3d(m_drivetrain.getKinematics(), 
                                                     m_drivetrain.getRotation3d(), 
-                                                    getModulePositions(), 
+                                                    getModulePositions(),
                                                     new Pose3d(0,0,0, null));
     
-    m_poseSupplier = () -> m_poseEstimator.getEstimatedPosition();
+    m_poseSupplier = () -> getRobotPose3d();
     m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, m_poseSupplier);
     // new AutoShoot(m_shooterSubsystem, 100);
   }
@@ -100,11 +100,15 @@ public class RobotContainer {
   
   }
 
+  
+  
   public Pose3d getRobotPose3d(){
-
+    return m_poseEstimator.getEstimatedPosition();
   }
 
-
+  public SwerveDrivePoseEstimator3d getRobotPoseEstimator() {
+    return m_poseEstimator;
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -117,8 +121,10 @@ public class RobotContainer {
   }
 
   public void updateOdometry() {
-    m_drive
     m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drivetrain.getRotation3d(), getModulePositions());
+  }
+  public void updateOdometry(Pose3d cameraDetectedPose) {
+
   }
 
   public SwerveModulePosition[] getModulePositions() {

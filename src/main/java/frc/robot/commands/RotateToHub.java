@@ -20,7 +20,7 @@ public class RotateToHub extends Command {
   private final ShooterSubsystem m_shooterSubsystem;
   private final TurretControl m_turretController;
   private final Pose3d hubPose = FieldConstants.kHubPose;
-  private final Supplier<Pose3d> robotPose;
+  private final Supplier<Pose3d> poseSupplier;
 
   /**
    * Creates a new ExampleCommand.
@@ -30,7 +30,7 @@ public class RotateToHub extends Command {
   public RotateToHub(ShooterSubsystem shooterSubsystem, Supplier<Pose3d> poseSupplier) {
     m_shooterSubsystem = shooterSubsystem;
     m_turretController = m_shooterSubsystem.getTurretControl();
-    robotPose = 
+    this.poseSupplier = poseSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_turretController);
   }
@@ -38,7 +38,7 @@ public class RotateToHub extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // Pose3d robotPose = new Pose3d(m_robotContainer.m_poseEstimator.getEstimatedPosition);
+    
     
   }
 
