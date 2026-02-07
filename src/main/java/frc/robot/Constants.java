@@ -24,6 +24,8 @@ public final class Constants {
   
 
   public static class ShooterConstants {
+    public static final double kCenterOffset = 0.3;
+
     public static final double kShooterManualDriveDPSScale = 1;
     public static final double kShooterAngleTolerance = 1;
     public static final double kSetPitchPositionTimeoutSeconds = 1;

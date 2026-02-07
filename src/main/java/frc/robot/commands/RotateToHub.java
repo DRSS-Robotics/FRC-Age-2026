@@ -5,13 +5,19 @@
 package frc.robot.commands;
 
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.*;
 
 import java.util.function.Supplier;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
@@ -29,7 +35,7 @@ public class RotateToHub extends Command {
    */
   public RotateToHub(ShooterSubsystem shooterSubsystem, Supplier<Pose3d> poseSupplier) {
     m_shooterSubsystem = shooterSubsystem;
-    m_turretController = m_shooterSubsystem.getTurretControl();
+    m_turretController = shooterSubsystem.getTurretControl();
     this.poseSupplier = poseSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_turretController);
@@ -45,7 +51,20 @@ public class RotateToHub extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // get the current position
+    Pose3d currentPose = poseSupplier.get();
+    // get the yaw rotation
+    Angle azimuth = currentPose.getRotation().getMeasureZ();
+    // apply constant of turret dist from center
+    currentPose.plus(new Transform3d(
+      ShooterConstants.kCenterOffset*Math.cos(azimuth.in(Radians)),
+      ShooterConstants.kCenterOffset*Math.sin(azimuth.in(Radians)),
+      ShooterConstants.kHeight,new Rotation3d()));
 
+    Transform3d huboffset = currentPose.minus(hubPose);
+    
+
+    m_turretController.setTurretPosition(Degrees.of());
   }
 
   // Called once the command ends or is interrupted.

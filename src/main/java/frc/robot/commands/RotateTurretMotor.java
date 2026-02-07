@@ -5,25 +5,26 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretControl;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class RotateYawMotor extends Command {
+public class RotateTurretMotor extends Command {
 
-  private final ShooterSubsystem m_subsystem;
+  private final TurretControl m_turretController;
 
-  public RotateYawMotor(ShooterSubsystem shooter) {
-    m_subsystem = shooter;
-    addRequirements(shooter);
+  public RotateTurretMotor(TurretControl turretControl) {
+    m_turretController = turretControl;
+    addRequirements(m_turretController);
   }
 
 
   @Override
   public void initialize() {
-    m_subsystem.setYawMotorPosition(
+    m_turretController.setTurretPosition(
       Degrees.of(25)
     );
   }
@@ -35,7 +36,7 @@ public class RotateYawMotor extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    m_subsystem.setYawMotorPosition(
+    m_turretController.setTurretPosition(
       Degrees.of(0));
   }
 
