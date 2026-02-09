@@ -1,25 +1,22 @@
 package frc.robot;
+
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.TestableSubsystem.TestCommandBase;
-
+import frc.robot.TestableSubsystem.TestResult;
+import frc.robot.TestableSubsystem.TestableCommand;
 
 public class TestRunner {
-    
+
     private static TestRunner instance = null;
     private boolean hasLoggedTestsComplete = false;
-
-    private ArrayList<TestableSubsystem> tests;
-
-    // all scheduled commands and whether they're finished or not
-    private HashMap<Command, Boolean> runningCommands;
+    private List<TestableSubsystem> testSubsystems;
+    private List<TestableCommand> runningCommands;
 
     private TestRunner() {
-        tests = new ArrayList<>();
-        runningCommands = new HashMap<>();
+        testSubsystems = new ArrayList<>();
+        runningCommands = new ArrayList<>();
         instance = this;
     }
 
@@ -31,47 +28,58 @@ public class TestRunner {
     }
 
     public static void addTest(TestableSubsystem subsystem) {
-        getInstance().tests.add(subsystem);
+        getInstance().testSubsystems.add(subsystem);
     }
 
     public static void runTests() {
         System.out.println("starting tests!");
 
-        CommandScheduler.getInstance().onCommandFinish(
-            (Command c) -> {
-                if (getInstance().runningCommands.containsKey(c)) {
-                    getInstance().runningCommands.put(c, true);
-                }
-            }
-        );
-
-        for (TestableSubsystem test : getInstance().tests) {
-            TestCommandBase command = test.getTestCommand();
-            command.init(test);
-            getInstance().runningCommands.put(command, false);
-            
-            CommandScheduler.getInstance().schedule(command);
+        for (TestableSubsystem test : getInstance().testSubsystems) {
+            TestableCommand command = test.getTestCommand();
+            command.onInitialize();
+            getInstance().runningCommands.add(command);
         }
     }
 
-    /**
-     * iterates through the commands run through the test runner and checks which
-     * ones are still running.
-     * @return whether or not all tests are complete
-     */
     public static boolean allTestsComplete() {
-        for (Command tcb : getInstance().runningCommands.keySet()) {
+        return getInstance().runningCommands.isEmpty();
+    }
 
-            // if a command is still running, exit and return false
-            if (!getInstance().runningCommands.get(tcb)) {
-                return false;
-            }
-        }
+    public static boolean isAnyTestRunning() {
+        return !getInstance().runningCommands.isEmpty();
 
-        return true;
     }
 
     public static void periodic() {
+        for (TestableCommand cmd : getInstance().runningCommands) {
+            cmd.onExecute();
+            TestResult result = cmd.getCurrentResult();
+            if (result != TestResult.IN_PROGRESS) {
+
+                cmd.onFinished(result);
+                getInstance().runningCommands.remove(cmd);
+
+                boolean shouldLog = false;
+                byte logSelection = cmd.getLogSelection();
+
+                switch (result) {
+                    case SUCCESS:
+                        shouldLog = (logSelection & TestableSubsystem.LOG_SUCCESS) != 0;
+                    case KNOWN_FAILURE:
+                        shouldLog = (logSelection & TestableSubsystem.LOG_KNOWN_FAILURE) != 0;
+                    case UNKNOWN_FAILURE:
+                        shouldLog = (logSelection & TestableSubsystem.LOG_UNKNOWN_FAILURE) != 0;
+                    default:
+                        break;
+                }
+
+                Optional<String> loggable = cmd.getLoggableResult(result);
+                if (shouldLog && loggable.isPresent()) {
+                    System.out.println(result.toString() + ": " + loggable.get());
+                }
+            }
+        }
+
         if (!getInstance().hasLoggedTestsComplete && allTestsComplete()) {
             System.out.println("all tests complete!");
             getInstance().hasLoggedTestsComplete = true;

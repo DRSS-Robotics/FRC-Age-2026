@@ -9,6 +9,8 @@ import frc.robot.TestableSubsystem;
 import frc.robot.Utils;
 import frc.robot.Constants.SuperstructureConstants;
 
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
@@ -152,7 +154,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     public static StorageWallState getStorageState(Angle storageWallCurrentPosition, Angle storageWallSetpoint) {
 
         StorageWallState storageState;
-        
+
         if (storageWallCurrentPosition.isNear(storageClosedAngle, storageAngleTolerance) &&
                 storageWallCurrentPosition.isNear(storageWallSetpoint, storageAngleTolerance)) {
             storageState = StorageWallState.kIsClosed;
@@ -200,54 +202,137 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     }
 
     @Override
-    public TestCommandBase getTestCommand() {
-        return new TestCommandBase() {
+    public TestableCommand getTestCommand() {
+        return new SequencedTest(this,
 
-            private boolean intakeMotorSpeedReached;
-            private double startTime;
-            private double timeAtStartOfVelocityTest;
-            private String output;
-            private double maxAllowedError;
+                new TestBase(this) {
+                    // here begins the wall test
+                    private double startTime;
+                    private Angle maxAllowedError;
+                    private String output;
 
-            @Override
-            public void initialize() {
-                runIntake(540);
-                startTime = Timer.getFPGATimestamp();
-                maxAllowedError = SuperstructureConstants.kTestIntakeTargetDPS *
-                        SuperstructureConstants.kMaxTestIntakeSpeedErrorPercentage / 100;
-
-            }
-
-            @Override
-            public TestResult getCurrentResult() {
-
-                if (!intakeMotorSpeedReached) {
-                    if (Timer.getFPGATimestamp() - startTime >= SuperstructureConstants.kMaxTestIntakeTimeToSpinUp) {
-                        output = "The intake took too long to spin up.";
-                        return TestResult.KNOWN_FAILURE;
+                    @Override
+                    public void onInitialize() {
+                        startTime = Timer.getFPGATimestamp();
+                        maxAllowedError = SuperstructureConstants.kTestWallTargetWangle
+                                .times(SuperstructureConstants.kMaxTestWallErrorPercentage / 100);
                     }
 
-                    timeAtStartOfVelocityTest = Timer.getFPGATimestamp();
-                    intakeMotorSpeedReached = Math.abs(getIntakeSpeed().in(DegreesPerSecond)
-                            - SuperstructureConstants.kTestIntakeTargetDPS) < maxAllowedError;
-                } else {
-                    if (Math.abs(getIntakeSpeed().in(DegreesPerSecond)
-                            - SuperstructureConstants.kTestIntakeTargetDPS) > maxAllowedError) {
-                        output = "Intake did not maintain speed.";
-                        return TestResult.KNOWN_FAILURE;
-                    } 
-                    if (Timer.getFPGATimestamp()
-                            - timeAtStartOfVelocityTest >= SuperstructureConstants.kMinTestIntakeTimeToMaintainSpeed) {
+                    @Override
+                    public TestResult getCurrentResult() {
+                        Angle currentWallAngle = m_storageMotor.getPosition().getValue();
+                        if (Timer.getFPGATimestamp()
+                                - startTime >= SuperstructureConstants.kMaxTestWallTimeToReachHeight) {
+                            output = "The wall took too long to reach the desired position. ";
+                            return TestResult.KNOWN_FAILURE;
+                        }
+                        if (currentWallAngle.isNear(SuperstructureConstants.kTestWallTargetWangle, maxAllowedError)) {
+                            output = "The wall succesfully moved to it's target in time within allowed error. ";
+                            return TestResult.SUCCESS;
+                        }
+                        return TestResult.IN_PROGRESS;
 
-                        output = "Intake maintained speed for the duration.";
-                        return TestResult.SUCCESS;
                     }
-                }
+                },
 
-                return TestResult.IN_PROGRESS;
-            }
+                // here begins the transfer test
+                new TestBase(this) {
 
-        };
+                    private double startTime;
+                    private double maxAllowedError;
+                    private boolean transferMotorSpeedReached;
+                    private double timeAtStartOfVelocityTest;
+                    private String output;
+
+                    @Override
+                    public void onInitialize() {
+                        runTransferMotor(540);
+                        startTime = Timer.getFPGATimestamp();
+                        maxAllowedError = SuperstructureConstants.kTestTransferTargetDPS *
+                                SuperstructureConstants.kMaxTestTransferSpeedErrorPercentage / 100;
+                    }
+
+                    @Override
+                    public TestResult getCurrentResult() {
+                        if (!transferMotorSpeedReached) {
+                            if (Timer.getFPGATimestamp()
+                                    - startTime >= SuperstructureConstants.kMaxTestTransferTimeToSpinUp) {
+                                output = "The transfer took too long to spin up.";
+                                return TestResult.KNOWN_FAILURE;
+                            }
+
+                            timeAtStartOfVelocityTest = Timer.getFPGATimestamp();
+                            transferMotorSpeedReached = Math.abs(getIntakeSpeed().in(DegreesPerSecond)
+                                    - SuperstructureConstants.kTestTransferTargetDPS) < maxAllowedError;
+                        } else {
+                            if (Math.abs(getIntakeSpeed().in(DegreesPerSecond)
+                                    - SuperstructureConstants.kTestTransferTargetDPS) > maxAllowedError) {
+                                output = "Transfer did not maintain speed.";
+                                return TestResult.KNOWN_FAILURE;
+                            }
+                            if (Timer.getFPGATimestamp()
+                                    - timeAtStartOfVelocityTest >= SuperstructureConstants.kMinTestTransferTimeToMaintainSpeed) {
+
+                                output = "Transfer maintained speed for the duration.";
+                                return TestResult.SUCCESS;
+                            }
+                        }
+
+                        return TestResult.IN_PROGRESS;
+                    }
+                },
+
+                // END OF TRANSFER
+
+                // here begins the intake test
+                new TestBase(this) {
+
+                    private boolean intakeMotorSpeedReached;
+                    private double startTime;
+                    private double timeAtStartOfVelocityTest;
+                    private String output;
+                    private double maxAllowedError;
+
+                    @Override
+                    public void onInitialize() {
+                        runIntake(540);
+                        startTime = Timer.getFPGATimestamp();
+                        maxAllowedError = SuperstructureConstants.kTestIntakeTargetDPS *
+                                SuperstructureConstants.kMaxTestIntakeSpeedErrorPercentage / 100;
+
+                    }
+
+                    @Override
+                    public TestResult getCurrentResult() {
+
+                        if (!intakeMotorSpeedReached) {
+                            if (Timer.getFPGATimestamp()
+                                    - startTime >= SuperstructureConstants.kMaxTestIntakeTimeToSpinUp) {
+                                output = "The intake took too long to spin up.";
+                                return TestResult.KNOWN_FAILURE;
+                            }
+
+                            timeAtStartOfVelocityTest = Timer.getFPGATimestamp();
+                            intakeMotorSpeedReached = Math.abs(getIntakeSpeed().in(DegreesPerSecond)
+                                    - SuperstructureConstants.kTestIntakeTargetDPS) < maxAllowedError;
+                        } else {
+                            if (Math.abs(getIntakeSpeed().in(DegreesPerSecond)
+                                    - SuperstructureConstants.kTestIntakeTargetDPS) > maxAllowedError) {
+                                output = "Intake did not maintain speed.";
+                                return TestResult.KNOWN_FAILURE;
+                            }
+                            if (Timer.getFPGATimestamp()
+                                    - timeAtStartOfVelocityTest >= SuperstructureConstants.kMinTestIntakeTimeToMaintainSpeed) {
+
+                                output = "Intake maintained speed for the duration.";
+                                return TestResult.SUCCESS;
+                            }
+                        }
+
+                        return TestResult.IN_PROGRESS;
+                    }
+
+                });
     }
 
 }

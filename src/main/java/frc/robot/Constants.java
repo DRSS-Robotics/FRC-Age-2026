@@ -1,5 +1,8 @@
 package frc.robot;
 
+import edu.wpi.first.units.measure.Angle;
+
+import static edu.wpi.first.units.Units.Degrees;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -43,6 +46,16 @@ public final class Constants {
     public static final double kMaxTestIntakeTimeToSpinUp = 0.25 ; 
     public static final double kMinTestIntakeTimeToMaintainSpeed = 20; 
     public static final double kTestIntakeTargetDPS = 540; 
+
+    public static final double kMaxTestTransferSpeedErrorPercentage = 3;
+    public static final double kMaxTestTransferTimeToSpinUp = 0.25;
+    public static final double kMinTestTransferTimeToMaintainSpeed = 20;
+    public static final double kTestTransferTargetDPS = 540;
+    
+    public static final double kMaxTestWallErrorPercentage = 0.3;
+    public static final double kMaxTestWallTimeToReachHeight = 4.0;
+    public static final Angle  kTestWallTargetWangle = Degrees.of(0);
+
   }
 
 }
