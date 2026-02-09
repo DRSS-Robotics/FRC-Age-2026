@@ -17,27 +17,25 @@ public class TestClass {
     @Test
     void storageWallTest() {
         
-        // checking if storage wall is trying to open and opens it
+        // checking if storage wall is trying to open
         assertEquals(SuperstructureSubsystem.getStorageState(SuperstructureSubsystem.storageClosedAngle,
                 SuperstructureSubsystem.storageOpenAngle), SuperstructureSubsystem.StorageWallState.kIsOpening);
 
-        // checking if storage wall is trying to close and closes it
+        // checking if storage wall is trying to close
         assertEquals(
                 SuperstructureSubsystem.getStorageState(SuperstructureSubsystem.storageOpenAngle,
                         SuperstructureSubsystem.storageClosedAngle),
                 SuperstructureSubsystem.StorageWallState.kIsClosing);
 
-        // checking if storage wall is trying to close and if its closed and does
-        // nothing
+        // checking if storage wall is fully open
         assertEquals(SuperstructureSubsystem.getStorageState(SuperstructureSubsystem.storageOpenAngle,
-                SuperstructureSubsystem.storageOpenAngle), SuperstructureSubsystem.StorageWallState.kIsClosing);
+                SuperstructureSubsystem.storageOpenAngle), SuperstructureSubsystem.StorageWallState.kIsOpen);
 
-        // checking if storage wall is trying to open a nd is open so it also does
-        // nothing
+        // checking if storage wall is fully closed
         assertEquals(
                 SuperstructureSubsystem.getStorageState(SuperstructureSubsystem.storageClosedAngle,
                         SuperstructureSubsystem.storageClosedAngle),
-                SuperstructureSubsystem.StorageWallState.kIsClosing);
+                SuperstructureSubsystem.StorageWallState.kIsClosed);
     }
 
 }

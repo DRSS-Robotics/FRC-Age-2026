@@ -1,12 +1,6 @@
 package frc.robot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public interface TestableSubsystem {
@@ -149,7 +143,7 @@ public interface TestableSubsystem {
         public TestResult getCurrentResult() {
             TestableCommand currentCommand = commandBuffer[bufferIndex];
             TestResult currentResult = currentCommand.getCurrentResult();
-            
+
             if (currentResult != TestResult.IN_PROGRESS) {
                 outputBuffer += currentCommand.getLoggableResult(currentResult);
             }
