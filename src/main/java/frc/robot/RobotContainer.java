@@ -9,9 +9,11 @@ import frc.robot.commands.AutoShoot;
 import frc.robot.commands.Autos;
 import frc.robot.commands.RunLaunchMotor;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.RotateToHub;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.TestMotor;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretControl;
 import frc.robot.commands.TestMotorOff;
 import frc.robot.commands.TestMotorOn;
 
@@ -43,6 +45,7 @@ public class RobotContainer {
   private final TestMotor m_testMotor = new TestMotor();
   private final Supplier<Pose3d> m_poseSupplier;
   private final ShooterSubsystem m_shooterSubsystem;
+  private final TurretControl m_turretController;
   
   // TODO: actually initialize a SwerveDrivePoseEstimator
   private final SwerveDrivePoseEstimator3d m_poseEstimator;
@@ -57,19 +60,22 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
+  private final CommandXboxController m_operatorController =
+      new CommandXboxController(OperatorConstants.kOperatorControllerPort);
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-      m_poseEstimator = new SwerveDrivePoseEstimator3d(m_drivetrain.getKinematics(), 
-      m_drivetrain.getRotation3d(), 
-      getModulePositions(),
-      new Pose3d(0,0,0, null));
-      
-      m_poseSupplier = () -> getRobotPose3d();
-      m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, m_poseSupplier);
-      m_turret = new TurretControl(ShooterConstants.kTurretID);
-      // new AutoShoot(m_shooterSubsystem, 100);
-      // Configure the trigger bindings
+    m_poseEstimator = new SwerveDrivePoseEstimator3d(
+                  m_drivetrain.getKinematics(), 
+                  m_drivetrain.getRotation3d(), 
+                  getModulePositions(),
+                  new Pose3d(0,0,0, null));
+    
+    m_poseSupplier = () -> getRobotPose3d();
+    m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, m_poseSupplier);
+    m_turretController = new TurretControl(ShooterConstants.kTurretID);
+    // new AutoShoot(m_shooterSubsystem, 100);
+    // Configure the trigger bindings
     configureBindings();
   }
 
@@ -90,7 +96,8 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
-    m_turret.setDefaultCommand(new RotateToHub(m_shooterSubsystem, m_poseSupplier));
+    m_turretController.setDefaultCommand(new RotateToHub(m_turretController, m_poseSupplier));
+    m_operatorController.leftBumper().whileTrue(new AutoShoot(m_shooterSubsystem, m_poseSupplier));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -98,7 +105,6 @@ public class RobotContainer {
     m_driverController.y().whileTrue(new TestMotorOn(m_testMotor));
     
    // m_operatorController.b().whileTrue(new EnableOuttake(outtakeSubsystem));
-  
   
   }
 

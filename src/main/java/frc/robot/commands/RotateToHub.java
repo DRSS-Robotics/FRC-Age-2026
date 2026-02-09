@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 /** An example command that uses an example subsystem. */
 public class RotateToHub extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ShooterSubsystem m_shooterSubsystem;
   private final TurretControl m_turretController;
   private final Pose3d hubPose = FieldConstants.kHubPose;
   private final Supplier<Pose3d> poseSupplier;
@@ -34,9 +33,8 @@ public class RotateToHub extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public RotateToHub(ShooterSubsystem shooterSubsystem, Supplier<Pose3d> poseSupplier) {
-    m_shooterSubsystem = shooterSubsystem;
-    m_turretController = shooterSubsystem.getTurretControl();
+  public RotateToHub(TurretControl turretControl, Supplier<Pose3d> poseSupplier) {
+    m_turretController = turretControl;
     this.poseSupplier = poseSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -61,16 +59,19 @@ public class RotateToHub extends Command {
       ShooterConstants.kCenterOffset*Math.sin(azimuth.in(Radians)),
       ShooterConstants.kHeight,new Rotation3d()));
 
-    Transform3d huboffset = currentPose.minus(hubPose);
-    m_turretController.setTurretPosition(Degrees.of(getQuadrantOffset(toHub)+getAngleToHub(toHub)));
+    Transform3d hubOffset = currentPose.minus(hubPose);
+    m_turretController.setTurretPosition(getQuadrantOffset(hubOffset)+getAngleToHub(hubOffset));
+
+    addRequirements(m_turretController);
   }
+
   private int getQuadrantOffset(Transform3d toHub) {
     int binaryID = 0;
-    if (huboffset.getMeasureX().in(Inches)>0) {
-        binaryID+=2;
+    if (toHub.getX()>0) {
+        binaryID += 2;
     }
-    if (huboffset.getMeasureY().in(Inches)>0) {
-        binaryID+=1;
+    if (toHub.getY()>0) {
+        binaryID += 1;
     }
     switch (binaryID) {
         case 0:
@@ -81,13 +82,15 @@ public class RotateToHub extends Command {
             return 90;
         case 3:
             return 180;
+        default:
+            return 0;
     }
   }
   private double getAngleToHub(Transform3d toHub) {
-    return (Math.atan(
-        abs(
-            toHub.getMeasureY().in(Inches)/toHub.getMeasureX().in(Inches)
-        )) * 180 / Math.PI);
+    return Math.atan(
+      Math.abs(
+        toHub.getY()/toHub.getX()
+      )) * 180 / Math.PI;
   }
   // Called once the command ends or is interrupted.
   @Override

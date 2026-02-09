@@ -4,46 +4,70 @@
 
 package frc.robot.commands;
 
-import frc.robot.Constants;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.Constants.*;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShotCalculator;
+
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+
+import java.util.function.Supplier;
+
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
 public class AutoShoot extends Command {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+
   private final ShooterSubsystem m_shooterSubsystem;
+  private final Supplier<Pose3d> poseSupplier;
   private double horizDist;
   private double power;
+  private RunLaunchMotor previousCommand;
 
-  /**
-   * Creates a new ExampleCommand.
-   *
-   * @param subsystem The subsystem used by this command.
-   */
-  public AutoShoot(ShooterSubsystem shooterSubsystem, double horizDist) {
-    m_shooterSubsystem = shooterSubsystem;
-    this.horizDist = horizDist;
-    // Use addRequirements() here to declare subsystem dependencies.
+  public AutoShoot(ShooterSubsystem shooter, Supplier<Pose3d> poseSupplier) {
+    m_shooterSubsystem = shooter;
+    this.poseSupplier = poseSupplier;
+    
     addRequirements(m_shooterSubsystem);
   }
 
-  // Called when the command is initially scheduled.
+
   @Override
-  public void initialize() {
-    new AutoShootPower(m_shooterSubsystem, horizDist);
+  public void initialize() {}
+
+
+  @Override
+  public void execute() {
+    m_shooterSubsystem.runLaunchMotor(
+      DegreesPerSecond.of(calcShotPower(findDist(), ShooterConstants.kPitch, ShooterConstants.kHeight))
+    );
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
+  public double findDist() {
+    Pose3d robotPose = poseSupplier.get();
+    Pose3d hubPose = FieldConstants.kHubPose;
+    Transform3d robotTransform = robotPose.minus(hubPose);
+    double horizDist = Math.sqrt(Math.pow(robotTransform.getX(), 2) + Math.pow(robotTransform.getY(), 2));
+    
+    return horizDist;
+  }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
+  public static double calcShotPower(double horizDist, double pitch, double h_launcher){
+        
+    double numerator = FieldConstants.kGravIN * Math.pow(horizDist, 2);
+    double denominator = 2 * (-72 + horizDist * Math.tan(pitch) + h_launcher) * Math.pow(Math.cos(pitch), 2);
+    double power = Math.sqrt(numerator / denominator);
 
-  // Returns true when the command should end.
+    return power;
+  }
+
+
+  @Override
+  public void end(boolean interrupted) {
+    m_shooterSubsystem.runLaunchMotor(DegreesPerSecond.of(0));
+  }
+
+
   @Override
   public boolean isFinished() {
     return false;
