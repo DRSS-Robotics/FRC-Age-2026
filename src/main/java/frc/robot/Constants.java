@@ -38,8 +38,12 @@ public final class Constants {
     public static final String kOutputStreamName = "Guh";
     public static final int kOutputStreamPort = 3141;
   
-    // TODO: get correct driver camera name and id
+    // TODO: get correct driver camera and hopper camera name and id
+  
     public static final String kDriverCameraName = "";
     public static final int kDriverCameraId = 0;
+
+    public static final String kHopperCameraId = ""; 
+    public static final int kHopperCameraId = 0; 
   }
 }
