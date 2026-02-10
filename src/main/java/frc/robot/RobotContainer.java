@@ -21,23 +21,35 @@ import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
 import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
+import frc.robot.commands.AutoCommands.pathfindingCommand;
+import frc.robot.generated.TunerConstants;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.json.simple.parser.ParseException;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.*;
 import com.pathplanner.lib.util.FileVersionException;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -47,6 +59,19 @@ import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
+import frc.robot.generated.TunerConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -65,6 +90,21 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final SendableChooser<Command> autoChooser;
   public Object m_outtakeSubsystem;
+
+    private double MaxSpeed = 0.4 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+    private final Telemetry logger = new Telemetry(MaxSpeed);
+
+    private final CommandXboxController joystick = new CommandXboxController(0);
+
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
   final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
@@ -100,26 +140,34 @@ public class RobotContainer {
       // this.autoChooser.addOption("Right", this.autoRightCommand());
       SmartDashboard.putData("Auto Mode", autoChooser);
  
-      try {
-       PathPlannerPath path = PathPlannerPath.fromPathFile("start");
-      } catch (FileVersionException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (ParseException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      
-   PathConstraints constraints = new PathConstraints(
-        3.0, 4.0,
-        Units.degreesToRadians(540), Units.degreesToRadians(720));
+      // try {
+      //  PathPlannerPath path = PathPlannerPath.fromPathFile("start");
 
-      Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
-        path,
-        constraints);
+      //  PathConstraints constraints = new PathConstraints(
+      //   3.0, 4.1,
+      //   Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+      //  Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+      //   path,
+      //   constraints);
+      // } catch (FileVersionException e) {
+      //   // TODO Auto-generated catch block
+      //   e.printStackTrace();
+      // } catch (IOException e) {
+      //   // TODO Auto-generated catch block
+      //   e.printStackTrace();
+      // } catch (ParseException e) {
+      //   // TODO Auto-generated catch block
+      //   e.printStackTrace();
+      // }
+      
+  //  PathConstraints constraints = new PathConstraints(
+  //       3.0, 4.0,
+  //       Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+      // Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+      //   path,
+      //   constraints);
 
      // PathPlannerPath path = new PathPlannerPath(null, constraints, null, null);
 
@@ -142,7 +190,8 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     //    m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-  //  m_driverController.a().onTrue(new ToggleWallCommand(m_superstructure));
+  //m_driverController.a().onTrue(new ToggleWallCommand());
+  m_driverController.x().onTrue(new pathfindingCommand(drivetrain));
   }
 
   /**
