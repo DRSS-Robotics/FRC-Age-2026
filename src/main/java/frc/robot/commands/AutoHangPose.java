@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.HangSubsystem;
 
+import java.util.List;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,15 +24,10 @@ public class AutoHangPose extends Command {
   private final HangSubsystem m_hang;
   public boolean canItHang = false;
   public boolean isItAuto;
-  public int idealHangPositionLeft;
-  public int idealHangPositionRight;
+  public boolean typeOfTeleopGuh; //true is directions, false is auto alignment
   Pose2d targetPose;
-  Pose2d currentPose;
   public boolean guh = true;
-  enum hangSide {
-    LEFT,
-    RIGHT
-  }
+  private SwerveDrivePoseEstimator m_poseEstimator;
   //double currentPose = m_vision.updatePoseEstimate();
 
   //private final VisionSubsystem m_vision;
@@ -47,35 +44,9 @@ public class AutoHangPose extends Command {
     addRequirements(hangSubsystem);
   }
 
-  public static void getDistance(){
-    
-  }
-
-  public hangSide getSide(){
-    //find the nearest one using the Pose2d.nearest()
-    hangSide nearestHangSide = hangSide.LEFT; //Add actual logic for nearest side, this for testing
-
-    switch(nearestHangSide) {
-      case LEFT:
-      targetPose = HangConstants.hangLeftPose;
-        break;
-      case RIGHT:
-      targetPose = HangConstants.hangRightPose;
-        break;
-      
-    
-  }
-  return nearestHangSide;
-  }
-
-
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-      //if left is closer: go to left pose
-
-      //We gotta use the pose estimate from the vision subsystem, it's not a double btw
-       //Figure out what you need, add to constants, then put those here
 
        if (isItAuto){
        //Exchange the data to path planner
@@ -89,16 +60,7 @@ public class AutoHangPose extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(isItAuto != true){
-      //double howMuchtoMove = targetPose - currentPose;
-      double currentPoseX = currentPose.getX();
-      double currentPoseY = currentPose.getY();
-      double targetPoseX = targetPose.getX();
-      double targetPoseY = targetPose.getY();
-
-      //Pose2d distancemaybe = currentPose.relativeTo(targetPose);
-      //howMuchtoMove = Distance.minus();
-      
+    if(isItAuto != true && typeOfTeleopGuh == true){
       // SmartDashboard.putNumber("Move X by:", howMuchtoMove);
       // SmartDashboard.putNumber("Move Y by:", howMuchtoMove);
 
@@ -114,6 +76,12 @@ public class AutoHangPose extends Command {
         //System.out.println("You are good to hang :D");
         SmartDashboard.putBoolean("Hang?", canItHang);
       }
+    }
+    if (isItAuto != true && typeOfTeleopGuh == false){
+      //auto alignment, really just small adjustment for precision
+      double guh = AutoHangPose.getHangCalculation(guhguh);
+      //move xDiff and move yDiff and rDiff
+      //until the all diffs are 0 (does threshold stuff in getHangcalc(), )
     }
 
   }
@@ -133,11 +101,6 @@ public class AutoHangPose extends Command {
 }
 
 
-//TODO: Research how to use path planner for the movement, check in with teleop about other thing?
-//TODO: Stop moving code
-
-//TODO: Correct April tag stuff, drawing on camera feed with Luka?
-
-//TODO: Doubled check where code should be 
-//TODO: Recheck the logic, walk through it
-//TODO: Add comments explaining code
+//TODO: Teleop correct pose slightly, automation adjustment v if drivers don't like this
+//TODO: Teleop directions 
+//TODO: Automation, path planner? I think pose estimator can be used here too
