@@ -8,6 +8,14 @@ package frc.robot;
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
  */
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.Inches;
+import edu.wpi.first.units.Degrees;
+
+
+//import edu.wpi.first.units.Degrees;
+
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
@@ -48,4 +56,26 @@ public final class Constants {
      */
     public static final double kHangManualDriveDPSScale = 0;
   }
+
+  public static class VisionConstants {
+    public static final String kLimelightName = "limelight";
+    public static final String kLimelightStreamURL = "http://limelight.local:5801/stream.mjpg";
+
+    // TODO: fill in all offset values
+    // Distance from the center of the turret to the center of the Limelight
+    public static final Distance kLLTurretCenterDist = Inches.of(99999);
+    // Offset values are measured from the center of the robot horizontally, and from the floor vertically
+    public static final Distance kTurretForwardOffset = Inches.of(99999);
+    public static final Distance kTurretSideOffset = Inches.of(99999);
+    public static final Distance kLimelightHeightOffset = Inches.of(18);
+    public static final Angle kLimelightPitchOffset = Degrees.of(15); 
+    
+    public static final String kOutputStreamName = "Guh";
+    public static final int kOutputStreamPort = 3141;
+  
+    // TODO: get correct driver camera name and id
+    public static final String kDriverCameraName = "";
+    public static final int kDriverCameraId = 0;
+  }
+  
 }

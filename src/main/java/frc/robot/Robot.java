@@ -26,7 +26,7 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   public Robot() {
-    Pathfinding.setPathfinder(new MyPathfinder());
+   // Pathfinding.setPathfinder(new MyPathfinder()); Not too sure what this is for, but if it's needed feel free to uncomment it
     PathfindingCommand.warmupCommand().schedule();
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.

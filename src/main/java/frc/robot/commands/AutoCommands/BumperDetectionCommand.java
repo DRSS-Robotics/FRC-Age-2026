@@ -6,21 +6,25 @@ package frc.robot.commands.AutoCommands;
 
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.LimelightTarget_Detector;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 /** An example command that uses an example subsystem. */
 public class BumperDetectionCommand extends Command{
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final LimelightTarget_Detector m_BumperDetector;
+  private final Vision m_BumperDetector;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public BumperDetectionCommand(LimelightTarget_Detector bumpDetector_Camera) { 
+  public BumperDetectionCommand(Vision bumpDetector_Camera) { 
     m_BumperDetector = bumpDetector_Camera;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(bumpDetector_Camera);
@@ -29,11 +33,12 @@ public class BumperDetectionCommand extends Command{
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
-
   // Called every time the scheduler runs while the command is scheduled.
+  
   @Override
   public void execute() {
-    //m_intake.runIntake(-0.5);
+    LimelightHelpers.setPipelineIndex("PipeLine_BumperDetection", 0);
+    //putting this here to not forget but the getting the data itself code may be better suited as a subsystems
   }
 
   // Called once the command ends or is interrupted.
