@@ -4,17 +4,14 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.UsbCameraInfo;
-import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.units.Meters;
-import edu.wpi.first.units.Degrees;
-import edu.wpi.first.units.Radians;
+import edu.wpi.first.cscore.UsbCameraInfo; // Do not remove, used for testing purposes
+import edu.wpi.first.cscore.VideoSink;
+import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
@@ -28,7 +25,7 @@ public class Vision extends SubsystemBase {
   private HttpCamera limelight;
   private UsbCamera driverCamera;
   private UsbCamera hopperCamera;
-  private MjpegServer outputStream;
+  private VideoSink outputStream;
 
   private Supplier<Angle> turretAngleSupplier;
   private SwerveDrivePoseEstimator m_poseEstimator;
@@ -40,15 +37,6 @@ public class Vision extends SubsystemBase {
     m_poseEstimator = poseEstimator;
     m_pigeon = pigeon;
 
-    // The following code is for testing purposes and should be commented out unless testing
-    /*System.out.println("USB cameras detected:");
-    for (UsbCameraInfo cam : UsbCamera.enumerateUsbCameras()) {
-      System.out.print("name: \"");
-      System.out.print(cam.name);
-      System.out.print("\" id: ");
-      System.out.println(cam.dev);
-    }*/
-
     // Initialize Limelight
     updateLimelightPosition();
     limelight = new HttpCamera(VisionConstants.kLimelightName, VisionConstants.kLimelightStreamURL);
@@ -57,16 +45,33 @@ public class Vision extends SubsystemBase {
     new VisionPoseEstimation(this, m_poseEstimator, m_pigeon);
 
     // Initialize driver camera
-    driverCamera = new UsbCamera(VisionConstants.kDriverCameraName, VisionConstants.kDriverCameraId);
+    driverCamera = new UsbCamera("USB Camera " + VisionConstants.kDriverCameraId, VisionConstants.kDriverCameraId);
 
     // Initialize hopper camera
-    hopperCamera = new UsbCamera(VisionConstants.kHopperCameraName, VisionConstants.kHopperCameraId);
+    hopperCamera = new UsbCamera("USB Camera " + VisionConstants.kHopperCameraId, VisionConstants.kHopperCameraId);
 
     // Initialize output stream and start streaming driver camera
-    outputStream = new MjpegServer(VisionConstants.kOutputStreamName, VisionConstants.kOutputStreamPort);
+    //outputStream = new MjpegServer(VisionConstants.kOutputStreamName, VisionConstants.kOutputStreamPort);
+    outputStream = CameraServer.addServer("guh");
     useDriverCamera();
 
+    outputStream.setSource(hopperCamera);
+
     // TODO: add hopperCamera to top right of outputStream
+
+    for (UsbCameraInfo cam : UsbCamera.enumerateUsbCameras()) {
+      System.out.print("VISION: USB camera detected: name: \"");
+      System.out.print(cam.name);
+      System.out.print("\" id: ");
+      System.out.println(cam.dev);
+    }
+    
+    //System.out.print("VISION: Limelight connected: ");
+    //System.out.println(limelight.getActualFPS());
+    //System.out.print("VISION: Driver camera connected: ");
+    //System.out.println(driverCamera.getActualFPS());
+    System.out.print("VISION: Hopper camera connected: ");
+    System.out.println(hopperCamera.isConnected());
   }
 
   public void updateLimelightPosition() {
@@ -74,8 +79,8 @@ public class Vision extends SubsystemBase {
 
     // The Limelight's position is modeled in polar coordinates (<distance from Limelight to center>, <turret angle>)
     // These coordinates are converted to Cartesian coordinates to find the position relative to the center of the turret
-    double limelightForwardOffset = VisionConstants.kLLCenterDist.in(Meters) * Math.sin(turretAngle.in(Radians));
-    double limelightSideOffset = VisionConstants.kLLCenterDist.in(Meters) * Math.cos(turretAngle.in(Radians));
+    double limelightForwardOffset = VisionConstants.kLLTurretCenterDist.in(Meters) * Math.sin(turretAngle.in(Radians));
+    double limelightSideOffset = VisionConstants.kLLTurretCenterDist.in(Meters) * Math.cos(turretAngle.in(Radians));
 
     // Set the Limelight position in robot space using offset constants
     LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName, 
@@ -83,7 +88,7 @@ public class Vision extends SubsystemBase {
       /* side offset    */ VisionConstants.kTurretSideOffset.in(Meters) + limelightSideOffset,
       /* height offset  */ VisionConstants.kLimelightHeightOffset.in(Meters),
       /* roll offset    */ 0,
-      /* pitch offset   */ VisionConstants.kLimelightPitchOffset.in(Meters),
+      /* pitch offset   */ VisionConstants.kLimelightPitchOffset.in(Degrees),
       /* yaw offset     */ turretAngle.in(Degrees)
     );
   }

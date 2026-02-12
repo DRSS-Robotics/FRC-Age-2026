@@ -6,8 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.Inches;
-import edu.wpi.first.units.Degrees;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -34,16 +33,13 @@ public final class Constants {
     public static final Distance kTurretSideOffset = Inches.of(99999);
     public static final Distance kLimelightHeightOffset = Inches.of(18);
     public static final Angle kLimelightPitchOffset = Degrees.of(15); 
-    
-    public static final String kOutputStreamName = "Guh";
-    public static final int kOutputStreamPort = 3141;
-  
+      
     // TODO: get correct driver camera and hopper camera name and id
   
-    public static final String kDriverCameraName = "";
+    public static final String kDriverCameraName = "Integrated Camera";
     public static final int kDriverCameraId = 0;
 
-    public static final String kHopperCameraId = ""; 
-    public static final int kHopperCameraId = 0; 
+    public static final String kHopperCameraName = "JWG 5M CAM";
+    public static final int kHopperCameraId = 1;
   }
 }
