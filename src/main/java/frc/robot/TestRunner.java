@@ -51,13 +51,14 @@ public class TestRunner {
     }
 
     public static void periodic() {
+        ArrayList<TestableCommand> commandsToClear = new ArrayList<>();
         for (TestableCommand cmd : getInstance().runningCommands) {
             cmd.onExecute();
             TestResult result = cmd.getCurrentResult();
             if (result != TestResult.IN_PROGRESS) {
 
                 cmd.onFinished(result);
-                getInstance().runningCommands.remove(cmd);
+                commandsToClear.add(cmd);
 
                 boolean shouldLog = false;
                 byte logSelection = cmd.getLogSelection();
@@ -75,7 +76,7 @@ public class TestRunner {
 
                 Optional<String> loggable = cmd.getLoggableResult(result);
                 if (shouldLog && loggable.isPresent()) {
-                    System.out.println(result.toString() + ": " + loggable.get());
+                    System.out.println(result.toString() + ": " + cmd.toString() + "; " + loggable.get());
                 }
             }
         }
@@ -84,6 +85,8 @@ public class TestRunner {
             System.out.println("all tests complete!");
             getInstance().hasLoggedTestsComplete = true;
         }
+
+        getInstance().runningCommands.removeAll(commandsToClear);
     }
 }
 // secret pinyata!! (guh from william) -noah

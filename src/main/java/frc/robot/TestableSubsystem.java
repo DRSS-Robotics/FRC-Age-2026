@@ -118,7 +118,13 @@ public interface TestableSubsystem {
 
         private TestableCommand[] commandBuffer;
         private int bufferIndex = 0;
-        private String outputBuffer;
+        private boolean allTestsSuccess;
+        private String outputBuffer = "";
+
+        private TestableCommand activeCommand;
+        private TestResult mostRecentResult;
+
+        private boolean guh;
 
         public SequencedTest(TestableSubsystem testable, TestableCommand... tests) {
             super(testable);
@@ -132,33 +138,57 @@ public interface TestableSubsystem {
 
         @Override
         public void onExecute() {
-            if (commandBuffer[bufferIndex].getCurrentResult() == TestResult.SUCCESS) {
-                commandBuffer[bufferIndex++].onFinished(TestResult.SUCCESS);
-                commandBuffer[bufferIndex].onInitialize();
+            if (allTestsSuccess) return;
+
+            activeCommand = commandBuffer[bufferIndex];
+
+            if (guh) {
+                activeCommand.onFinished(TestResult.SUCCESS);
+
+                bufferIndex ++;
+
+                if (bufferIndex >= commandBuffer.length) {
+                    allTestsSuccess = true;
+                    return;
+                } 
+                else {
+                    activeCommand = commandBuffer[bufferIndex];
+                    activeCommand.onInitialize();
+                }
+
+                guh = false;
             }
-            commandBuffer[bufferIndex].onExecute();
+
+            activeCommand.onExecute();
         }
 
         @Override
         public TestResult getCurrentResult() {
-            TestableCommand currentCommand = commandBuffer[bufferIndex];
-            TestResult currentResult = currentCommand.getCurrentResult();
+            if (allTestsSuccess) return TestResult.SUCCESS;
+
+            TestResult currentResult = activeCommand.getCurrentResult();
 
             if (currentResult != TestResult.IN_PROGRESS) {
-                outputBuffer += currentCommand.getLoggableResult(currentResult);
+                activeCommand.getLoggableResult(currentResult).ifPresent(
+                        (result) -> {
+                            outputBuffer += "\n" + activeCommand.toString() + ": " + result + ".";
+                        });
             }
-            if (currentResult == TestResult.KNOWN_FAILURE) {
-                return TestResult.KNOWN_FAILURE;
+
+            if (currentResult == TestResult.KNOWN_FAILURE ||
+                    currentResult == TestResult.UNKNOWN_FAILURE) {
+                return currentResult;
             }
-            if (currentResult == TestResult.UNKNOWN_FAILURE) {
-                return TestResult.UNKNOWN_FAILURE;
+
+            else if (currentResult == TestResult.SUCCESS) {
+                guh = true;
             }
 
             return TestResult.IN_PROGRESS;
         }
 
         @Override
-        public Optional<String> getLoggableResult(TestResult res) {
+        public final Optional<String> getLoggableResult(TestResult res) {
             return Optional.of(outputBuffer);
         }
     }

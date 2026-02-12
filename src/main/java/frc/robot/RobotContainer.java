@@ -9,7 +9,6 @@ import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,6 +29,8 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureBindings();
+
+    TestRunner.addTest(new SelftTestForTestInterface());
   }
 
   private void configureBindings() {

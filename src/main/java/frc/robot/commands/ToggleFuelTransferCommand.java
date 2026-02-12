@@ -1,7 +1,8 @@
 package frc.robot.commands;
 
-import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.Constants.SuperstructureConstants;
+import frc.robot.subsystems.SuperstructureSubsystem;
+
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import edu.wpi.first.wpilibj2.command.Command;
