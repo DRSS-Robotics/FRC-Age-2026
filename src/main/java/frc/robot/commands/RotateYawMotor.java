@@ -9,39 +9,33 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
+import java.util.function.Supplier;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class RotateYawMotor extends Command {
 
   private final ShooterSubsystem m_subsystem;
+  private final Supplier<Angle> angle;
 
-  public RotateYawMotor(ShooterSubsystem shooter) {
+  private Angle targetAngle;
+
+  public RotateYawMotor(ShooterSubsystem shooter, Supplier<Angle> angleSupplier) {
     m_subsystem = shooter;
+    angle = angleSupplier;
     addRequirements(shooter);
   }
-
-
+  
   @Override
-  public void initialize() {
+  public void execute() {
+    targetAngle = angle.get();
     m_subsystem.setYawMotorPosition(
-      Degrees.of(25)
-    );
+        targetAngle);
   }
-
-
-  @Override
-  public void execute() {}
-
-
-  @Override
-  public void end(boolean interrupted) {
-    m_subsystem.setYawMotorPosition(
-      Degrees.of(0));
-  }
-
 
   @Override
   public boolean isFinished() {
-    return false;
+    return m_subsystem.getYawEncoder().isNear(targetAngle, Degrees.of(0.2));
   }
 }

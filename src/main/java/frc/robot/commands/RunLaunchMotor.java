@@ -22,7 +22,7 @@ public class RunLaunchMotor extends Command {
 
   @Override
   public void initialize() {
-    m_subsystem.runLaunchMotor(
+    m_subsystem.runLaunchMotors(
       DegreesPerSecond.of(25)
     );
   }
@@ -34,7 +34,7 @@ public class RunLaunchMotor extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    m_subsystem.runLaunchMotor(
+    m_subsystem.runLaunchMotors(
       DegreesPerSecond.of(0));
   }
 
