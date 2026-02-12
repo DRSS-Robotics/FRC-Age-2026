@@ -5,6 +5,8 @@
 package frc.robot.commands.AutoCommands;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.BumperDectectionSubsystem;
+import frc.robot.commands.AutoCommands.BumperDetectionCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SuperstructureSubsystem;
@@ -28,7 +30,8 @@ public class pathfindingCommand extends Command{
 
    public double MaxVelocity = 3.0;
 
-   public boolean maybe = true;
+   //public boolean maybe = true;
+   public final BumperDetectionCommand distanceFromLimelightToGoalInches;
 
   /**
    * Creates a new ExampleCommand.
@@ -49,7 +52,7 @@ public class pathfindingCommand extends Command{
   @Override
   public void execute() {
 
-    if (maybe){
+    if (BumperDetectionCommand(distanceFromLimelightToGoalInches) > 0){
         //Object detected, so speed = 0
         MaxVelocity = 0;
     } else{
