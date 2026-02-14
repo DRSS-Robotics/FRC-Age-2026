@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -218,8 +220,13 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                     @Override
                     public void onInitialize() {
                         startTime = Timer.getFPGATimestamp();
-                        maxAllowedError = SuperstructureConstants.kTestWallTargetWangle
+                        maxAllowedError = SuperstructureConstants.kTestWallTargetAngle
                                 .times(SuperstructureConstants.kMaxTestWallErrorPercentage / 100);
+                    }
+
+                    @Override
+                    public Optional<String> getLoggableResult(TestResult result) {
+                        return Optional.of(output);
                     }
 
                     @Override
@@ -230,8 +237,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                             output = "The wall took too long to reach the desired position. ";
                             return TestResult.KNOWN_FAILURE;
                         }
-                        if (currentWallAngle.isNear(SuperstructureConstants.kTestWallTargetWangle, maxAllowedError)) {
-                            output = "The wall succesfully moved to it's target in time within allowed error. ";
+                        if (currentWallAngle.isNear(SuperstructureConstants.kTestWallTargetAngle, maxAllowedError)) {
                             return TestResult.SUCCESS;
                         }
                         return TestResult.IN_PROGRESS;
@@ -239,21 +245,27 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                     }
                 },
 
-                // here begins the transfer test
+                // transfer test
                 new TestBase(this) {
 
                     private double startTime;
                     private double maxAllowedError;
                     private boolean transferMotorSpeedReached;
                     private double timeAtStartOfVelocityTest;
-                    private String output;
+                    private String output = "";
+                    private AngularVelocity targetTransferSpeed = DegreesPerSecond
+                            .of(SuperstructureConstants.kTestTransferTargetDPS);
 
                     @Override
                     public void onInitialize() {
-                        runTransferMotor(540);
+                        runTransferMotor(targetTransferSpeed);
                         startTime = Timer.getFPGATimestamp();
-                        maxAllowedError = SuperstructureConstants.kTestTransferTargetDPS *
-                                SuperstructureConstants.kMaxTestTransferSpeedErrorPercentage / 100;
+                        maxAllowedError = SuperstructureConstants.kMaxTestTransferSpeedErrorPercentage / 100;
+                    }
+
+                    @Override
+                    public Optional<String> getLoggableResult(TestResult result) {
+                        return Optional.of(output);
                     }
 
                     @Override
@@ -266,18 +278,15 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                             }
 
                             timeAtStartOfVelocityTest = Timer.getFPGATimestamp();
-                            transferMotorSpeedReached = Math.abs(getIntakeSpeed().in(DegreesPerSecond)
-                                    - SuperstructureConstants.kTestTransferTargetDPS) < maxAllowedError;
+                            transferMotorSpeedReached = getIntakeSpeed().isNear(transferMotorSetSpeed, maxAllowedError);
                         } else {
-                            if (Math.abs(getIntakeSpeed().in(DegreesPerSecond)
-                                    - SuperstructureConstants.kTestTransferTargetDPS) > maxAllowedError) {
+                            if (!getIntakeSpeed().isNear(transferMotorSetSpeed, maxAllowedError)) {
                                 output = "Transfer did not maintain speed.";
                                 return TestResult.KNOWN_FAILURE;
                             }
                             if (Timer.getFPGATimestamp()
                                     - timeAtStartOfVelocityTest >= SuperstructureConstants.kMinTestTransferTimeToMaintainSpeed) {
 
-                                output = "Transfer maintained speed for the duration.";
                                 return TestResult.SUCCESS;
                             }
                         }
@@ -286,24 +295,28 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                     }
                 },
 
-                // END OF TRANSFER
-
-                // here begins the intake test
+                // intake test
                 new TestBase(this) {
 
                     private boolean intakeMotorSpeedReached;
                     private double startTime;
                     private double timeAtStartOfVelocityTest;
-                    private String output;
+                    private String output = "";
                     private double maxAllowedError;
+                    private AngularVelocity targetSpeed = DegreesPerSecond
+                            .of(SuperstructureConstants.kTestIntakeTargetDPS);
 
                     @Override
                     public void onInitialize() {
-                        runIntake(540);
+                        runIntake(targetSpeed);
                         startTime = Timer.getFPGATimestamp();
-                        maxAllowedError = SuperstructureConstants.kTestIntakeTargetDPS *
-                                SuperstructureConstants.kMaxTestIntakeSpeedErrorPercentage / 100;
+                        maxAllowedError = SuperstructureConstants.kMaxTestIntakeSpeedErrorPercentage / 100;
 
+                    }
+
+                    @Override
+                    public Optional<String> getLoggableResult(TestResult result) {
+                        return Optional.of(output);
                     }
 
                     @Override
@@ -312,23 +325,20 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                         if (!intakeMotorSpeedReached) {
                             if (Timer.getFPGATimestamp()
                                     - startTime >= SuperstructureConstants.kMaxTestIntakeTimeToSpinUp) {
-                                output = "The intake took too long to spin up.";
+                                output = "Intake took too long to spin up";
                                 return TestResult.KNOWN_FAILURE;
                             }
 
                             timeAtStartOfVelocityTest = Timer.getFPGATimestamp();
-                            intakeMotorSpeedReached = Math.abs(getIntakeSpeed().in(DegreesPerSecond)
-                                    - SuperstructureConstants.kTestIntakeTargetDPS) < maxAllowedError;
+                            intakeMotorSpeedReached = getIntakeSpeed().isNear(targetSpeed, maxAllowedError);
                         } else {
-                            if (Math.abs(getIntakeSpeed().in(DegreesPerSecond)
-                                    - SuperstructureConstants.kTestIntakeTargetDPS) > maxAllowedError) {
-                                output = "Intake did not maintain speed.";
+                            if (!getIntakeSpeed().isNear(targetSpeed, maxAllowedError)) {
+                                output = "Intake did not maintain speed";
                                 return TestResult.KNOWN_FAILURE;
                             }
                             if (Timer.getFPGATimestamp()
                                     - timeAtStartOfVelocityTest >= SuperstructureConstants.kMinTestIntakeTimeToMaintainSpeed) {
 
-                                output = "Intake maintained speed for the duration.";
                                 return TestResult.SUCCESS;
                             }
                         }

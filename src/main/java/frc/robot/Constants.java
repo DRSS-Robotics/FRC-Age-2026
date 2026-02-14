@@ -54,7 +54,7 @@ public final class Constants {
     
     public static final double kMaxTestWallErrorPercentage = 0.3;
     public static final double kMaxTestWallTimeToReachHeight = 4.0;
-    public static final Angle  kTestWallTargetWangle = Degrees.of(0);
+    public static final Angle  kTestWallTargetAngle = Degrees.of(0);
 
   }
 

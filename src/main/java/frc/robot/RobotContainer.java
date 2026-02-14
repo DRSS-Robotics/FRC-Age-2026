@@ -29,8 +29,6 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureBindings();
-
-    TestRunner.addTest(new SelftTestForTestInterface());
   }
 
   private void configureBindings() {
