@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import frc.robot.Constants.ShooterConstants;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -25,13 +26,16 @@ public class ShooterSubsystem extends SubsystemBase {
   private VelocityVoltage launchRequest;
   private PositionVoltage pitchRequest;
   private Angle targetPosition;
-
+  
   public static final Angle MIN_PITCH_ANGLE = Degrees.of(ShooterConstants.kMinPitchDegrees);
   public static final Angle MAX_PITCH_ANGLE = Degrees.of(ShooterConstants.kMaxPitchDegrees);
+  private final InterpolatingDoubleTreeMap distanceToTime;
+  private final Supplier<ChassisSpeeds> speedsSupplier;
+  private final Supplier<Pose3d> poseSupplier;
 
   private final TurretControl m_turretController;
 
-  public ShooterSubsystem(int launchMotorID, int turretMotorID, Supplier<Pose3d> poseSupplier) {
+  public ShooterSubsystem(int launchMotorID, int turretMotorID, Supplier<Pose3d> poseSupplier, Supplier<ChassisSpeeds> velocitiesSupplier, TurretControl turret) {
     
     m_launchMotor = new TalonFX(launchMotorID);
     launchMotorConfigs = new Slot0Configs();
@@ -43,11 +47,18 @@ public class ShooterSubsystem extends SubsystemBase {
     m_launchMotor.getConfigurator().apply(launchMotorConfigs);
     launchRequest = new VelocityVoltage(0).withSlot(0);
     
-    m_turretController = new TurretControl(turretMotorID);
+    // TODO: get these to be real numbers
+    distanceToTime.put(1,2);
+    distanceToTime.put(2,4);
+    distanceToTime.put(3,8);
+    distanceToTime.put(4,16);
+    distanceToTime.put(5,32);
+    distanceToTime.put(6,64);
 
+    this.poseSupplier = poseSupplier;
+    this.speedsSupplier = velocitiesSupplier;
+    m_turretController = turret;
   }
-
-
 
   public void runLaunchMotor(double speed) {
     runLaunchMotor(DegreesPerSecond.of(speed));
@@ -59,5 +70,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public TurretControl getTurretControl() {
     return m_turretController;
+  }
+
+  public double getDistanceToTime(double distance) {
+    return distanceToTime.get(distance);
+  }
+  public Pose3d getPose3d() {
+    return poseSupplier.get();
+  }
+  public ChassisSpeeds getChassisSpeeds() {
+    return speedsSupplier.get();
   }
 }

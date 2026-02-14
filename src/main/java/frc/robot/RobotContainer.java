@@ -43,17 +43,18 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
-  private final Supplier<Pose3d> m_poseSupplier;
+  private final Supplier<Pose3d> poseSupplier;
+  private final Supplier<ChassisSpeeds> velocitiesSupplier;
   private final ShooterSubsystem m_shooterSubsystem;
   private final TurretControl m_turretController;
-  
+
   // TODO: actually initialize a SwerveDrivePoseEstimator
-  private final SwerveDrivePoseEstimator3d m_poseEstimator;
+  private final SwerveDrivePoseEstimator3d poseEstimator;
   private final SwerveModulePosition emptyPos = new SwerveModulePosition();
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
 
   private final ChassisSpeeds currentSpeed = new ChassisSpeeds();
-  public final Pigeon2 m_pigeon = new Pigeon2(Constants.kPigeonID);
+  public final Pigeon2 pigeon = new Pigeon2(Constants.kPigeonID);
     
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -65,14 +66,15 @@ public class RobotContainer {
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    m_poseEstimator = new SwerveDrivePoseEstimator3d(
+    poseEstimator = new SwerveDrivePoseEstimator3d(
                   m_drivetrain.getKinematics(), 
                   m_drivetrain.getRotation3d(), 
                   getModulePositions(),
                   new Pose3d(0,0,0, null));
     
-    m_poseSupplier = () -> getRobotPose3d();
-    m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, m_poseSupplier);
+    poseSupplier = () -> getRobotPose3d();
+    velocitiesSupplier = () -> getChassisSpeeds();
+    m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, poseSupplier);
     m_turretController = new TurretControl(ShooterConstants.kTurretID);
     // new AutoShoot(m_shooterSubsystem, 100);
     // Configure the trigger bindings
@@ -96,8 +98,8 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
-    m_turretController.setDefaultCommand(new RotateToHub(m_turretController, m_poseSupplier));
-    m_operatorController.leftBumper().whileTrue(new AutoShoot(m_shooterSubsystem, m_poseSupplier));
+    m_turretController.setDefaultCommand(new RotateToHub(m_turretController, m_shooterSubsystem));
+    m_operatorController.leftBumper().whileTrue(new AutoShoot(m_shooterSubsystem, poseSupplier));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -111,11 +113,14 @@ public class RobotContainer {
   
   
   public Pose3d getRobotPose3d(){
-    return m_poseEstimator.getEstimatedPosition();
+    return poseEstimator.getEstimatedPosition();
+  }
+  public ChassisSpeeds getChassisSpeeds(){
+    return currentSpeed;
   }
 
   public SwerveDrivePoseEstimator3d getRobotPoseEstimator() {
-    return m_poseEstimator;
+    return poseEstimator;
   }
 
   /**
@@ -129,7 +134,7 @@ public class RobotContainer {
   }
 
   public void updateOdometry() {
-    m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drivetrain.getRotation3d(), getModulePositions());
+    poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drivetrain.getRotation3d(), getModulePositions());
   }
   public void updateOdometry(Pose3d cameraDetectedPose) {
 

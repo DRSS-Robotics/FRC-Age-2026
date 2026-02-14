@@ -25,18 +25,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RotateToHub extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final TurretControl m_turretController;
+  private final ShooterSubsystem m_shooter;
   private final Pose3d hubPose = FieldConstants.kHubPose;
-  private final Supplier<Pose3d> poseSupplier;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public RotateToHub(TurretControl turretControl, Supplier<Pose3d> poseSupplier) {
+  public RotateToHub(TurretControl turretControl, ShooterSubsystem shooter) {
     m_turretController = turretControl;
-    this.poseSupplier = poseSupplier;
+    m_shooter = shooter;
+
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(m_turretController);
   }
 
   // Called when the command is initially scheduled.
@@ -50,7 +52,7 @@ public class RotateToHub extends Command {
   @Override
   public void execute() {
     // get the current position
-    Pose3d currentPose = poseSupplier.get();
+    Pose3d currentPose = shooter.getPose3d();
     // get the yaw rotation
     Angle azimuth = currentPose.getRotation().getMeasureZ();
     // apply constant of turret dist from center
@@ -60,9 +62,23 @@ public class RotateToHub extends Command {
       ShooterConstants.kHeight,new Rotation3d()));
 
     Transform3d hubOffset = currentPose.minus(hubPose);
-    m_turretController.setTurretPosition(getQuadrantOffset(hubOffset)+getAngleToHub(hubOffset));
+    // Offset for inertia
+    double hypotenuse = sqrt((hubOffset.getX() * hubOffset.getX()) + (hubOffset.getY() * hubOffset.getY()));
+    // guh is time
+    double guh = shooter.getDistanceToTime(hypotenuse);
+    double offsetX = 
+        shooter.getChassisSpeeds().vxMetersPerSecond
+        * guh
+        * -1;
+    double offsetY = 
+        shooter.getChassisSpeeds().vyMetersPerSecond
+        * guh
+        * -1;
+    hubOffset.plus(new Transform3d(offsetX, offsetY, 0, Rotation3d.kZero));
 
-    addRequirements(m_turretController);
+    double turretPosition = getQuadrantOffset(hubOffset)+getAngleToHub(hubOffset);
+    m_turretController.setTurretPosition(turretPosition);
+
   }
 
   private int getQuadrantOffset(Transform3d toHub) {
