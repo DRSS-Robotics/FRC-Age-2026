@@ -52,7 +52,7 @@ public class pathfindingCommand extends Command{
   @Override
   public void execute() {
 
-    if (BumperDetectionCommand(distanceFromLimelightToGoalInches) > 0){
+    if (BumperDetectionCommand( distanceFromLimelightToGoalInches)) >= 0{
         //Object detected, so speed = 0
         MaxVelocity = 0;
     } else{

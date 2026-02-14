@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 1.6112147887323953,
-        "y": 3.3323943661971827
+        "y": 3.699665492957746
       },
       "prevControl": {
         "x": 2.5693133802816908,
-        "y": 3.364330985915493
+        "y": 3.7316021126760566
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Auto_9_Paths",

@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.lang.invoke.ConstantBootstraps;
 import java.net.NetworkInterface;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -14,20 +15,22 @@ public class BumperDectectionSubsystem extends SubsystemBase {
         NetworkTableEntry ty = Table.getEntry("ty");
     double targetOffsetAngle_Vertical = ty.getDouble(0.0);
 
-    // how many degrees back is your limelight rotated from perfectly vertical?
-    double limelightMountAngleDegrees = 25.0; 
+      public class BumperDectectionCommand {
+        // how many degrees back is your limelight rotated from perfectly vertical?
+    double limelightMountAngleDegrees = 15.0; 
 
     // distance from the center of the Limelight lens to the floor
-    double limelightLensHeightInches = 20.0; 
+    double limelightLensHeightInches = 18.0; 
 
     // distance from the target to the floor
     double goalHeightInches = 60.0; 
-
+            //Still need measures from automation
+  }
     double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
     double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
 
     //calculate distance
-    public double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches) / Math.tan(angleToGoalRadians);
+    public double distanceFromLimelightToGoalInches = goalHeightInches - limelightLensHeightInches / Math.tan(angleToGoalRadians);
         public class LimelightTarget_Detector{
             // Basic targeting data
 double tx = LimelightHelpers.getTX("");  // Horizontal offset from crosshair to target in degrees

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3709333333333333,
-        "y": 3.840111111111111
+        "x": 1.9305809859154937,
+        "y": 3.683697183098592
       },
       "isLocked": false,
       "linkedName": "3path1"
@@ -20,8 +20,8 @@
         "y": 3.9180666666666664
       },
       "prevControl": {
-        "x": 1.9848333333333334,
-        "y": 4.112955555555556
+        "x": 1.8347711267605642,
+        "y": 3.683697183098592
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Auto_3_Paths",

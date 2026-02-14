@@ -40,8 +40,9 @@ private final BumperDectectionSubsystem m_BumperDetector;
   @Override
   public void execute() {
     LimelightHelpers.setPipelineIndex("PipeLine_BumperDetection", 0);
-    distanceFromLimelightToGoalInches
+     double distanceFromLimelightToGoalInches;
   }
+    //Set Pipeline from april tag to bumper detection, calculate new distance from bumpers
     //putting this here to not forget but the getting the data itself code may be better suited as a subsystems
   
 
