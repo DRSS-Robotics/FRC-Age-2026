@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
+import edu.wpi.first.units.measure.Angle;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -24,5 +28,10 @@ public final class Constants {
      *DPS is Degrees Per Second
      */
     public static final double kHangManualDriveDPSScale = 0;
+
+    public static final double kMaxTestHangErrorPercentage = 0.3;
+    public static final double kMaxTesthangTimeToReachHeight = 4.0;
+    public static final Angle kTestTargetHangle = Degrees.of(0);
+
   }
 }
