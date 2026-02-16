@@ -11,6 +11,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -20,16 +22,18 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private TalonFX m_launchMotorL;
   private TalonFX m_launchMotorR;
   private Slot0Configs launchMotorConfigs;
-  private VelocityVoltage launchRequest;
+  private VelocityVoltage launchRequestL;
+  private VelocityVoltage launchRequestR;
   private AngularVelocity launchMotorSetpoint = DegreesPerSecond.of(0);
 
   private TalonFX m_yawMotor;
-  private Slot0Configs yawMotorConfigs;
+  private Slot0Configs yawMotorPositionConfigs;
+  private Slot1Configs yawMotorVelocityConfigs;
   private PositionVoltage yawPositionRequest;
   private VelocityVoltage yawVelocityRequest;
   private Angle yawTargetPosition;
 
-  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int pitchMotorId, int yawMotorId) {
+  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId) {
 
     m_launchMotorL = new TalonFX(launchMotorIdL);
     launchMotorConfigs = new Slot0Configs();
@@ -39,7 +43,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     launchMotorConfigs.kI = 0;
     launchMotorConfigs.kD = 0;
     m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
-    launchRequest = new VelocityVoltage(0).withSlot(0);
+    launchRequestL = new VelocityVoltage(0).withSlot(0);
 
     m_launchMotorR = new TalonFX(launchMotorIdR);
     launchMotorConfigs = new Slot0Configs();
@@ -48,17 +52,26 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     launchMotorConfigs.kP = 1;
     launchMotorConfigs.kI = 0;
     launchMotorConfigs.kD = 0;
-    m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
-    launchRequest = new VelocityVoltage(0).withSlot(0);
+    m_launchMotorR.getConfigurator().apply(launchMotorConfigs);
+    launchRequestR = new VelocityVoltage(0).withSlot(0);
 
     m_yawMotor = new TalonFX(yawMotorId);
-    yawMotorConfigs = new Slot0Configs();
+    yawMotorPositionConfigs = new Slot0Configs();
     // Placeholder PID values
-    yawMotorConfigs.kV = 0;
-    yawMotorConfigs.kP = 1;
-    yawMotorConfigs.kI = 0;
-    yawMotorConfigs.kD = 0;
-    m_yawMotor.getConfigurator().apply(yawMotorConfigs);
+    yawMotorPositionConfigs.kV = 0;
+    yawMotorPositionConfigs.kP = 1;
+    yawMotorPositionConfigs.kI = 0;
+    yawMotorPositionConfigs.kD = 0;
+    m_yawMotor.getConfigurator().apply(yawMotorPositionConfigs);
+
+    yawMotorVelocityConfigs = new Slot1Configs();
+    // Placeholder PID values
+    yawMotorVelocityConfigs.kV = 0;
+    yawMotorVelocityConfigs.kP = 1;
+    yawMotorVelocityConfigs.kI = 0;
+    yawMotorVelocityConfigs.kD = 0;
+    m_yawMotor.getConfigurator().apply(yawMotorVelocityConfigs);
+
     yawPositionRequest = new PositionVoltage(0).withSlot(0);
     yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
 
@@ -91,10 +104,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     return yawTargetPosition;
   }
 
-  public void runLaunchMotors(double speed) {
-    runLaunchMotors(DegreesPerSecond.of(speed));
-  }
-
   public AngularVelocity getLaunchMotorSpeed() {
     return m_launchMotorL.getVelocity(true).getValue();
   }
@@ -103,15 +112,22 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     return launchMotorSetpoint;
   }
 
+  public void runLaunchMotors(double degreesPerSecond) {
+    runLaunchMotors(DegreesPerSecond.of(degreesPerSecond));
+  }
+
   public void runLaunchMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
-    m_launchMotorL.setControl(launchRequest.withVelocity(speed));
-    m_launchMotorR.setControl(launchRequest.withVelocity(speed));
+    m_launchMotorL.setControl(launchRequestL.withVelocity(speed));
+    m_launchMotorR.setControl(launchRequestR.withVelocity(speed));
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    if (m_yawMotor.getPosition().isNear(Degrees.of(0), Degrees.of(5)) ||
+        m_yawMotor.getPosition().isNear(Degrees.of(360), Degrees.of(5))) {
+          driveYawMotor(0);
+    }
 
   }
 

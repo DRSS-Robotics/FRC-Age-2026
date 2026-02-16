@@ -30,12 +30,18 @@ public class RotateYawMotor extends Command {
   @Override
   public void execute() {
     targetAngle = angle.get();
+    System.out.println(targetAngle.in(Degrees));
     m_subsystem.setYawMotorPosition(
         targetAngle);
   }
 
   @Override
   public boolean isFinished() {
-    return m_subsystem.getYawEncoder().isNear(targetAngle, Degrees.of(0.2));
+    return m_subsystem.getYawEncoder().isNear(targetAngle, Degrees.of(1)); // magic number
+  }
+
+  @Override
+  public InterruptionBehavior getInterruptionBehavior() {
+    return InterruptionBehavior.kCancelIncoming;
   }
 }

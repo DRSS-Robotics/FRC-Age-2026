@@ -13,15 +13,14 @@ import java.util.function.Supplier;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class RunLaunchMotor extends Command {
+public class DriveLaunchMotor extends Command {
 
   private final ShooterSubsystem m_subsystem;
   private Supplier<AngularVelocity> speed;
 
-  public RunLaunchMotor(ShooterSubsystem shooter, Supplier<AngularVelocity> speedSupplier) {
+  public DriveLaunchMotor(ShooterSubsystem shooter, Supplier<AngularVelocity> speedSupplier) {
     m_subsystem = shooter;
     speed = speedSupplier;
-    addRequirements(shooter);
   }
 
   @Override
@@ -30,6 +29,7 @@ public class RunLaunchMotor extends Command {
 
   @Override
   public void execute() {
+    System.out.println("launch motor speed: " + speed.get());
     m_subsystem.runLaunchMotors(speed.get());
   }
 

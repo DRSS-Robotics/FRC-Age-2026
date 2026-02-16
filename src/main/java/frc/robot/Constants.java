@@ -26,6 +26,9 @@ public final class Constants {
   public static class ShooterConstants {
     public static final double kShooterManualDriveDPSScale = 1;
     public static final double kShooterAngleTolerance = 1;
+    public static final double kShooterMaxManualSpeedDPS = 360 * 10;
+    public static final double kTurretMaxManualSpeedDPS = 105;
+
 
     public static final double kMaxTestLaunchMotorSpeedErrorPercentage = 0.3;
     public static final double kMaxTestLaunchMotorTimeToSpinUp = 4.;

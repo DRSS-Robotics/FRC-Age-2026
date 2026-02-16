@@ -1,87 +1,75 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.RunLaunchMotor;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.TestMotor;
+import frc.robot.Constants.*;
+import frc.robot.commands.DriveYawMotor;
+import frc.robot.commands.RotateYawMotor;
+import frc.robot.commands.DriveLaunchMotor;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.commands.TestMotorOff;
-import frc.robot.commands.TestMotorOn;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final TestMotor m_testMotor = new TestMotor();
-  //public final OuttakeSubsystem m_outtakeSubsystem = new OuttakeSubsystem(0, 0, 0, 0);
-  
+
   // TODO: actually initialize a SwerveDrivePoseEstimator
-  // public SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator();
+  // public SwerveDrivePoseEstimator m_poseEstimator = new
+  // SwerveDrivePoseEstimator();
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
+  private final ShooterSubsystem m_shooter = new ShooterSubsystem(0, 1, 2);
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_driverController = new CommandXboxController(
+      OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
-  
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
     configureBindings();
   }
 
-  // private final CommandXboxController m_operatorController =
-  // new CommandXboxController(OperatorConstants.kOperatorControllerPort);
-
-
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    m_driverController.y().whileTrue(new TestMotorOn(m_testMotor));
-    
-   // m_operatorController.b().whileTrue(new EnableOuttake(outtakeSubsystem));
-  
-  
+    m_operatorController.rightTrigger(0.1).whileTrue(
+        new DriveLaunchMotor(m_shooter,
+            () -> DegreesPerSecond
+                .of(ShooterConstants.kShooterMaxManualSpeedDPS
+                    * powPreserveSign(m_operatorController.getRightTriggerAxis(), 2.))));
+
+    m_operatorController.rightStick().whileFalse(
+        new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
+            ShooterConstants.kTurretMaxManualSpeedDPS
+                * powPreserveSign(-m_operatorController.getRightX(), 2.))));
+
+    m_operatorController.rightStick().whileTrue(
+        new RotateYawMotor(m_shooter, () -> Degrees
+            .of(convertPositionToTurretAngle(m_operatorController.getRightX(), m_operatorController.getRightY()))));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+  // these should be moved to utils once we have utils class from superstrcuture !!
+  private static double powPreserveSign(double a, double b) {
+    return Math.pow(Math.abs(a), b) * Math.signum(a);
   }
+
+  private static int signInclusive(double a) {
+    return (a >= 0.0) ? 1 : -1;
+  }
+
+  // converts a joystick position into an angle that can be used by turret set
+  // position commands (straight forward on the joytick is 180 deg)
+  private static double convertPositionToTurretAngle(double x, double y) {
+    return (180 / Math.PI) * Math.atan(
+        y / x) + (90.0 * (signInclusive(x) + 2));
+  }
+
 }
