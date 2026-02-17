@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+
 import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.units.measure.Angle;
@@ -28,6 +32,28 @@ public final class Constants {
      *DPS is Degrees Per Second
      */
     public static final double kHangManualDriveDPSScale = 0;
+    
+
+    //automation stuff
+
+    //target pose
+    private static final double hangLeftX = 0;
+    private static final double hangLeftY = 0;
+    private static final Rotation2d hangLeftRotate = Rotation2d.fromDegrees(120);
+    public static final Pose2d hangLeftPose = new Pose2d(hangLeftX, hangLeftY, hangLeftRotate);
+
+    private static final double hangRightX = 0;
+    private static final double hangRightY = 0;
+    public static final Rotation2d hangRightRotate = Rotation2d.fromDegrees(120);
+    public static final Pose2d hangRightPose = new Pose2d(hangRightX, hangRightY, hangRightRotate);
+
+
+    //thresholds
+    public static final double hangThresholdPose = 0;
+    public static final double hangThresholdAngle = 0;
+
+    //TODO: Get the actual target values (measure with limelight with robot)
+
 
     public static final double kMaxTestHangErrorPercentage = 0.3;
     public static final double kMaxTesthangTimeToReachHeight = 4.0;
