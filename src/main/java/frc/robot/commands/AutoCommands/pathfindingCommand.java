@@ -9,6 +9,7 @@ import frc.robot.subsystems.BumperDectectionSubsystem;
 import frc.robot.commands.AutoCommands.BumperDetectionCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.HangSubsystem;
 import frc.robot.subsystems.SuperstructureSubsystem;
 
 import java.io.IOException;
@@ -29,17 +30,20 @@ public class pathfindingCommand extends Command{
    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
    public double MaxVelocity = 3.0;
+   public double LimelightGoal = 0.0;
 
    //public boolean maybe = true;
    public final BumperDetectionCommand distanceFromLimelightToGoalInches;
 
+
   /**
    * Creates a new ExampleCommand.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param guh The subsystem used by this command.
    */
-  public pathfindingCommand(CommandSwerveDrivetrain m_drivetrain) { 
+  public pathfindingCommand(CommandSwerveDrivetrain m_drivetrain, BumperDetectionCommand distanceFromLimelight) { 
     m_drivetrain = drivetrain;
+    distanceFromLimelightToGoalInches = distanceFromLimelight;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drivetrain);
   }
@@ -52,7 +56,7 @@ public class pathfindingCommand extends Command{
   @Override
   public void execute() {
 
-    if (BumperDetectionCommand( distanceFromLimelightToGoalInches)) >= 0{
+        if (disToBumpers == 30){
         //Object detected, so speed = 0
         MaxVelocity = 0;
     } else{

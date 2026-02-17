@@ -11,6 +11,9 @@ import frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.LimelightTarget_Detector;
+
+import org.ejml.equation.Variable;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -19,7 +22,7 @@ import edu.wpi.first.units.measure.Velocity;
 /** An example command that uses an example subsystem. */
 public class BumperDetectionCommand extends Command{
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-private final BumperDectectionSubsystem m_BumperDetector;
+final BumperDectectionSubsystem m_BumperDetector;
 
   /**
    * Creates a new ExampleCommand.
@@ -40,7 +43,8 @@ private final BumperDectectionSubsystem m_BumperDetector;
   @Override
   public void execute() {
     LimelightHelpers.setPipelineIndex("PipeLine_BumperDetection", 0);
-     double distanceFromLimelightToGoalInches;
+    double disToBumpers = m_BumperDetector.CalculateDis();
+  
   }
     //Set Pipeline from april tag to bumper detection, calculate new distance from bumpers
     //putting this here to not forget but the getting the data itself code may be better suited as a subsystems
