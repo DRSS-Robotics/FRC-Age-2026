@@ -8,15 +8,15 @@ import frc.robot.subsystems.HangSubsystem;
 
 import java.util.List;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.HangConstants;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import frc.robot.AutoHangCalculator;
 
 
 public class AutoHangPose extends Command {
@@ -26,7 +26,7 @@ public class AutoHangPose extends Command {
   public boolean isItAuto;
   public boolean typeOfTeleopGuh; //true is directions, false is auto alignment
   Pose2d targetPose;
-  public boolean guh = true;
+  public boolean canItBePrintedWeCanHang = true;
   private SwerveDrivePoseEstimator m_poseEstimator;
   //double currentPose = m_vision.updatePoseEstimate();
 
@@ -47,31 +47,32 @@ public class AutoHangPose extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    public double hangCalc = AutoHangPose.getHangCalculation(currentPose); //pose estimator thing Felix is doing I think
+    public double tarCurPose = AutoHangPose.getTargetAndCurrent(currentPose);
+    Command pathfindingCommand = AutoBuilder.pathfindToPose(targetPose, 0.0); //contraints?
 
-       if (isItAuto){
-       //Exchange the data to path planner
-       //Then run the path in path planner
-       //Command pathfindingCommand = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);
-       //figure out what is needed to add to the class to get the scheduler
-       //scheduler.schedule(pathfindingCommand);
-       }
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(isItAuto != true && typeOfTeleopGuh == true){
-      // SmartDashboard.putNumber("Move X by:", howMuchtoMove);
-      // SmartDashboard.putNumber("Move Y by:", howMuchtoMove);
 
-      //Figure out how you will get how to get there
-      //I think it should be some math with the current and target pose like the simple one I had before
-      if(guh) { 
+    if (isItAuto){
+       scheduler.schedule(pathfindingCommand);
+       }
+
+    if(isItAuto != true && typeOfTeleopGuh == true){
+        SmartDashboard.putNumber("Move X by:", hangCalc.xDiff);
+        SmartDashboard.putNumber("Move Y by:", hangCalc.yDiff);
+        SmartDashboard.putNumber("Rotate by: ", hangCalc.rDiff);
+
+      if(canItBePrintedWeCanHang) { 
         canItHang = false;
         //System.out.println("You are bad to hang D:");
         SmartDashboard.putBoolean("Hang?", canItHang);
       }
-      else if(guh != true){
+      else if(canItBePrintedWeCanHang != true){
         canItHang = true;
         //System.out.println("You are good to hang :D");
         SmartDashboard.putBoolean("Hang?", canItHang);
@@ -79,9 +80,7 @@ public class AutoHangPose extends Command {
     }
     if (isItAuto != true && typeOfTeleopGuh == false){
       //auto alignment, really just small adjustment for precision
-      double guh = AutoHangPose.getHangCalculation(guhguh);
-      //move xDiff and move yDiff and rDiff
-      //until the all diffs are 0 (does threshold stuff in getHangcalc(), )
+      
     }
 
   }

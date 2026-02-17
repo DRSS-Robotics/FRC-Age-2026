@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 
@@ -42,8 +43,7 @@ public final class Constants {
     private static final double hangRightY = 0;
     public static final Rotation2d hangRightRotate = Rotation2d.fromDegrees(120);
     public static final Pose2d hangRightPose = new Pose2d(hangRightX, hangRightY, hangRightRotate);
-
-
+    
     //thresholds
     public static final double hangThresholdPose = 0;
     public static final double hangThresholdAngle = 0;
