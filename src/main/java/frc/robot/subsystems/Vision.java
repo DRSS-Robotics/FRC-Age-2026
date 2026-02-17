@@ -9,7 +9,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.UsbCameraInfo; // Do not remove, used for testing purposes
+import edu.wpi.first.cscore.UsbCameraInfo;
 import edu.wpi.first.cscore.VideoSink;
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.measure.Angle;
@@ -24,7 +24,6 @@ public class Vision extends SubsystemBase {
 
   private HttpCamera limelight;
   private UsbCamera driverCamera;
-  private UsbCamera hopperCamera;
   private VideoSink outputStream;
 
   private Supplier<Angle> turretAngleSupplier;
@@ -39,39 +38,31 @@ public class Vision extends SubsystemBase {
 
     // Initialize Limelight
     updateLimelightPosition();
-    limelight = new HttpCamera(VisionConstants.kLimelightName, VisionConstants.kLimelightStreamURL);
+    limelight = new HttpCamera(VisionConstants.kLimelightStreamName, VisionConstants.kLimelightStreamURL);
     
     // Start pose estimation command (runs forever)
     new VisionPoseEstimation(this, m_poseEstimator, m_pigeon);
 
     // Initialize driver camera
-    driverCamera = new UsbCamera("USB Camera " + VisionConstants.kDriverCameraId, VisionConstants.kDriverCameraId);
+    driverCamera = new UsbCamera(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
 
-    // Initialize hopper camera
-    hopperCamera = new UsbCamera("USB Camera " + VisionConstants.kHopperCameraId, VisionConstants.kHopperCameraId);
+    // Initialize and start streaming hopper camera
+    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId)
 
     // Initialize output stream and start streaming driver camera
-    //outputStream = new MjpegServer(VisionConstants.kOutputStreamName, VisionConstants.kOutputStreamPort);
-    outputStream = CameraServer.addServer("guh");
+    outputStream = CameraServer.addSwitchedCamera(kOutputStreamName);
     useDriverCamera();
 
-    outputStream.setSource(hopperCamera);
-
-    // TODO: add hopperCamera to top right of outputStream
-
+    // Camera status logging
     for (UsbCameraInfo cam : UsbCamera.enumerateUsbCameras()) {
       System.out.print("VISION: USB camera detected: name: \"");
       System.out.print(cam.name);
       System.out.print("\" id: ");
       System.out.println(cam.dev);
     }
-    
-    //System.out.print("VISION: Limelight connected: ");
-    //System.out.println(limelight.getActualFPS());
-    //System.out.print("VISION: Driver camera connected: ");
-    //System.out.println(driverCamera.getActualFPS());
-    System.out.print("VISION: Hopper camera connected: ");
-    System.out.println(hopperCamera.isConnected());
+    System.out.println("VISION: Limelight connected: " + limelight.isConnected());
+    System.out.println("VISION: Driver camera connected: " + driverCamera.isConnected());
+    System.out.println("VISION: Hopper camera connected: " + hopperCamera.isConnected());
   }
 
   public void updateLimelightPosition() {
@@ -93,14 +84,16 @@ public class Vision extends SubsystemBase {
     );
   }
 
-  /** Switch camera stream to Limelight */
+  /** Switch output stream to Limelight */
   public void useLimelight() {
     outputStream.setSource(limelight);
+    System.out.println("VISION: Set output stream source to Limelight");
   }
 
-  /** Switch camera stream to driver camera */
+  /** Switch output stream to driver camera */
   public void useDriverCamera() {
     outputStream.setSource(driverCamera);
+    System.out.println("VISION: Set output stream source to driver camera");
   }
 
   @Override

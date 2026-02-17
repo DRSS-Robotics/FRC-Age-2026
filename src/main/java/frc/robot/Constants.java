@@ -23,8 +23,8 @@ public final class Constants {
   }
   public static class VisionConstants {
     public static final String kLimelightName = "limelight";
-    public static final String kLimelightStreamURL = "http://limelight.local:5801/stream.mjpg";
-
+    public static final String kLimelightStreamURL = "http://limelight.local:5800";
+    
     // TODO: fill in all offset values
     // Distance from the center of the turret to the center of the Limelight
     public static final Distance kLLTurretCenterDist = Inches.of(99999);
@@ -35,11 +35,12 @@ public final class Constants {
     public static final Angle kLimelightPitchOffset = Degrees.of(15); 
       
     // TODO: get correct driver camera and hopper camera name and id
-  
-    public static final String kDriverCameraName = "Integrated Camera";
     public static final int kDriverCameraId = 0;
-
-    public static final String kHopperCameraName = "JWG 5M CAM";
     public static final int kHopperCameraId = 1;
+
+    public static final String kLimeightStreamName = "Limelight";
+    public static final String kDriverCameraStreamName = "Driver Camera";
+    public static final String kOutputStreamName = "Limelight / Driver Camera";
+    public static final String kHopperCameraStreamName = "Hopper Camera";
   }
 }
