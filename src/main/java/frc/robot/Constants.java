@@ -9,6 +9,10 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 
+import static edu.wpi.first.units.Units.Degrees;
+
+import edu.wpi.first.units.measure.Angle;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -49,6 +53,11 @@ public final class Constants {
     public static final double hangThresholdAngle = 0;
 
     //TODO: Get the actual target values (measure with limelight with robot)
+
+
+    public static final double kMaxTestHangErrorPercentage = 0.3;
+    public static final double kMaxTesthangTimeToReachHeight = 4.0;
+    public static final Angle kTestTargetHangle = Degrees.of(0);
 
   }
 }
