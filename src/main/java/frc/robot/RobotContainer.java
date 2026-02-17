@@ -44,7 +44,7 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TestMotor m_testMotor = new TestMotor();
   private final Supplier<Pose3d> poseSupplier;
-  private final Supplier<ChassisSpeeds> velocitiesSupplier;
+  private final Supplier<ChassisSpeeds> velocitySupplier;
   private final ShooterSubsystem m_shooterSubsystem;
   private final TurretControl m_turretController;
 
@@ -73,9 +73,9 @@ public class RobotContainer {
                   new Pose3d(0,0,0, null));
     
     poseSupplier = () -> getRobotPose3d();
-    velocitiesSupplier = () -> getChassisSpeeds();
-    m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, poseSupplier);
+    velocitySupplier = () -> getChassisSpeeds();
     m_turretController = new TurretControl(ShooterConstants.kTurretID);
+    m_shooterSubsystem = new ShooterSubsystem(ShooterConstants.kPowerID, ShooterConstants.kTurretID, poseSupplier, velocitySupplier, m_turretController);
     // new AutoShoot(m_shooterSubsystem, 100);
     // Configure the trigger bindings
     configureBindings();

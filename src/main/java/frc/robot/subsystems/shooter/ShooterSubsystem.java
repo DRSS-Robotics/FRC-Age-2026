@@ -5,6 +5,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants.ShooterConstants;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -35,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final TurretControl m_turretController;
 
-  public ShooterSubsystem(int launchMotorID, int turretMotorID, Supplier<Pose3d> poseSupplier, Supplier<ChassisSpeeds> velocitiesSupplier, TurretControl turret) {
+  public ShooterSubsystem(int launchMotorID, int turretMotorID, Supplier<Pose3d> poseSupplier, Supplier<ChassisSpeeds> velocitySupplier, TurretControl turret) {
     
     m_launchMotor = new TalonFX(launchMotorID);
     launchMotorConfigs = new Slot0Configs();
@@ -47,16 +48,18 @@ public class ShooterSubsystem extends SubsystemBase {
     m_launchMotor.getConfigurator().apply(launchMotorConfigs);
     launchRequest = new VelocityVoltage(0).withSlot(0);
     
+    distanceToTime = new InterpolatingDoubleTreeMap();
+
     // TODO: get these to be real numbers
-    distanceToTime.put(1,2);
-    distanceToTime.put(2,4);
-    distanceToTime.put(3,8);
-    distanceToTime.put(4,16);
-    distanceToTime.put(5,32);
-    distanceToTime.put(6,64);
+    distanceToTime.put(1.0,2.0);
+    distanceToTime.put(2.0,4.0);
+    distanceToTime.put(3.0,8.0);
+    distanceToTime.put(4.0,16.0);
+    distanceToTime.put(5.0,32.0);
+    distanceToTime.put(6.0,64.0);
 
     this.poseSupplier = poseSupplier;
-    this.speedsSupplier = velocitiesSupplier;
+    this.speedsSupplier = velocitySupplier;
     m_turretController = turret;
   }
 

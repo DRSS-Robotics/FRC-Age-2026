@@ -52,7 +52,7 @@ public class RotateToHub extends Command {
   @Override
   public void execute() {
     // get the current position
-    Pose3d currentPose = shooter.getPose3d();
+    Pose3d currentPose = m_shooter.getPose3d();
     // get the yaw rotation
     Angle azimuth = currentPose.getRotation().getMeasureZ();
     // apply constant of turret dist from center
@@ -63,15 +63,15 @@ public class RotateToHub extends Command {
 
     Transform3d hubOffset = currentPose.minus(hubPose);
     // Offset for inertia
-    double hypotenuse = sqrt((hubOffset.getX() * hubOffset.getX()) + (hubOffset.getY() * hubOffset.getY()));
+    double hypotenuse = Math.sqrt((hubOffset.getX() * hubOffset.getX()) + (hubOffset.getY() * hubOffset.getY()));
     // guh is time
-    double guh = shooter.getDistanceToTime(hypotenuse);
+    double guh = m_shooter.getDistanceToTime(hypotenuse);
     double offsetX = 
-        shooter.getChassisSpeeds().vxMetersPerSecond
+        m_shooter.getChassisSpeeds().vxMetersPerSecond
         * guh
         * -1;
     double offsetY = 
-        shooter.getChassisSpeeds().vyMetersPerSecond
+        m_shooter.getChassisSpeeds().vyMetersPerSecond
         * guh
         * -1;
     hubOffset.plus(new Transform3d(offsetX, offsetY, 0, Rotation3d.kZero));
