@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -21,21 +23,24 @@ public final class Constants {
   }
   public static class VisionConstants {
     public static final String kLimelightName = "limelight";
-    public static final String kLimelightStreamURL = "http://limelight.local:5801/stream.mjpg";
-
-    // TODO: fill in all offset values
-    // measured in meters and degrees
-    public static final double kLLCenterDist = 0.0;
-    public static final double kTurretForwardOffset = 0.0; // from center of robot
-    public static final double kTurretSideOffset = 0.0; // from center of robot
-    public static final double kLimelightHeightOffset = 0.0;
-    public static final double kLimelightPitchOffset = -15.0;
+    public static final String kLimelightStreamURL = "http://limelight.local:5800";
     
-    public static final String kOutputStreamName = "Guh";
-    public static final int kOutputStreamPort = 3141;
-  
-    // TODO: get correct driver camera name and id
-    public static final String kDriverCameraName = "";
+    // TODO: fill in all offset values
+    // Distance from the center of the turret to the center of the Limelight
+    public static final Distance kLLTurretCenterDist = Inches.of(99999);
+    // Offset values are measured from the center of the robot horizontally, and from the floor vertically
+    public static final Distance kTurretForwardOffset = Inches.of(99999);
+    public static final Distance kTurretSideOffset = Inches.of(99999);
+    public static final Distance kLimelightHeightOffset = Inches.of(18);
+    public static final Angle kLimelightPitchOffset = Degrees.of(15); 
+      
+    // TODO: get correct driver camera and hopper camera name and id
     public static final int kDriverCameraId = 0;
+    public static final int kHopperCameraId = 1;
+
+    public static final String kLimeightStreamName = "Limelight";
+    public static final String kDriverCameraStreamName = "Driver Camera";
+    public static final String kOutputStreamName = "Limelight / Driver Camera";
+    public static final String kHopperCameraStreamName = "Hopper Camera";
   }
 }

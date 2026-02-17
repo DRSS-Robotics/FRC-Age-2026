@@ -4,17 +4,21 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.UsbCameraInfo;
+import edu.wpi.first.cscore.VideoSink;
+import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
+import frc.robot.commands.VisionPoseEstimation;
 import java.util.function.Supplier;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import static edu.wpi.first.units.Units.Degrees;
@@ -24,81 +28,82 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 
 import java.lang.Math;
+import com.ctre.phoenix6.hardware.core.CorePigeon2;
 
 public class Vision extends SubsystemBase {
 
   private HttpCamera limelight;
   private UsbCamera driverCamera;
-  private MjpegServer outputStream;
+  private VideoSink outputStream;
 
-  // This is just used for testing purposes, it should be false during competition
-  private final boolean logPoseEstimate = false;
+  private Supplier<Angle> turretAngleSupplier;
+  private SwerveDrivePoseEstimator m_poseEstimator;
+  private CorePigeon2 m_pigeon;
 
   /** Creates a new Vision subsystem */
-  public Vision(Supplier<Angle> turretAngleSupplier) {
+  public Vision(Supplier<Angle> turretAngleSupplier, SwerveDrivePoseEstimator poseEstimator, CorePigeon2 pigeon) {
+    this.turretAngleSupplier = turretAngleSupplier;
+    m_poseEstimator = poseEstimator;
+    m_pigeon = pigeon;
+
     // Initialize Limelight
     updateLimelightPosition();
-    limelight = new HttpCamera(VisionConstants.kLimelightName, VisionConstants.kLimelightStreamURL);
+    limelight = new HttpCamera(VisionConstants.kLimelightStreamName, VisionConstants.kLimelightStreamURL);
+    
+    // Start pose estimation command (runs forever)
+    new VisionPoseEstimation(this, m_poseEstimator, m_pigeon);
 
     // Initialize driver camera
-    driverCamera = new UsbCamera(VisionConstants.kDriverCameraName, VisionConstants.kDriverCameraId);
+    driverCamera = new UsbCamera(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
+
+    // Initialize and start streaming hopper camera
+    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId)
 
     // Initialize output stream and start streaming driver camera
-    outputStream = new MjpegServer(VisionConstants.kOutputStreamName, VisionConstants.kOutputStreamPort);
+    outputStream = CameraServer.addSwitchedCamera(kOutputStreamName);
     useDriverCamera();
+
+    // Camera status logging
+    for (UsbCameraInfo cam : UsbCamera.enumerateUsbCameras()) {
+      System.out.print("VISION: USB camera detected: name: \"");
+      System.out.print(cam.name);
+      System.out.print("\" id: ");
+      System.out.println(cam.dev);
+    }
+    System.out.println("VISION: Limelight connected: " + limelight.isConnected());
+    System.out.println("VISION: Driver camera connected: " + driverCamera.isConnected());
+    System.out.println("VISION: Hopper camera connected: " + hopperCamera.isConnected());
   }
 
   public void updateLimelightPosition() {
-    double turretAngle = turretAngleSupplier.get().in(Degrees);
+    Angle turretAngle = turretAngleSupplier.get();
 
     // The Limelight's position is modeled in polar coordinates (<distance from Limelight to center>, <turret angle>)
     // These coordinates are converted to Cartesian coordinates to find the position relative to the center of the turret
-    double limelightForwardOffset = VisionConstants.kLLCenterDist * Math.sin(turretAngle);
-    double limelightSideOffset = VisionConstants.kLLCenterDist * Math.cos(turretAngle);
+    double limelightForwardOffset = VisionConstants.kLLTurretCenterDist.in(Meters) * Math.sin(turretAngle.in(Radians));
+    double limelightSideOffset = VisionConstants.kLLTurretCenterDist.in(Meters) * Math.cos(turretAngle.in(Radians));
 
     // Set the Limelight position in robot space using offset constants
     LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName, 
-      /* forward offset */ VisionConstants.kTurretForwardOffset + limelightForwardOffset,
-      /* side offset    */ VisionConstants.kTurretSideOffset + limelightSideOffset,
-      /* height offset  */ VisionConstants.kLimelightHeightOffset,
+      /* forward offset */ VisionConstants.kTurretForwardOffset.in(Meters) + limelightForwardOffset,
+      /* side offset    */ VisionConstants.kTurretSideOffset.in(Meters) + limelightSideOffset,
+      /* height offset  */ VisionConstants.kLimelightHeightOffset.in(Meters),
       /* roll offset    */ 0,
-      /* pitch offset   */ VisionConstants.kLimelightPitchOffset,
-      /* yaw offset     */ turretAngle
+      /* pitch offset   */ VisionConstants.kLimelightPitchOffset.in(Degrees),
+      /* yaw offset     */ turretAngle.in(Degrees)
     );
   }
 
-  /** Switch camera stream to Limelight */
+  /** Switch output stream to Limelight */
   public void useLimelight() {
     outputStream.setSource(limelight);
+    System.out.println("VISION: Set output stream source to Limelight");
   }
 
-  /** Switch camera stream to driver camera */
+  /** Switch output stream to driver camera */
   public void useDriverCamera() {
     outputStream.setSource(driverCamera);
-  }
-
-  public void updatePoseEstimate(SwerveDrivePoseEstimator m_poseEstimator, Pigeon2 m_pigeon) {
-    updateLimelightPosition();
-
-    // Use April tag data to update swerve drive pose estimate (MegaTag2)
-    LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
-    // only update if angular velocity is less than 360 degrees per second and at least 1 tag is detected
-    if (Math.abs(((m_pigeon.getAngularVelocityZWorld()).getValue()).in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
-      m_poseEstimator.sangularVelocityetVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-      m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
-    }
-
-    // log pose estimate
-    // note that measurements are assumed to be in meters
-    if (logPoseEstimate) {
-      Pose2d estimatedPosition = m_poseEstimator.getEstimatedPosition();
-      System.out.print("pose estimate: (");
-      System.out.print(estimatedPosition.getX());
-      System.out.print(", ");
-      System.out.print(estimatedPosition.getY());
-      System.out.println(")");
-    }
+    System.out.println("VISION: Set output stream source to driver camera");
   }
 
   @Override
