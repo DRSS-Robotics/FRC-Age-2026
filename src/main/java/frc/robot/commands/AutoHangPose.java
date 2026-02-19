@@ -8,6 +8,8 @@ import frc.robot.subsystems.HangSubsystem;
 
 import java.util.List;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,9 +28,10 @@ public class AutoHangPose extends Command {
   public boolean isItAuto;
   public boolean typeOfTeleopGuh; //true is directions, false is auto alignment
   Pose2d targetPose;
+  Pose2d currentPose;
   public boolean canItBePrintedWeCanHang = true;
-  private SwerveDrivePoseEstimator m_poseEstimator;
-  //double currentPose = m_vision.updatePoseEstimate();
+  //private SwerveDrivePoseEstimator m_poseEstimator;
+  Pose3d currentPoseEst; //pose estimator thing Felix is doing I think
 
   //private final VisionSubsystem m_vision;
 
@@ -47,9 +50,7 @@ public class AutoHangPose extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    public double hangCalc = AutoHangPose.getHangCalculation(currentPose); //pose estimator thing Felix is doing I think
-    public double tarCurPose = AutoHangPose.getTargetAndCurrent(currentPose);
-    Command pathfindingCommand = AutoBuilder.pathfindToPose(targetPose, 0.0); //contraints?
+    
 
 
   }
@@ -57,15 +58,19 @@ public class AutoHangPose extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+    double [] hangCalc = AutoHangCalculator.getHangCalculation(currentPoseEst);
+    Pose2d [] tarCurPose = AutoHangCalculator.getTargetAndCurrent(currentPoseEst);
+    currentPose = tarCurPose[0];
+    targetPose = tarCurPose[1];
+    Command pathfindingCommand = AutoBuilder.pathfindToPose(targetPose, null, null); //contraints?
     if (isItAuto){
-       scheduler.schedule(pathfindingCommand);
+       pathfindingCommand.schedule();
        }
 
     if(isItAuto != true && typeOfTeleopGuh == true){
-        SmartDashboard.putNumber("Move X by:", hangCalc.xDiff);
-        SmartDashboard.putNumber("Move Y by:", hangCalc.yDiff);
-        SmartDashboard.putNumber("Rotate by: ", hangCalc.rDiff);
+        SmartDashboard.putNumber("Move X by:", hangCalc[0]); //This is xdiff
+        SmartDashboard.putNumber("Move Y by:", hangCalc[1]); //This is ydiff
+        SmartDashboard.putNumber("Rotate by: ", hangCalc[2]); //This is rdiff
 
       if(canItBePrintedWeCanHang) { 
         canItHang = false;
@@ -80,7 +85,7 @@ public class AutoHangPose extends Command {
     }
     if (isItAuto != true && typeOfTeleopGuh == false){
       //auto alignment, really just small adjustment for precision
-      
+      pathfindingCommand.schedule();
     }
 
   }
@@ -98,8 +103,3 @@ public class AutoHangPose extends Command {
     return true;
   }
 }
-
-
-//TODO: Teleop correct pose slightly, automation adjustment v if drivers don't like this
-//TODO: Teleop directions 
-//TODO: Automation, path planner? I think pose estimator can be used here too
