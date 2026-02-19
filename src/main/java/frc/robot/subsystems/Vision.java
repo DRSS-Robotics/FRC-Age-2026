@@ -32,7 +32,8 @@ public class Vision extends SubsystemBase {
 
   private HttpCamera limelight;
   private UsbCamera driverCamera;
-  private VideoSink outputStream;
+  private UsbCamera hopperCamera; 
+  private MjpegServer outputStream;
 
   private Supplier<Angle> turretAngleSupplier;
   private SwerveDrivePoseEstimator m_poseEstimator;
@@ -47,15 +48,17 @@ public class Vision extends SubsystemBase {
     // Initialize Limelight
     updateLimelightPosition();
     limelight = new HttpCamera(VisionConstants.kLimelightStreamName, VisionConstants.kLimelightStreamURL);
-    
+    CameraServer.startAutomaticCapture(limelight);
+
     // Start pose estimation command (runs forever)
     new VisionPoseEstimation(this, m_poseEstimator, m_pigeon);
 
     // Initialize driver camera
-    driverCamera = new UsbCamera(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
+    //driverCamera = new UsbCamera(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
+    driverCamera = CameraServer.startAutomaticCapture(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
 
     // Initialize and start streaming hopper camera
-    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId);
+    hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId);
 
     // Initialize output stream and start streaming driver camera
     outputStream = CameraServer.addSwitchedCamera(VisionConstants.kOutputStreamName);
