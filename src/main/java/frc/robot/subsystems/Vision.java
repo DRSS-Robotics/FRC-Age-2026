@@ -21,8 +21,6 @@ import frc.robot.LimelightHelpers;
 import frc.robot.commands.VisionPoseEstimation;
 import java.util.function.Supplier;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 
 
@@ -57,10 +55,10 @@ public class Vision extends SubsystemBase {
     driverCamera = new UsbCamera(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
 
     // Initialize and start streaming hopper camera
-    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId)
+    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId);
 
     // Initialize output stream and start streaming driver camera
-    outputStream = CameraServer.addSwitchedCamera(kOutputStreamName);
+    outputStream = CameraServer.addSwitchedCamera(VisionConstants.kOutputStreamName);
     useDriverCamera();
 
     // Camera status logging

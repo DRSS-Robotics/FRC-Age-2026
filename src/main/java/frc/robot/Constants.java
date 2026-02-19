@@ -38,7 +38,7 @@ public final class Constants {
     public static final int kDriverCameraId = 0;
     public static final int kHopperCameraId = 1;
 
-    public static final String kLimeightStreamName = "Limelight";
+    public static final String kLimelightStreamName = "Limelight";
     public static final String kDriverCameraStreamName = "Driver Camera";
     public static final String kOutputStreamName = "Limelight / Driver Camera";
     public static final String kHopperCameraStreamName = "Hopper Camera";
