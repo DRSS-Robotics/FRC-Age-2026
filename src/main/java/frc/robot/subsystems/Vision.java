@@ -32,6 +32,7 @@ public class Vision extends SubsystemBase {
 
   private HttpCamera limelight;
   private UsbCamera driverCamera;
+  private UsbCamera hopperCamera;
   private VideoSink outputStream;
 
   private Supplier<Angle> turretAngleSupplier;
@@ -55,10 +56,11 @@ public class Vision extends SubsystemBase {
     driverCamera = new UsbCamera(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
 
     // Initialize and start streaming hopper camera
-    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId);
+    hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId);
 
     // Initialize output stream and start streaming driver camera
     outputStream = CameraServer.addSwitchedCamera(VisionConstants.kOutputStreamName);
+    CameraServer.addServer(outputStream);
     useDriverCamera();
 
     // Camera status logging
@@ -71,6 +73,8 @@ public class Vision extends SubsystemBase {
     System.out.println("VISION: Limelight connected: " + limelight.isConnected());
     System.out.println("VISION: Driver camera connected: " + driverCamera.isConnected());
     System.out.println("VISION: Hopper camera connected: " + hopperCamera.isConnected());
+
+    System.out.println("CAN DETECT: " + CameraServer.getServer(VisionConstants.kOutputStreamName));
   }
 
   public void updateLimelightPosition() {

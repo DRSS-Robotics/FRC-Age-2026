@@ -5,15 +5,18 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 
 import java.time.LocalDateTime;
@@ -67,6 +70,7 @@ public class RobotContainer {
     // cancelling on release.
     // This one switches the camera when the button is pressed
     m_driverController.y().toggleOnTrue(new SwapCamera(m_vision));
+    m_driverController.a().onTrue(Commands.runOnce(() -> {System.out.println("CAN DETECT: " + CameraServer.getServer(VisionConstants.kOutputStreamName));}));
     // This one switches the camera while the button is held
     m_driverController.x().whileTrue(new SwapCamera(m_vision));
   }
