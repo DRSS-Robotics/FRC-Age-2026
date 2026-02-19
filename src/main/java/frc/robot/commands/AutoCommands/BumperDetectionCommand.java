@@ -44,6 +44,7 @@ final BumperDectectionSubsystem m_BumperDetector;
   public void execute() {
     LimelightHelpers.setPipelineIndex("PipeLine_BumperDetection", 0);
     double disToBumpers = m_BumperDetector.CalculateDis();
+    m_BumperDetector.setDisToBumpers(disToBumpers);
   
   }
     //Set Pipeline from april tag to bumper detection, calculate new distance from bumpers

@@ -18,6 +18,7 @@ public class BumperDectectionSubsystem extends SubsystemBase {
     double goalHeightInches;
     double angleToGoalDegrees;
     double angleToGoalRadians;
+    double realDisToBumpers;
     public BumperDectectionSubsystem() {
         Table = NetworkTableInstance.getDefault().getTable("limelight");
             ty = Table.getEntry("ty");
@@ -48,4 +49,11 @@ boolean hasTarget = LimelightHelpers.getTV(""); // Do you have a valid target?
 
 double txnc = LimelightHelpers.getTXNC("");  // Horizontal offset from principal pixel/point to target in degrees
 double tync = LimelightHelpers.getTYNC("");  // Vertical offset from principal pixel/point to target in degrees
-}}
+}
+public void setDisToBumpers(double sentDisToBumpers){
+    realDisToBumpers = sentDisToBumpers;
+}
+public double giveDisToBumpers(){
+    return realDisToBumpers;
+}
+}

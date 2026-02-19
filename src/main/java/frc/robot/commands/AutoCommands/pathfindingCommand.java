@@ -30,10 +30,11 @@ public class pathfindingCommand extends Command{
    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
    public double MaxVelocity = 3.0;
-   public double LimelightGoal = 0.0;
+   public double disToBumpers;
 
    //public boolean maybe = true;
    public final BumperDetectionCommand distanceFromLimelightToGoalInches;
+   public final BumperDectectionSubsystem m_bumperDetection;
 
 
   /**
@@ -41,9 +42,11 @@ public class pathfindingCommand extends Command{
    *
    * @param guh The subsystem used by this command.
    */
-  public pathfindingCommand(CommandSwerveDrivetrain m_drivetrain, BumperDetectionCommand distanceFromLimelight) { 
+  public pathfindingCommand(CommandSwerveDrivetrain m_drivetrain, BumperDetectionCommand distanceFromLimelight, BumperDectectionSubsystem bumperDetection) { 
     m_drivetrain = drivetrain;
+    m_bumperDetection = bumperDetection;
     distanceFromLimelightToGoalInches = distanceFromLimelight;
+    disToBumpers = m_bumperDetection.giveDisToBumpers();
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drivetrain);
   }
