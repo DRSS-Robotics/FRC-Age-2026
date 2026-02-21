@@ -139,40 +139,7 @@ public class RobotContainer {
       // this.autoChooser.addOption("Centre G", this.autoCentreGCommand());
       // this.autoChooser.addOption("Right", this.autoRightCommand());
       SmartDashboard.putData("Auto Mode", autoChooser);
- 
-      // try {
-      //  PathPlannerPath path = PathPlannerPath.fromPathFile("start");
-
-      //  PathConstraints constraints = new PathConstraints(
-      //   3.0, 4.1,
-      //   Units.degreesToRadians(540), Units.degreesToRadians(720));
-
-      //  Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
-      //   path,
-      //   constraints);
-      // } catch (FileVersionException e) {
-      //   // TODO Auto-generated catch block
-      //   e.printStackTrace();
-      // } catch (IOException e) {
-      //   // TODO Auto-generated catch block
-      //   e.printStackTrace();
-      // } catch (ParseException e) {
-      //   // TODO Auto-generated catch block
-      //   e.printStackTrace();
-      // }
       
-  //  PathConstraints constraints = new PathConstraints(
-  //       3.0, 4.0,
-  //       Units.degreesToRadians(540), Units.degreesToRadians(720));
-
-      // Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
-      //   path,
-      //   constraints);
-
-     // PathPlannerPath path = new PathPlannerPath(null, constraints, null, null);
-
-
-
     // Configure the trigger bindings
     configureBindings();
   }
@@ -189,9 +156,9 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    //    m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    // m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
   //m_driverController.a().onTrue(new ToggleWallCommand());
-  m_driverController.x().onTrue(new pathfindingCommand(drivetrain));
+  //m_driverController.x().onTrue(m_drivetrain.pathfindingCommand());
   }
 
   /**

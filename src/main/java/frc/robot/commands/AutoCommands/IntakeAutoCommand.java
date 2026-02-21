@@ -31,7 +31,7 @@ public class IntakeAutoCommand extends Command{
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    //m_intake.runIntake(-0.5);
+    m_intake.runIntake(-0.5);
   }
 
   // Called once the command ends or is interrupted.

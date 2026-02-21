@@ -9,7 +9,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
-public class BumperDectectionSubsystem extends SubsystemBase {
+public class BumperDetectionSubsystem extends SubsystemBase {
     NetworkTable Table;
     NetworkTableEntry ty;
     double targetOffsetAngle_Vertical;
@@ -19,7 +19,7 @@ public class BumperDectectionSubsystem extends SubsystemBase {
     double angleToGoalDegrees;
     double angleToGoalRadians;
     double realDisToBumpers;
-    public BumperDectectionSubsystem() {
+    public BumperDetectionSubsystem() {
         Table = NetworkTableInstance.getDefault().getTable("limelight");
             ty = Table.getEntry("ty");
         targetOffsetAngle_Vertical = ty.getDouble(0.0);
@@ -40,20 +40,22 @@ public class BumperDectectionSubsystem extends SubsystemBase {
             double LimelightGoal = goalHeightInches -  limelightLensHeightInches / Math.tan(angleToGoalRadians);
             return LimelightGoal;
     }
-        public class LimelightTarget_Detector{
-            // Basic targeting data
-double tx = LimelightHelpers.getTX("");  // Horizontal offset from crosshair to target in degrees
-double ty = LimelightHelpers.getTY("");  // Vertical offset from crosshair to target in degrees
-double ta = LimelightHelpers.getTA("");  // Target area (0% to 100% of image)
-boolean hasTarget = LimelightHelpers.getTV(""); // Do you have a valid target?
 
-double txnc = LimelightHelpers.getTXNC("");  // Horizontal offset from principal pixel/point to target in degrees
-double tync = LimelightHelpers.getTYNC("");  // Vertical offset from principal pixel/point to target in degrees
-}
-public void setDisToBumpers(double sentDisToBumpers){
-    realDisToBumpers = sentDisToBumpers;
-}
-public double giveDisToBumpers(){
-    return realDisToBumpers;
-}
+    public class LimelightTarget_Detector{
+        // Basic targeting data
+        double tx = LimelightHelpers.getTX("");  // Horizontal offset from crosshair to target in degrees
+        double ty = LimelightHelpers.getTY("");  // Vertical offset from crosshair to target in degrees
+        double ta = LimelightHelpers.getTA("");  // Target area (0% to 100% of image)
+        boolean hasTarget = LimelightHelpers.getTV(""); // Do you have a valid target?
+
+        double txnc = LimelightHelpers.getTXNC("");  // Horizontal offset from principal pixel/point to target in degrees
+        double tync = LimelightHelpers.getTYNC("");  // Vertical offset from principal pixel/point to target in degrees
+    }
+
+    public void setDisToBumpers(double sentDisToBumpers){
+        realDisToBumpers = sentDisToBumpers;
+    }
+    public double giveDisToBumpers(){
+        return realDisToBumpers;
+    }
 }

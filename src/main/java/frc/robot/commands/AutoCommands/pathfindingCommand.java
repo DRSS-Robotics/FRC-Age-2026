@@ -5,7 +5,7 @@
 package frc.robot.commands.AutoCommands;
 
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.BumperDectectionSubsystem;
+import frc.robot.subsystems.BumperDetectionSubsystem;
 import frc.robot.commands.AutoCommands.BumperDetectionCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -34,15 +34,16 @@ public class pathfindingCommand extends Command{
 
    //public boolean maybe = true;
    public final BumperDetectionCommand distanceFromLimelightToGoalInches;
-   public final BumperDectectionSubsystem m_bumperDetection;
+   public final BumperDetectionSubsystem m_bumperDetection;
 
 
   /**
-   * Creates a new ExampleCommand.
-   *
-   * @param guh The subsystem used by this command.
+   * Creates a new pathfinding Command.
+   * 
+   * Uses the Bumper Detection Command and Subsystem to calculate the distance of the limelight to any detected bumpers
+   * @param m_drivetrain,m_bumperDetection The subsystem used by this command.
    */
-  public pathfindingCommand(CommandSwerveDrivetrain m_drivetrain, BumperDetectionCommand distanceFromLimelight, BumperDectectionSubsystem bumperDetection) { 
+  public pathfindingCommand(CommandSwerveDrivetrain m_drivetrain, BumperDetectionCommand distanceFromLimelight, BumperDetectionSubsystem bumperDetection) { 
     m_drivetrain = drivetrain;
     m_bumperDetection = bumperDetection;
     distanceFromLimelightToGoalInches = distanceFromLimelight;

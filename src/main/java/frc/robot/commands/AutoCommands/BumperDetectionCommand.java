@@ -4,7 +4,7 @@
 
 package frc.robot.commands.AutoCommands;
 
-import frc.robot.subsystems.BumperDectectionSubsystem;
+import frc.robot.subsystems.BumperDetectionSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.Vision;
@@ -22,14 +22,14 @@ import edu.wpi.first.units.measure.Velocity;
 /** An example command that uses an example subsystem. */
 public class BumperDetectionCommand extends Command{
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-final BumperDectectionSubsystem m_BumperDetector;
+final BumperDetectionSubsystem m_BumperDetector;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public BumperDetectionCommand(BumperDectectionSubsystem bumpDetector_Camera) { 
+  public BumperDetectionCommand(BumperDetectionSubsystem bumpDetector_Camera) { 
     m_BumperDetector = bumpDetector_Camera;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(bumpDetector_Camera);
