@@ -29,7 +29,6 @@ public class DriveLaunchMotor extends Command {
 
   @Override
   public void execute() {
-    System.out.println("launch motor speed: " + speed.get());
     m_subsystem.runLaunchMotors(speed.get());
   }
 

@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import java.util.function.Supplier;
 
@@ -30,8 +29,6 @@ public class DriveYawMotor extends Command {
 
   @Override
   public void execute() {
-    System.out.println("yaw motor speed: " + speed.get());
-
     m_subsystem.driveYawMotor(speed.get());
   }
 

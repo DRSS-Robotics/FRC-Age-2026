@@ -1,7 +1,6 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 

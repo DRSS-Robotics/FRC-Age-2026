@@ -4,17 +4,7 @@
 
 package frc.robot.subsystems.shooter;
 
-import edu.wpi.first.units.measure.AngularVelocity;
-//import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-//import static edu.wpi.first.units.Units.Degrees;
-
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
 
 
 public class ShotCalculator {

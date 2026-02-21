@@ -7,8 +7,6 @@ package frc.robot.commands;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-
 import java.util.function.Supplier;
 
 import edu.wpi.first.units.measure.Angle;
@@ -30,7 +28,6 @@ public class RotateYawMotor extends Command {
   @Override
   public void execute() {
     targetAngle = angle.get();
-    System.out.println(targetAngle.in(Degrees));
     m_subsystem.setYawMotorPosition(
         targetAngle);
   }

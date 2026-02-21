@@ -13,15 +13,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-/**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
 
   // TODO: actually initialize a SwerveDrivePoseEstimator
@@ -53,7 +44,8 @@ public class RobotContainer {
 
     m_operatorController.rightStick().whileTrue(
         new RotateYawMotor(m_shooter, () -> Degrees
-            .of(convertPositionToTurretAngle(m_operatorController.getRightX(), m_operatorController.getRightY()))));
+          .of(convertPositionToTurretAngle(
+            m_operatorController.getRightX(), m_operatorController.getRightY()))));
   }
 
   // these should be moved to utils once we have utils class from superstrcuture !!
