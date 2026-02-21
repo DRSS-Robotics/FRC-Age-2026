@@ -11,6 +11,8 @@ import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.UsbCameraInfo;
 import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.math.VecBuilder;
@@ -22,9 +24,6 @@ import frc.robot.commands.VisionPoseEstimation;
 import java.util.function.Supplier;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-
-
-
 import java.lang.Math;
 import com.ctre.phoenix6.hardware.core.CorePigeon2;
 
@@ -32,7 +31,6 @@ public class Vision extends SubsystemBase {
 
   private HttpCamera limelight;
   private UsbCamera driverCamera;
-  private UsbCamera hopperCamera; 
   private MjpegServer outputStream;
 
   private Supplier<Angle> turretAngleSupplier;
@@ -47,22 +45,21 @@ public class Vision extends SubsystemBase {
 
     // Initialize Limelight
     updateLimelightPosition();
-    limelight = new HttpCamera(VisionConstants.kLimelightStreamName, VisionConstants.kLimelightStreamURL);
-    CameraServer.startAutomaticCapture(limelight);
+    limelight = new HttpCamera("limelight", VisionConstants.kLimelightStreamURL);
+    limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     // Start pose estimation command (runs forever)
     new VisionPoseEstimation(this, m_poseEstimator, m_pigeon);
 
     // Initialize driver camera
-    //driverCamera = new UsbCamera(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
-    driverCamera = CameraServer.startAutomaticCapture(VisionConstants.kDriverCameraStreamName, VisionConstants.kDriverCameraId);
+    driverCamera = new UsbCamera("driverCamera", VisionConstants.kDriverCameraId);
+    driverCamera.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     // Initialize and start streaming hopper camera
-    hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId);
+    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId);
 
     // Initialize output stream and start streaming driver camera
     outputStream = CameraServer.addSwitchedCamera(VisionConstants.kOutputStreamName);
-    CameraServer.addServer(outputStream);
     useDriverCamera();
 
     // Camera status logging
@@ -75,8 +72,6 @@ public class Vision extends SubsystemBase {
     System.out.println("VISION: Limelight connected: " + limelight.isConnected());
     System.out.println("VISION: Driver camera connected: " + driverCamera.isConnected());
     System.out.println("VISION: Hopper camera connected: " + hopperCamera.isConnected());
-
-    System.out.println("CAN DETECT: " + CameraServer.getServer(VisionConstants.kOutputStreamName));
   }
 
   public void updateLimelightPosition() {
