@@ -10,6 +10,8 @@ import frc.robot.commands.DriveTransferCommand;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -18,7 +20,8 @@ public class RobotContainer {
   private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
       SuperstructureConstants.kIntakeMotorId,
       SuperstructureConstants.kStorageMotorId,
-      SuperstructureConstants.kTransferMotorId);
+      SuperstructureConstants.kTransferMotorId,
+      NetworkTableInstance.getDefault().getTable("Superstructure"));
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(

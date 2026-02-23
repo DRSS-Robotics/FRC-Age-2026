@@ -1,5 +1,10 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -9,11 +14,6 @@ import frc.robot.Constants;
 import frc.robot.TestableSubsystem;
 import frc.robot.Utils;
 import frc.robot.Constants.SuperstructureConstants;
-import frc.robot.TestableSubsystem.SequencedTest;
-import frc.robot.TestableSubsystem.TestBase;
-import frc.robot.TestableSubsystem.TestResult;
-import frc.robot.TestableSubsystem.TestableCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
@@ -26,6 +26,11 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class SuperstructureSubsystem extends SubsystemBase implements TestableSubsystem {
+
+    private DoublePublisher intakeSpeedPublisher;
+    private DoublePublisher transferSpeedPublisher;
+    private DoublePublisher storagePositionPublisher;
+    private BooleanPublisher storageIsOpenPublisher;
 
     private TalonFX m_intakeMotor;
     private SlotConfigs intakeMotorConfigs;
@@ -51,7 +56,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
      * Subsystem that encompasses both the over-the-bumper intake as well as Fuel
      * storage.
      */
-    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int transferMotorId) {
+    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int transferMotorId, NetworkTable table) {
         m_intakeMotor = new TalonFX(intakeMotorId);
         m_storageMotor = new TalonFX(wallMotorId);
         m_transferMotor = new TalonFX(transferMotorId);
@@ -66,6 +71,21 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         transferMotorConfigs = Utils.configureTalonGains(m_transferMotor, 0, 0, 0, 0, 0);
         transferMotorRequest = new VelocityVoltage(0).withSlot(0);
 
+
+
+        intakeSpeedPublisher = table.getDoubleTopic("intakeSpeed").publish();
+        transferSpeedPublisher = table.getDoubleTopic("transferSpeed").publish();
+        storagePositionPublisher = table.getDoubleTopic("storagePosition").publish();
+        storageIsOpenPublisher = table.getBooleanTopic("storageIsOpen").publish();
+
+    }
+
+    @Override
+    public void periodic() {
+        intakeSpeedPublisher.set(getIntakeSpeed().in(DegreesPerSecond));
+        transferSpeedPublisher.set(getTransferSpeed().in(DegreesPerSecond));
+        storagePositionPublisher.set(getStoragePosition().in(Degrees));
+        storageIsOpenPublisher.set(getStorageState() == StorageWallState.kIsOpen);
     }
 
     /**
@@ -98,9 +118,9 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     }
 
     public AngularVelocity getTransferSpeed() {
-        return transferMotorSetSpeed;
+        return m_transferMotor.getVelocity(true).getValue();
     }
-
+    
     /**
      * Sets the PID setpoint (in DEGREES) of the wall motor. Values exceeding the
      * bounds in {@link SuperstructureConstants} will automatically be ignored
@@ -121,7 +141,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
      */
     public void setWallMotorPosition(Angle newPosition) {
         if (newPosition.lt(storageClosedAngle) ||
-                newPosition.gt(storageOpenAngle)) {
+        newPosition.gt(storageOpenAngle)) {
             System.out.println(
                     "Superstructure storage wall setpoint is outside bounds, ignoring request");
             return;
@@ -130,12 +150,15 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         storageWallSetpoint = newPosition;
         m_storageMotor.setControl(storageMotorRequest.withPosition(newPosition));
     }
-
+    public Angle getStoragePosition() {
+        return m_storageMotor.getPosition(true).getValue();
+    }
+    
     /**
      * @return a {@link StorageWallState} enum representing the storage wall's state
      */
     public StorageWallState getStorageState() {
-        Angle storageWallCurrentPosition = m_storageMotor.getPosition(true).getValue();
+        Angle storageWallCurrentPosition = getStoragePosition();
 
         if (storageWallCurrentPosition.isNear(storageClosedAngle, storageAngleTolerance) &&
                 storageWallCurrentPosition.isNear(storageWallSetpoint, storageAngleTolerance)) {
