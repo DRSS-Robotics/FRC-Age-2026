@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
@@ -33,7 +35,10 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private VelocityVoltage yawVelocityRequest;
   private Angle yawTargetPosition;
 
-  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId) {
+  private DoublePublisher turretPositionPublisher;
+  private DoublePublisher turretSpeedPublisher;
+
+  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId, NetworkTable table) {
 
     m_launchMotorL = new TalonFX(launchMotorIdL);
     launchMotorConfigs = new Slot0Configs();
@@ -75,6 +80,8 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     yawPositionRequest = new PositionVoltage(0).withSlot(0);
     yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
 
+    turretPositionPublisher = table.getDoubleTopic("turretPosition").publish();
+    turretSpeedPublisher = table.getDoubleTopic("turretFlywheelSpeed").publish();
   }
 
   // in degrees
@@ -124,10 +131,13 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
   @Override
   public void periodic() {
-    if (m_yawMotor.getPosition().isNear(Degrees.of(0), Degrees.of(5)) ||
-        m_yawMotor.getPosition().isNear(Degrees.of(360), Degrees.of(5))) {
+    if (getYawEncoder().isNear(Degrees.of(0), Degrees.of(5)) ||
+        getYawEncoder().isNear(Degrees.of(360), Degrees.of(5))) {
           driveYawMotor(0);
     }
+
+    turretPositionPublisher.set(getYawEncoder().in(Degrees));
+    turretSpeedPublisher.set(getLaunchMotorSpeed().in(DegreesPerSecond));
 
   }
 

@@ -11,6 +11,8 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
@@ -19,7 +21,7 @@ public class RobotContainer {
   // public SwerveDrivePoseEstimator m_poseEstimator = new
   // SwerveDrivePoseEstimator();
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
-  private final ShooterSubsystem m_shooter = new ShooterSubsystem(0, 1, 2);
+  private final ShooterSubsystem m_shooter = new ShooterSubsystem(0, 1, 2, NetworkTableInstance.getDefault().getTable("Turret"));
 
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
