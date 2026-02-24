@@ -6,75 +6,29 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SuperstructureConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
 import frc.robot.commands.AutoCommands.HangDownAutoCommand;
 import frc.robot.commands.AutoCommands.HangUpAutoCommand;
-//import frc.robot.commands.ShooterCommandAuto;
-import frc.robot.Remote_Manager.RemoteUpdateManager;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.HangSubsystem;
 import frc.robot.subsystems.SuperstructureSubsystem;
-//import frc.robot.subsystems.shooter.OuttakeSubsystem;
-import frc.robot.commands.ToggleIntakeCommand;
-import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
-import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
-import frc.robot.commands.AutoCommands.pathfindingCommand;
 import frc.robot.generated.TunerConstants;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.json.simple.parser.ParseException;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.pathfinding.*;
-import com.pathplanner.lib.util.FileVersionException;
-
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.SuperstructureConstants;
-import frc.robot.commands.ToggleIntakeCommand;
-import frc.robot.commands.ToggleWallCommand;
-import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
-import frc.robot.generated.TunerConstants;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -168,6 +122,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-          return Commands.none();
+          return autoChooser.getSelected();
   }
 }

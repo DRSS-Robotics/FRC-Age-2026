@@ -60,7 +60,7 @@ public class pathfindingCommand extends Command{
   @Override
   public void execute() {
 
-        if (disToBumpers == 30){
+        if (disToBumpers <= 30){
         //Object detected, so speed = 0
         MaxVelocity = 0;
     } else{
