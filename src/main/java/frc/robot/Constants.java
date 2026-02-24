@@ -34,11 +34,14 @@ public final class Constants {
     public static final Distance kLimelightHeightOffset = Inches.of(18);
     public static final Angle kLimelightPitchOffset = Degrees.of(15); 
       
-    // TODO: get correct driver camera and hopper camera name and id
+    // TODO: get correct driver camera and hopper camera id
     public static final int kDriverCameraId = 0;
     public static final int kHopperCameraId = 1;
 
     public static final String kOutputStreamName = "Output Stream";
     public static final String kHopperCameraStreamName = "Hopper Camera";
+
+    public static final int kLimelightBumpersPipeline = 0;
+    public static final int kLimelightAprilTagsPipeline = 1;
   }
 }

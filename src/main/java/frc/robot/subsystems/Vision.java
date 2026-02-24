@@ -12,7 +12,6 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.UsbCameraInfo;
 import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
-
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.math.VecBuilder;
@@ -45,6 +44,7 @@ public class Vision extends SubsystemBase {
 
     // Initialize Limelight
     updateLimelightPosition();
+    setLimelightPipeline(VisionConstants.kLimelightAprilTagsPipeline);
     limelight = new HttpCamera("limelight", VisionConstants.kLimelightStreamURL);
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
@@ -74,6 +74,7 @@ public class Vision extends SubsystemBase {
     System.out.println("VISION: Hopper camera connected: " + hopperCamera.isConnected());
   }
 
+  /** Update the Limelight's position relative to the robot. This should be called before pose estimation. */
   public void updateLimelightPosition() {
     Angle turretAngle = turretAngleSupplier.get();
 
@@ -103,6 +104,12 @@ public class Vision extends SubsystemBase {
   public void useDriverCamera() {
     outputStream.setSource(driverCamera);
     System.out.println("VISION: Set output stream source to driver camera");
+  }
+
+  /** Set the Limelight's pipeline */
+  public void setLimelightPipeline(int index) {
+    LimelightHelpers.setPipelineIndex(VisionConstants.kLimelightName, index);
+    System.out.println("VISION: Set Limelight pipeline to " + index);
   }
 
   @Override
