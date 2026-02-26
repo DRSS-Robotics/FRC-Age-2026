@@ -31,6 +31,8 @@ public final class ElasticTelemetry {
     private static Color hubActiveColor = new Color(0, 255, 0);
     private static Color hubInactiveColor = new Color(20, 20, 20);
 
+    private float guh = 0;
+
     private ElasticTelemetry() {
         if (instance == null) {
             System.out.println("guh");
@@ -75,7 +77,9 @@ public final class ElasticTelemetry {
                             : hubInactiveColor).toHexString());
         }
 
-        getInstance().matchTime.set(Timer.getMatchTime());
+        //getInstance().matchTime.set(Timer.getMatchTime());
+        getInstance().matchTime.set(getInstance().guh);
+        getInstance().guh += 0.02;
     }
 
     public static Optional<Alliance> getAutoWinner() {
