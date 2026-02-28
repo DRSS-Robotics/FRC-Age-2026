@@ -12,6 +12,7 @@ import frc.robot.commands.AutoCommands.HangUpAutoCommand;
 import frc.robot.subsystems.HangSubsystem;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
+import frc.robot.commands.AutoCommands.pathfindingCommand;
 import frc.robot.generated.TunerConstants;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -39,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  private pathfindingCommand pathfinding;
   private String adaptivePathPath;
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);

@@ -78,6 +78,9 @@ public final class Constants {
     public static final String kDriverCameraStreamName = "Driver Camera";
     public static final String kOutputStreamName = "Limelight / Driver Camera";
     public static final String kHopperCameraStreamName = "Hopper Camera";
+    public static final int kLimelightAprilTagsPipeline = 1;
+    public static final int kLimelightBumpersPipeline = 0;
+
   }
   public static class ShooterConstants {
     public static final double kCenterOffset = 0.3;
