@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SuperstructureConstants;
+import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveTransferCommand;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleWallCommand;
@@ -41,7 +42,7 @@ public class RobotContainer {
     m_driverController.rightTrigger(0.1)
         .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getRightTriggerAxis));
     m_driverController.leftTrigger(0.1)
-        .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getLeftTriggerAxis));
+        .whileTrue(new DriveIntakeCommand(m_superstructure, m_driverController::getLeftTriggerAxis));
   }
 
   /**

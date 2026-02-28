@@ -18,11 +18,11 @@ public final class Constants {
   }
   
   public static class SuperstructureConstants {
-    public static final int kIntakeMotorId = 5;
-    public static final int kStorageMotorId = 6;
-    public static final int kTransferMotorId = 6;
-    public static final double kDefaultIntakeSpeed = 16;
-    public static final double kDefaultTransferSpeed = 16;
+    public static final int kIntakeMotorId = 15;
+    public static final int kStorageMotorId = 16;
+    public static final int kTransferMotorId = 18;
+    public static final double kDefaultIntakeSpeed = 2500;
+    public static final double kDefaultTransferSpeed = 75;
 
     /**
      * A degree value that affects the tolerance of when the Fuel storage wall is
@@ -38,7 +38,7 @@ public final class Constants {
     /**
      * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
      */
-    public static final double kStorageOpenRotations = 800;
+    public static final double kStorageOpenRotations = 29 * 360; // temp, converting rottions to fdegrees
 
 
 

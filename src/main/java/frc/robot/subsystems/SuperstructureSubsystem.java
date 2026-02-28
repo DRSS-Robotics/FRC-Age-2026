@@ -62,13 +62,13 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         m_transferMotor = new TalonFX(transferMotorId);
 
         // TODO: use actual PID values instead of placeholder
-        intakeMotorConfigs = Utils.configureTalonGains(m_intakeMotor, 0, 0, 0, 0, 0);
+        intakeMotorConfigs = Utils.configureTalonGains(m_intakeMotor, 0, 1.5, 0.05, 0, 0);
         intakeMotorRequest = new VelocityVoltage(0).withSlot(0);
 
-        storageMotorConfigs = Utils.configureTalonGains(m_storageMotor, 0, 0, 0, 0, 0);
+        storageMotorConfigs = Utils.configureTalonGains(m_storageMotor, 0.4, 0.0, 0.5, 0, 0);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
 
-        transferMotorConfigs = Utils.configureTalonGains(m_transferMotor, 0, 0, 0, 0, 0);
+        transferMotorConfigs = Utils.configureTalonGains(m_transferMotor, 0, 1.5, 1.2, 0, 0);
         transferMotorRequest = new VelocityVoltage(0).withSlot(0);
 
 
@@ -140,11 +140,13 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
      * @param newPosition rotational setpoint value.
      */
     public void setWallMotorPosition(Angle newPosition) {
+        System.out.println(newPosition);
+        System.out.println(storageOpenAngle);
         if (newPosition.lt(storageClosedAngle) ||
         newPosition.gt(storageOpenAngle)) {
             System.out.println(
                     "Superstructure storage wall setpoint is outside bounds, ignoring request");
-            return;
+            // return;
         }
 
         storageWallSetpoint = newPosition;

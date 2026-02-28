@@ -25,11 +25,14 @@ public class DriveTransferCommand extends Command {
 
   @Override
   public void execute() {
+    System.out.println(guh.get());
     m_intake.runTransferMotor(guh.get() * SuperstructureConstants.kDefaultTransferSpeed);
   }
 
   @Override
   public void end(boolean interrupted) {
+    m_intake.runTransferMotor(0);
+
   }
 
   @Override
