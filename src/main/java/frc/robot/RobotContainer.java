@@ -27,6 +27,12 @@ public class RobotContainer {
       OperatorConstants.kDriverControllerPort);
   //private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
+  private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
+      SuperstructureConstants.kIntakeMotorId,
+      SuperstructureConstants.kStorageMotorId,
+      SuperstructureConstants.kTransferMotorId,
+      NetworkTableInstance.getDefault().getTable("Superstructure"));
+
   public RobotContainer() {
     configureBindings();
   }
@@ -38,6 +44,13 @@ public class RobotContainer {
             () -> DegreesPerSecond
                 .of(ShooterConstants.kShooterMaxManualSpeedDPS
                     * powPreserveSign(m_driverController.getRightTriggerAxis(), 2.))));
+    
+        m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    m_driverController.a().onTrue(new ToggleWallCommand(m_superstructure));
+    m_driverController.rightTrigger(0.1)
+        .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getRightTriggerAxis));
+    m_driverController.leftTrigger(0.1)
+        .whileTrue(new DriveIntakeCommand(m_superstructure, m_driverController::getLeftTriggerAxis));
 
    /* m_driverController.rightStick().whileFalse(
         new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
@@ -57,6 +70,19 @@ public class RobotContainer {
 
   private static int signInclusive(double a) {
     return (a >= 0.0) ? 1 : -1;
+    // new Trigger(m_exampleSubsystem::exampleCondition)
+    // .onTrue(new ExampleCommand(m_exampleSubsystem));
+
+
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return Commands.none();
   }
 
   // converts a joystick position into an angle that can be used by turret set

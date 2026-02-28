@@ -1,13 +1,8 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
-
-import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.units.measure.Angle;
 
+import static edu.wpi.first.units.Units.Degrees;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -19,6 +14,50 @@ import edu.wpi.first.units.measure.Angle;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+  }
+  
+  public static class SuperstructureConstants {
+    public static final int kIntakeMotorId = 15;
+    public static final int kStorageMotorId = 16;
+    public static final int kTransferMotorId = 18;
+    public static final double kDefaultIntakeSpeed = 2500;
+    public static final double kDefaultTransferSpeed = 75;
+
+    /**
+     * A degree value that affects the tolerance of when the Fuel storage wall is
+     * considered to be closed/open.
+     */
+    public static final double kStorageStateTolerance = 1;
+    
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED state
+     */
+    public static final double kStorageClosedRotations = 0;
+  
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
+     */
+    public static final double kStorageOpenRotations = 29 * 360; // temp, converting rottions to fdegrees
+
+
+
+    public static final double kMaxTestIntakeSpeedErrorPercentage = 3.;
+    public static final double kMaxTestIntakeTimeToSpinUp = 0.25 ; 
+    public static final double kMinTestIntakeTimeToMaintainSpeed = 20; 
+    public static final double kTestIntakeTargetDPS = 540; 
+
+    public static final double kMaxTestTransferSpeedErrorPercentage = 3;
+    public static final double kMaxTestTransferTimeToSpinUp = 0.25;
+    public static final double kMinTestTransferTimeToMaintainSpeed = 20;
+    public static final double kTestTransferTargetDPS = 540;
+//guh
+
+    
+    public static final double kMaxTestWallErrorPercentage = 0.3;
+    public static final double kMaxTestWallTimeToReachHeight = 4.0;
+    public static final Angle  kTestWallTargetAngle = Degrees.of(0);
+
   }
   
   public static final double kGravIN = 0;

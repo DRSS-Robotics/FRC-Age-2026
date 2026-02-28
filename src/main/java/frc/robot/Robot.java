@@ -26,6 +26,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+
     m_robotContainer = new RobotContainer();
   }
 
@@ -59,8 +60,8 @@ public class Robot extends TimedRobot {
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }*/
+      CommandScheduler.getInstance().schedule(m_autonomousCommand);
+    }
   }
 
   /** This function is called periodically during autonomous. */
@@ -74,7 +75,7 @@ public class Robot extends TimedRobot {
     // continue until interrupted by another command, remove
     // this line or comment it out.
     if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+      CommandScheduler.getInstance().cancel(m_autonomousCommand);
     }
   }
 
@@ -88,11 +89,14 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    TestRunner.runTests();
   }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    TestRunner.periodic();
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
