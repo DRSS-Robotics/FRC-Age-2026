@@ -21,11 +21,11 @@ public class RobotContainer {
   // public SwerveDrivePoseEstimator m_poseEstimator = new
   // SwerveDrivePoseEstimator();
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
-  private final ShooterSubsystem m_shooter = new ShooterSubsystem(0, 1, 2, NetworkTableInstance.getDefault().getTable("Turret"));
+  private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2, NetworkTableInstance.getDefault().getTable("Turret"));
 
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_operatorController = new CommandXboxController(1);
+  //private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
   public RobotContainer() {
     configureBindings();
@@ -33,21 +33,21 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    m_operatorController.rightTrigger(0.1).whileTrue(
+    m_driverController.rightTrigger(0.1).whileTrue(
         new DriveLaunchMotor(m_shooter,
             () -> DegreesPerSecond
                 .of(ShooterConstants.kShooterMaxManualSpeedDPS
-                    * powPreserveSign(m_operatorController.getRightTriggerAxis(), 2.))));
+                    * powPreserveSign(m_driverController.getRightTriggerAxis(), 2.))));
 
-    m_operatorController.rightStick().whileFalse(
+   /* m_driverController.rightStick().whileFalse(
         new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
             ShooterConstants.kTurretMaxManualSpeedDPS
-                * powPreserveSign(-m_operatorController.getRightX(), 2.))));
+                * powPreserveSign(-m_driverController.getRightX(), 2.))));
 
-    m_operatorController.rightStick().whileTrue(
+    m_driverController.rightStick().whileTrue(
         new RotateYawMotor(m_shooter, () -> Degrees
           .of(convertPositionToTurretAngle(
-            m_operatorController.getRightX(), m_operatorController.getRightY()))));
+            m_driverController.getRightX(), m_driverController.getRightY()))));*/
   }
 
   // these should be moved to utils once we have utils class from superstrcuture !!

@@ -43,20 +43,14 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     m_launchMotorL = new TalonFX(launchMotorIdL);
     launchMotorConfigs = new Slot0Configs();
     // Placeholder PID values
-    launchMotorConfigs.kV = 0;
-    launchMotorConfigs.kP = 1;
+    launchMotorConfigs.kV = 0.95;
+    launchMotorConfigs.kP = 0.025;
     launchMotorConfigs.kI = 0;
     launchMotorConfigs.kD = 0;
     m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
     launchRequestL = new VelocityVoltage(0).withSlot(0);
 
     m_launchMotorR = new TalonFX(launchMotorIdR);
-    launchMotorConfigs = new Slot0Configs();
-    // Placeholder PID values
-    launchMotorConfigs.kV = 0;
-    launchMotorConfigs.kP = 1;
-    launchMotorConfigs.kI = 0;
-    launchMotorConfigs.kD = 0;
     m_launchMotorR.getConfigurator().apply(launchMotorConfigs);
     launchRequestR = new VelocityVoltage(0).withSlot(0);
 
@@ -91,16 +85,16 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
   public void setYawMotorPosition(Angle pos) {
     double correctedAngle = pos.in(Degrees) % 360;
-    m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
+   // m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
   }
 
   // in degrees per second
   public void driveYawMotor(double degreesPerSecond) {
-    driveYawMotor(DegreesPerSecond.of(degreesPerSecond));
+   // driveYawMotor(DegreesPerSecond.of(degreesPerSecond));
   }
 
   public void driveYawMotor(AngularVelocity speed) {
-    m_yawMotor.setControl(yawVelocityRequest.withVelocity(speed));
+  //  m_yawMotor.setControl(yawVelocityRequest.withVelocity(speed));
   }
 
   public Angle getYawEncoder() {
