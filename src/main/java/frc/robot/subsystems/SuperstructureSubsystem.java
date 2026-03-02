@@ -28,6 +28,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 public class SuperstructureSubsystem extends SubsystemBase implements TestableSubsystem {
 
     private DoublePublisher intakeSpeedPublisher;
+    private DoublePublisher soupSpeedPublisher;
     private DoublePublisher transferSpeedPublisher;
     private DoublePublisher storagePositionPublisher;
     private BooleanPublisher storageIsOpenPublisher;
@@ -43,6 +44,11 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     private PositionVoltage storageMotorRequest;
     private Angle storageWallSetpoint = Degrees.of(0);
 
+    private TalonFX m_soupMotor;
+    private SlotConfigs soupMotorConfigs;
+    private VelocityVoltage soupMotorRequest;
+    private AngularVelocity soupMotorSetSpeed = DegreesPerSecond.of(0);
+
     private TalonFX m_transferMotor;
     private SlotConfigs transferMotorConfigs;
     private VelocityVoltage transferMotorRequest;
@@ -56,9 +62,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
      * Subsystem that encompasses both the over-the-bumper intake as well as Fuel
      * storage.
      */
-    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int transferMotorId, NetworkTable table) {
+    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int soupMotorId, int transferMotorId, NetworkTable table) {
         m_intakeMotor = new TalonFX(intakeMotorId);
         m_storageMotor = new TalonFX(wallMotorId);
+        m_soupMotor = new TalonFX(soupMotorId);
         m_transferMotor = new TalonFX(transferMotorId);
 
         // TODO: use actual PID values instead of placeholder
@@ -68,12 +75,16 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         storageMotorConfigs = Utils.configureTalonGains(m_storageMotor, 0.4, 0.0, 0.5, 0, 0);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
 
-        transferMotorConfigs = Utils.configureTalonGains(m_transferMotor, 0, 1.5, 1.2, 0, 0);
+        soupMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0, 0.8, 0.05, 0, 0);
+        soupMotorRequest = new VelocityVoltage(0).withSlot(0);
+
+        transferMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0, 0.65, 0.03, 0, 0);
         transferMotorRequest = new VelocityVoltage(0).withSlot(0);
 
 
 
         intakeSpeedPublisher = table.getDoubleTopic("intakeSpeed").publish();
+        soupSpeedPublisher = table.getDoubleTopic("soupSpeed").publish();
         transferSpeedPublisher = table.getDoubleTopic("transferSpeed").publish();
         storagePositionPublisher = table.getDoubleTopic("storagePosition").publish();
         storageIsOpenPublisher = table.getBooleanTopic("storageIsOpen").publish();
@@ -83,7 +94,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     @Override
     public void periodic() {
         intakeSpeedPublisher.set(getIntakeSpeed().in(DegreesPerSecond));
-        transferSpeedPublisher.set(getTransferSpeed().in(DegreesPerSecond));
+        soupSpeedPublisher.set(getSoupSpeed().in(DegreesPerSecond));
         storagePositionPublisher.set(getStoragePosition().in(Degrees));
         storageIsOpenPublisher.set(getStorageState() == StorageWallState.kIsOpen);
     }
@@ -107,6 +118,23 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     public AngularVelocity getIntakeSpeed() {
         return m_intakeMotor.getVelocity(true).getValue();
     }
+
+
+
+    public void runSoupMotor(double speed) {
+        runSoupMotor(DegreesPerSecond.of(speed));
+    }
+
+    public void runSoupMotor(AngularVelocity speed) {
+        soupMotorSetSpeed = speed;
+        m_soupMotor.setControl(soupMotorRequest.withVelocity(speed));
+    }
+
+    public AngularVelocity getSoupSpeed() {
+        return m_soupMotor.getVelocity(true).getValue();
+    }
+
+
 
     public void runTransferMotor(double speed) {
         runTransferMotor(DegreesPerSecond.of(speed));
@@ -278,14 +306,14 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                     private boolean transferMotorSpeedReached;
                     private double timeAtStartOfVelocityTest;
                     private String output = "";
-                    private AngularVelocity targetTransferSpeed = DegreesPerSecond
-                            .of(SuperstructureConstants.kTestTransferTargetDPS);
+                    private AngularVelocity targetSoupSpeed = DegreesPerSecond
+                            .of(SuperstructureConstants.kTestSoupTargetDPS);
 
                     @Override
                     public void onInitialize() {
-                        runTransferMotor(targetTransferSpeed);
+                        runSoupMotor(targetSoupSpeed);
                         startTime = Timer.getFPGATimestamp();
-                        maxAllowedError = SuperstructureConstants.kMaxTestTransferSpeedErrorPercentage / 100;
+                        maxAllowedError = SuperstructureConstants.kMaxTestSoupSpeedErrorPercentage / 100;
                     }
 
                     @Override
@@ -297,20 +325,20 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                     public TestResult getCurrentResult() {
                         if (!transferMotorSpeedReached) {
                             if (Timer.getFPGATimestamp()
-                                    - startTime >= SuperstructureConstants.kMaxTestTransferTimeToSpinUp) {
+                                    - startTime >= SuperstructureConstants.kMaxTestSoupTimeToSpinUp) {
                                 output = "The transfer took too long to spin up.";
                                 return TestResult.KNOWN_FAILURE;
                             }
 
                             timeAtStartOfVelocityTest = Timer.getFPGATimestamp();
-                            transferMotorSpeedReached = getIntakeSpeed().isNear(transferMotorSetSpeed, maxAllowedError);
+                            transferMotorSpeedReached = getIntakeSpeed().isNear(soupMotorSetSpeed, maxAllowedError);
                         } else {
-                            if (!getIntakeSpeed().isNear(transferMotorSetSpeed, maxAllowedError)) {
-                                output = "Transfer did not maintain speed.";
+                            if (!getIntakeSpeed().isNear(soupMotorSetSpeed, maxAllowedError)) {
+                                output = "Soup did not maintain speed.";
                                 return TestResult.KNOWN_FAILURE;
                             }
                             if (Timer.getFPGATimestamp()
-                                    - timeAtStartOfVelocityTest >= SuperstructureConstants.kMinTestTransferTimeToMaintainSpeed) {
+                                    - timeAtStartOfVelocityTest >= SuperstructureConstants.kMinTestSoupTimeToMaintainSpeed) {
 
                                 return TestResult.SUCCESS;
                             }

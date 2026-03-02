@@ -16,7 +16,7 @@ public class ToggleFuelTransferCommand extends Command {
 
   /**
    * Toggles the transfer motor on/off, based on its current state and the default
-   * speed in {@link SuperstructureConstants#kDefaultTransferSpeed}
+   * speed in {@link SuperstructureConstants#kDefaultSoupSpeed}
    */
   public ToggleFuelTransferCommand(SuperstructureSubsystem intakeSubsystem) {
     m_intake = intakeSubsystem;
@@ -27,9 +27,11 @@ public class ToggleFuelTransferCommand extends Command {
 
   @Override
   public void initialize() {
-    if (m_intake.getTransferSpeed().isEquivalent(DegreesPerSecond.of(0))) {
+    if (m_intake.getSoupSpeed().isEquivalent(DegreesPerSecond.of(0))) {
+        m_intake.runSoupMotor(SuperstructureConstants.kDefaultSoupSpeed);
         m_intake.runTransferMotor(SuperstructureConstants.kDefaultTransferSpeed);
       } else {
+        m_intake.runSoupMotor(0);
         m_intake.runTransferMotor(0);
     }
   }
