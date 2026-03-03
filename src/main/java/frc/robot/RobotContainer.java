@@ -57,8 +57,6 @@ public class RobotContainer {
 
     m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
     m_driverController.a().onTrue(new ToggleWallCommand(m_superstructure));
-   // m_driverController.rightTrigger(0.1)
-     //   .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getRightTriggerAxis));
     m_driverController.leftTrigger(0.15)
         .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getLeftTriggerAxis));
 

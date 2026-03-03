@@ -43,8 +43,9 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     m_launchMotorL = new TalonFX(launchMotorIdL);
     launchMotorConfigs = new Slot0Configs();
     // Placeholder PID values
-    launchMotorConfigs.kV = 0.95;
-    launchMotorConfigs.kP = 0.025;
+    launchMotorConfigs.kS = 0.2;
+    launchMotorConfigs.kV = 0.8;
+    launchMotorConfigs.kP = 0.04;
     launchMotorConfigs.kI = 0;
     launchMotorConfigs.kD = 0;
     m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
@@ -58,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     yawMotorPositionConfigs = new Slot0Configs();
     // Placeholder PID values
     yawMotorPositionConfigs.kV = 0;
-    yawMotorPositionConfigs.kP = 1;
+    yawMotorPositionConfigs.kP = 0;
     yawMotorPositionConfigs.kI = 0;
     yawMotorPositionConfigs.kD = 0;
     m_yawMotor.getConfigurator().apply(yawMotorPositionConfigs);
@@ -66,7 +67,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     yawMotorVelocityConfigs = new Slot1Configs();
     // Placeholder PID values
     yawMotorVelocityConfigs.kV = 0;
-    yawMotorVelocityConfigs.kP = 1;
+    yawMotorVelocityConfigs.kP = 0;
     yawMotorVelocityConfigs.kI = 0;
     yawMotorVelocityConfigs.kD = 0;
     m_yawMotor.getConfigurator().apply(yawMotorVelocityConfigs);

@@ -23,8 +23,8 @@ public final class Constants {
     public static final int kSoupMotorId = 18;
     public static final int kTransferMotorId = 14;
     public static final double kDefaultIntakeSpeed = 2500;
-    public static final double kDefaultSoupSpeed = 1080;
-    public static final double kDefaultTransferSpeed = 1080;
+    public static final double kDefaultSoupSpeed = 2800;
+    public static final double kDefaultTransferSpeed = 1540;
 
     /**
      * A degree value that affects the tolerance of when the Fuel storage wall is
@@ -40,7 +40,7 @@ public final class Constants {
     /**
      * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
      */
-    public static final double kStorageOpenRotations = 21 * 360; // temp, converting rottions to fdegrees
+    public static final double kStorageOpenRotations = 29 * 360; // temp, converting rottions to fdegrees
 
 
 
@@ -53,7 +53,7 @@ public final class Constants {
     public static final double kMaxTestSoupTimeToSpinUp = 0.25;
     public static final double kMinTestSoupTimeToMaintainSpeed = 20;
     public static final double kTestSoupTargetDPS = 540;
-//guh
+//guh guh
 
     
     public static final double kMaxTestWallErrorPercentage = 0.3;
