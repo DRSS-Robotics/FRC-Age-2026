@@ -20,17 +20,17 @@ public class DriveTransferCommand extends Command {
   public DriveTransferCommand(SuperstructureSubsystem transferSubsystem, Supplier<Double> transferSpeedSupplier) {
     m_intake = transferSubsystem;
     guh = transferSpeedSupplier;
-    addRequirements(transferSubsystem);
   }
 
   @Override
   public void execute() {
-    System.out.println(guh.get());
+    m_intake.runSoupMotor(guh.get() * SuperstructureConstants.kDefaultSoupSpeed);
     m_intake.runTransferMotor(guh.get() * SuperstructureConstants.kDefaultTransferSpeed);
   }
 
   @Override
   public void end(boolean interrupted) {
+    m_intake.runSoupMotor(0);
     m_intake.runTransferMotor(0);
 
   }

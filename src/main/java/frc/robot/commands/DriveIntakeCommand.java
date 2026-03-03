@@ -20,7 +20,6 @@ public class DriveIntakeCommand extends Command {
   public DriveIntakeCommand(SuperstructureSubsystem intakeSubsystem, Supplier<Double> intakeSpeedSupplier) {
     m_intake = intakeSubsystem;
     guh = intakeSpeedSupplier;
-    addRequirements(intakeSubsystem);
   }
 
   @Override
