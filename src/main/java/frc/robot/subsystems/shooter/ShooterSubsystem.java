@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.Angle;
@@ -7,6 +8,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.TestableSubsystem;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -27,6 +29,13 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private VelocityVoltage launchRequestL;
   private VelocityVoltage launchRequestR;
   private AngularVelocity launchMotorSetpoint = DegreesPerSecond.of(0);
+
+  private final TrapezoidProfile launchTrapezoidProfile = new TrapezoidProfile(
+      new TrapezoidProfile.Constraints(ShooterConstants.kMaxShooterDPS,
+          ShooterConstants.kMaxShooterDPSPS));
+
+  private TrapezoidProfile.State launchVelocityGoal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State launchVelocitySetpoint = new TrapezoidProfile.State();
 
   private TalonFX m_yawMotor;
   private Slot0Configs yawMotorPositionConfigs;
@@ -86,16 +95,16 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
   public void setYawMotorPosition(Angle pos) {
     double correctedAngle = pos.in(Degrees) % 360;
-   // m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
+    // m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
   }
 
   // in degrees per second
   public void driveYawMotor(double degreesPerSecond) {
-   // driveYawMotor(DegreesPerSecond.of(degreesPerSecond));
+    // driveYawMotor(DegreesPerSecond.of(degreesPerSecond));
   }
 
   public void driveYawMotor(AngularVelocity speed) {
-  //  m_yawMotor.setControl(yawVelocityRequest.withVelocity(speed));
+    // m_yawMotor.setControl(yawVelocityRequest.withVelocity(speed));
   }
 
   public Angle getYawEncoder() {
@@ -120,16 +129,22 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
   public void runLaunchMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
-    m_launchMotorL.setControl(launchRequestL.withVelocity(speed));
-    m_launchMotorR.setControl(launchRequestR.withVelocity(speed));
+    launchVelocityGoal = new TrapezoidProfile.State(0, speed.in(DegreesPerSecond));
+
   }
 
   @Override
   public void periodic() {
     if (getYawEncoder().isNear(Degrees.of(0), Degrees.of(5)) ||
         getYawEncoder().isNear(Degrees.of(360), Degrees.of(5))) {
-          driveYawMotor(0);
+      driveYawMotor(0);
     }
+
+    launchVelocitySetpoint = launchTrapezoidProfile.calculate(1 / 50, launchVelocitySetpoint,
+        launchVelocityGoal);
+
+    m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.velocity)));
+    m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.velocity)));
 
     turretPositionPublisher.set(getYawEncoder().in(Degrees));
     turretSpeedPublisher.set(getLaunchMotorSpeed().in(DegreesPerSecond));
