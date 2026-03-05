@@ -29,7 +29,7 @@ public final class Constants {
     public static final int kStorageMotorId = 16;
     public static final int kSoupMotorId = 18;
     public static final double kMaxSoupDPS = 3600;
-    public static final double kMaxSoupDPSPS = 3600;
+    public static final double kMaxSoupDPSPS = 3601;
     public static final int kTransferMotorId = 14;
     public static final double kDefaultIntakeSpeed = 2500;
     public static final double kDefaultSoupSpeed = 2800;
