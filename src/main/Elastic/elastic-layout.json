@@ -1,0 +1,252 @@
+{
+  "version": 1.0,
+  "grid_size": 32,
+  "tabs": [
+    {
+      "name": "Teleoperated",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Storage Open?",
+            "x": 1152.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Superstructure/storageIsOpen",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4278255360,
+              "false_color": 4294901760,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Turret Relative Robot Position",
+            "x": 1120.0,
+            "y": 384.0,
+            "width": 224.0,
+            "height": 224.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/Turret/turretPosition",
+              "period": 0.033,
+              "data_type": "double",
+              "start_angle": 180.0,
+              "end_angle": -180.0,
+              "min_value": 0.0,
+              "max_value": 360.0,
+              "number_of_labels": 8,
+              "wrap_value": true,
+              "show_pointer": true,
+              "show_ticks": true
+            }
+          },
+          {
+            "title": "Turret Flywheel (RPM)",
+            "x": 864.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 224.0,
+            "type": "Number Bar",
+            "properties": {
+              "topic": "/Turret/turretFlywheelSpeed",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 0.0,
+              "max_value": 540.0,
+              "divisions": 4,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "Hang L1?",
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Hang/hangState",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4278255360,
+              "false_color": 4294901760,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Streams",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 480.0,
+            "height": 448.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/CameraPublisher/Hopper Camera/streams",
+              "period": 0.06,
+              "data_type": "string[]",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Time Remaining",
+            "x": 480.0,
+            "y": 384.0,
+            "width": 384.0,
+            "height": 224.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/Telemetry/matchTime",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "Hub Is Active",
+            "x": 160.0,
+            "y": 448.0,
+            "width": 320.0,
+            "height": 160.0,
+            "type": "Single Color View",
+            "properties": {
+              "topic": "/Telemetry/ourHubIsActive",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Auto Winner",
+            "x": 0.0,
+            "y": 448.0,
+            "width": 160.0,
+            "height": 160.0,
+            "type": "Single Color View",
+            "properties": {
+              "topic": "/Telemetry/autoWinningAlliance",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Field Map",
+            "x": 480.0,
+            "y": 0.0,
+            "width": 672.0,
+            "height": 384.0,
+            "type": "Single Color View",
+            "properties": {
+              "topic": "/FMSInfo/EventName",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Autonomous",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "Swerve Speeds (placeholder for full module view)",
+            "x": 448.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "dX (m/s)",
+                "x": 1024.0,
+                "y": 192.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Number Bar",
+                "properties": {
+                  "topic": "/DriveState/Speeds",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "struct_meta": {
+                    "path": [
+                      "vx"
+                    ],
+                    "schema_name": "ChassisSpeeds",
+                    "type": "double"
+                  },
+                  "min_value": -6.0,
+                  "max_value": 6.0,
+                  "divisions": 5,
+                  "inverted": false,
+                  "orientation": "horizontal"
+                }
+              },
+              {
+                "title": "dY (m/s)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Number Bar",
+                "properties": {
+                  "topic": "/DriveState/Speeds",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "struct_meta": {
+                    "path": [
+                      "vy"
+                    ],
+                    "schema_name": "ChassisSpeeds",
+                    "type": "double"
+                  },
+                  "min_value": -6.0,
+                  "max_value": 6.0,
+                  "divisions": 5,
+                  "inverted": false,
+                  "orientation": "horizontal"
+                }
+              },
+              {
+                "title": "omega (degrees/s)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Number Bar",
+                "properties": {
+                  "topic": "/DriveState/Speeds",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "struct_meta": {
+                    "path": [
+                      "omega"
+                    ],
+                    "schema_name": "ChassisSpeeds",
+                    "type": "double"
+                  },
+                  "min_value": -120.0,
+                  "max_value": 120.0,
+                  "divisions": 5,
+                  "inverted": false,
+                  "orientation": "horizontal"
+                }
+              }
+            ]
+          }
+        ],
+        "containers": []
+      }
+    }
+  ]
+}
