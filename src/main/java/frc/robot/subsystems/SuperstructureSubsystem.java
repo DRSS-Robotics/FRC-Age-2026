@@ -38,14 +38,21 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     private SlotConfigs intakeMotorConfigs;
     private VelocityVoltage intakeMotorRequest;
     private AngularVelocity intakeMotorSetSpeed = DegreesPerSecond.of(0);
-    
+
     private final TrapezoidProfile intakeTrapezoidProfile = new TrapezoidProfile(
             new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxIntakeDPS,
                     SuperstructureConstants.kMaxIntakeDPSPS));
 
+    private final TrapezoidProfile storageWallTrapezoidProfile = new TrapezoidProfile(
+            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxSoupDPS,
+                    SuperstructureConstants.kMaxSoupDPSPS));
+
     private TrapezoidProfile.State intakeVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State intakeVelocitySetpoint = new TrapezoidProfile.State();
-    
+
+    private TrapezoidProfile.State storageWallPositionGoal = new TrapezoidProfile.State();
+    private TrapezoidProfile.State storageWallTrapezoidSetpoint = new TrapezoidProfile.State();
+
     private TalonFX m_storageMotor;
     private StorageWallState storageState;
     private SlotConfigs storageMotorConfigs;
@@ -121,11 +128,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
         transferVelocitySetpoint = transferTrapezoidProfile.calculate(1 / 50, transferVelocitySetpoint,
                 transferVelocityGoal);
-    
+
         m_transferMotor.setControl(
                 transferMotorRequest.withVelocity(
                         DegreesPerSecond.of(transferVelocitySetpoint.velocity)));
-
 
         intakeVelocitySetpoint = intakeTrapezoidProfile.calculate(1 / 50, intakeVelocitySetpoint,
                 intakeVelocityGoal);
@@ -134,13 +140,18 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                 intakeMotorRequest.withVelocity(
                         DegreesPerSecond.of(intakeVelocitySetpoint.velocity)));
 
-
         soupVelocitySetpoint = soupTrapezoidProfile.calculate(1 / 50, soupVelocitySetpoint,
                 soupVelocityGoal);
 
         m_soupMotor.setControl(
                 soupMotorRequest.withVelocity(
                         DegreesPerSecond.of(soupVelocitySetpoint.velocity)));
+
+        storageWallTrapezoidSetpoint = storageWallTrapezoidProfile.calculate(1 / 50, storageWallTrapezoidSetpoint,
+                storageWallPositionGoal);
+
+        m_storageMotor.setControl(storageMotorRequest.withPosition(Degrees.of(storageWallTrapezoidSetpoint.position)));
+
     }
 
     /**
@@ -153,7 +164,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     public void runIntake(AngularVelocity speed) {
         intakeMotorSetSpeed = speed;
         intakeVelocityGoal = new TrapezoidProfile.State(0, speed.in(DegreesPerSecond));
-        
+
     }
 
     public AngularVelocity getIntakeSpeedSetpoint() {
@@ -184,7 +195,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     public void runTransferMotor(AngularVelocity speed) {
         transferMotorSetSpeed = speed;
         transferVelocityGoal = new TrapezoidProfile.State(0, speed.in(DegreesPerSecond));
-        
+
     }
 
     public AngularVelocity getTransferSpeed() {
@@ -220,7 +231,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         }
 
         storageWallSetpoint = newPosition;
-        m_storageMotor.setControl(storageMotorRequest.withPosition(newPosition));
+        storageWallPositionGoal = new TrapezoidProfile.State(newPosition.in(Degrees), 0);
     }
 
     public Angle getStoragePosition() {
