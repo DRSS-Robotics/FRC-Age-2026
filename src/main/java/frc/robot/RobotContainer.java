@@ -24,6 +24,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -70,19 +71,19 @@ public class RobotContainer {
       SuperstructureConstants.kIntakeMotorId, 
       SuperstructureConstants.kStorageMotorId,
       SuperstructureConstants.kAgitatorMotorId,
-      SuperstructureConstants.kTransferMotorId);
+      SuperstructureConstants.kTransferMotorId, NetworkTableInstance.getDefault().getTable("Superstructure"));
   final HangSubsystem m_hang = new HangSubsystem(0);
   // Replace with CommandPS4Controller or CommandJoystick if needed
    //private final CommandXboxController m_driverController =
     //  new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
 
-      //NamedCommands.registerCommand("runOuttakeMotor", new ShooterCommandAuto(m_outtakeSubsystem));
+      NamedCommands.registerCommand("runOuttakeMotor", new ShooterCommandAuto(m_outtakeSubsystem));
       NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
       NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
       NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
       NamedCommands.registerCommand("Wallout", new ExpandStorageAutoCommand(m_superstructure));
-      //NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_transfer));//Add when we get translocator subsystem
+      // NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_transfer));//Add when we get translocator subsystem
     
       autoChooser = AutoBuilder.buildAutoChooser("Default");
       adaptivePathPath = String.valueOf(autoChooser);

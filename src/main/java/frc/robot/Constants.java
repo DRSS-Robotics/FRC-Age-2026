@@ -22,40 +22,6 @@ public final class Constants {
 
   }
   public static final double kGravIN = 0;
-  public static class SuperstructureConstants {
-    public static final int kIntakeMotorId = 5;
-    public static final int kStorageMotorId = 6;
-    public static final int kAgitatorMotorId = 6;
-    public static final int kTransferMotorId = 6;
-    public static final double kDefaultIntakeSpeed = 16;
-    public static final double kDefaultTransferSpeed = 16;
-
-    /**
-     * A degree value that affects the tolerance of when the Fuel storage wall is
-     * considered to be closed/open.
-     */
-    public static final double kStorageStateTolerance = 1;
-    
-    /**
-     * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED state
-     */
-    public static final double kStorageClosedRotations = 0;
-  
-    /**
-     * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
-     */
-    public static final double kStorageOpenRotations = 800;
-  }
-
-   public static class HangConstants {
-    public static final double kHangGroundRotations = 0;
-    public static final double kHangL1Rotations = 0;
-    public static final double kHangLevelTolerance = 0;
-    /**
-     *DPS is Degrees Per Second
-     */
-    public static final double kHangManualDriveDPSScale = 0;
-  }
 
     public static class VisionConstants {
     public static final String kLimelightName = "limelight";
@@ -105,6 +71,52 @@ public final class Constants {
     // TODO: find pose of the hub, might be online somewhere for a value
     public static final Pose3d kHubPose = new Pose3d();
     public static final double kGravIN = 0;
+  }
+
+  public static class SuperstructureConstants {
+    public static final int kIntakeMotorId = 15;
+    public static final int kStorageMotorId = 16;
+    public static final int kSoupMotorId = 18;
+    public static final int kTransferMotorId = 14;
+    public static final int kAgitatorMotorId = 67676767;//NEED TO CHANGE TO CORRECT THING!!!
+    public static final double kDefaultIntakeSpeed = 2500;
+    public static final double kDefaultSoupSpeed = 1080;
+    public static final double kDefaultTransferSpeed = 1080;
+
+    /**
+     * A degree value that affects the tolerance of when the Fuel storage wall is
+     * considered to be closed/open.
+     */
+    public static final double kStorageStateTolerance = 1;
+    
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED state
+     */
+    public static final double kStorageClosedRotations = 0;
+  
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN state
+     */
+    public static final double kStorageOpenRotations = 21 * 360; // temp, converting rottions to fdegrees
+
+
+
+    public static final double kMaxTestIntakeSpeedErrorPercentage = 3.;
+    public static final double kMaxTestIntakeTimeToSpinUp = 0.25 ; 
+    public static final double kMinTestIntakeTimeToMaintainSpeed = 20; 
+    public static final double kTestIntakeTargetDPS = 540; 
+
+    public static final double kMaxTestSoupSpeedErrorPercentage = 3;
+    public static final double kMaxTestSoupTimeToSpinUp = 0.25;
+    public static final double kMinTestSoupTimeToMaintainSpeed = 20;
+    public static final double kTestSoupTargetDPS = 540;
+//guh
+
+    
+    public static final double kMaxTestWallErrorPercentage = 0.3;
+    public static final double kMaxTestWallTimeToReachHeight = 4.0;
+    public static final Angle  kTestWallTargetAngle = Degrees.of(0);
+
   }
   
 }
