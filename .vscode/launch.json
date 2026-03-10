@@ -9,6 +9,13 @@
       "name": "NavGridCoord",
       "request": "launch",
       "mainClass": "frc.robot.subsystems.NavGridCoord",
+      "projectName": "FRC-Age-2026"
+    },
+    {
+      "type": "java",
+      "name": "NavGridCoord",
+      "request": "launch",
+      "mainClass": "frc.robot.subsystems.NavGridCoord",
       "projectName": "FRC-Age-2026-Autonomous-Imported"
     },
     {
