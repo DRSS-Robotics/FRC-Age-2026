@@ -131,21 +131,21 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
         m_transferMotor.setControl(
                 transferMotorRequest.withVelocity(
-                        DegreesPerSecond.of(transferVelocitySetpoint.velocity)));
+                        DegreesPerSecond.of(transferVelocitySetpoint.position)));
 
         intakeVelocitySetpoint = intakeTrapezoidProfile.calculate(1 / 50, intakeVelocitySetpoint,
                 intakeVelocityGoal);
 
         m_intakeMotor.setControl(
                 intakeMotorRequest.withVelocity(
-                        DegreesPerSecond.of(intakeVelocitySetpoint.velocity)));
+                        DegreesPerSecond.of(intakeVelocitySetpoint.position)));
 
         soupVelocitySetpoint = soupTrapezoidProfile.calculate(1 / 50, soupVelocitySetpoint,
                 soupVelocityGoal);
 
         m_soupMotor.setControl(
                 soupMotorRequest.withVelocity(
-                        DegreesPerSecond.of(soupVelocitySetpoint.velocity)));
+                        DegreesPerSecond.of(soupVelocitySetpoint.position)));
 
         storageWallTrapezoidSetpoint = storageWallTrapezoidProfile.calculate(1 / 50, storageWallTrapezoidSetpoint,
                 storageWallPositionGoal);
@@ -163,7 +163,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
     public void runIntake(AngularVelocity speed) {
         intakeMotorSetSpeed = speed;
-        intakeVelocityGoal = new TrapezoidProfile.State(0, speed.in(DegreesPerSecond));
+        intakeVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
 
     }
 
@@ -181,7 +181,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
     public void runSoupMotor(AngularVelocity speed) {
         soupMotorSetSpeed = speed;
-        soupVelocityGoal = new TrapezoidProfile.State(0, speed.in(DegreesPerSecond));
+        soupVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
     }
 
     public AngularVelocity getSoupSpeed() {
@@ -194,7 +194,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
     public void runTransferMotor(AngularVelocity speed) {
         transferMotorSetSpeed = speed;
-        transferVelocityGoal = new TrapezoidProfile.State(0, speed.in(DegreesPerSecond));
+        transferVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
 
     }
 

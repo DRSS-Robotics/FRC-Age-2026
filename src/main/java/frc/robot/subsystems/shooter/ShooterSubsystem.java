@@ -31,8 +31,8 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private AngularVelocity launchMotorSetpoint = DegreesPerSecond.of(0);
 
   private final TrapezoidProfile launchTrapezoidProfile = new TrapezoidProfile(
-      new TrapezoidProfile.Constraints(ShooterConstants.kMaxShooterDPS,
-          ShooterConstants.kMaxShooterDPSPS));
+      new TrapezoidProfile.Constraints(ShooterConstants.kMaxShooterDPS2,
+          ShooterConstants.kMaxShooterDPS3));
 
   private TrapezoidProfile.State launchVelocityGoal = new TrapezoidProfile.State();
   private TrapezoidProfile.State launchVelocitySetpoint = new TrapezoidProfile.State();
@@ -129,7 +129,8 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
   public void runLaunchMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
-    launchVelocityGoal = new TrapezoidProfile.State(0, speed.in(DegreesPerSecond));
+    launchVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
+
 
   }
 
@@ -140,8 +141,11 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
       driveYawMotor(0);
     }
 
-    launchVelocitySetpoint = launchTrapezoidProfile.calculate(1 / 50, launchVelocitySetpoint,
+    launchVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, launchVelocitySetpoint,
         launchVelocityGoal);
+      System.out.println(launchVelocitySetpoint.position);
+
+
 
     m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.velocity)));
     m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.velocity)));

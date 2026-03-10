@@ -78,8 +78,8 @@ public final class Constants {
     public static final double kShooterMaxManualSpeedDPS = 360 * 10;
     public static final double kTurretMaxManualSpeedDPS = 105;
 
-    public static final double kMaxShooterDPS = 6000;
-    public static final double kMaxShooterDPSPS = 4000;
+    public static final double kMaxShooterDPS2 = 12000; // accel
+    public static final double kMaxShooterDPS3 = 36000; // jerk
 
     public static final double kMaxTestLaunchMotorSpeedErrorPercentage = 0.3;
     public static final double kMaxTestLaunchMotorTimeToSpinUp = 4.;
