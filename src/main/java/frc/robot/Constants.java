@@ -34,8 +34,8 @@ public final class Constants {
     public static final double kDefaultIntakeSpeed = 2500;
     public static final double kDefaultSoupSpeed = 2800;
     public static final double kDefaultTransferSpeed = 1540;
-    public static final double kMaxTransferDPS = 3600;
-    public static final double kMaxTransferDPSPS = 3600;
+    public static final double kMaxTransferDPS = 15000;
+    public static final double kMaxTransferDPSPS = 15000;
 
     /**
      * A degree value that affects the tolerance of when the Fuel storage wall is
@@ -75,11 +75,11 @@ public final class Constants {
   public static class ShooterConstants {
     public static final double kShooterManualDriveDPSScale = 1;
     public static final double kShooterAngleTolerance = 1;
-    public static final double kShooterMaxManualSpeedDPS = 360 * 10;
+    public static final double kShooterMaxManualSpeedDPS = 600 * 10;
     public static final double kTurretMaxManualSpeedDPS = 105;
 
-    public static final double kMaxShooterDPS2 = 12000; // accel
-    public static final double kMaxShooterDPS3 = 36000; // jerk
+    public static final double kMaxShooterDPS2 = 36000; // accel
+    public static final double kMaxShooterDPS3 = 72000; // jerk
 
     public static final double kMaxTestLaunchMotorSpeedErrorPercentage = 0.3;
     public static final double kMaxTestLaunchMotorTimeToSpinUp = 4.;

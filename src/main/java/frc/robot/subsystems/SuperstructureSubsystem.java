@@ -87,6 +87,8 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     public static Angle storageOpenAngle = Degrees.of(SuperstructureConstants.kStorageOpenRotations);
     public static Angle storageAngleTolerance = Degrees.of(SuperstructureConstants.kStorageStateTolerance);
 
+    public final double kDT = 0.02;
+
     /**
      * Subsystem that encompasses both the over-the-bumper intake as well as Fuel
      * storage.
@@ -126,28 +128,36 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         storagePositionPublisher.set(getStoragePosition().in(Degrees));
         storageIsOpenPublisher.set(getStorageState() == StorageWallState.kIsOpen);
 
-        transferVelocitySetpoint = transferTrapezoidProfile.calculate(1 / 50, transferVelocitySetpoint,
+        transferVelocitySetpoint = transferTrapezoidProfile.calculate(kDT, transferVelocitySetpoint,
                 transferVelocityGoal);
+
+
 
         m_transferMotor.setControl(
                 transferMotorRequest.withVelocity(
                         DegreesPerSecond.of(transferVelocitySetpoint.position)));
 
-        intakeVelocitySetpoint = intakeTrapezoidProfile.calculate(1 / 50, intakeVelocitySetpoint,
+
+
+        intakeVelocitySetpoint = intakeTrapezoidProfile.calculate(kDT, intakeVelocitySetpoint,
                 intakeVelocityGoal);
 
         m_intakeMotor.setControl(
                 intakeMotorRequest.withVelocity(
                         DegreesPerSecond.of(intakeVelocitySetpoint.position)));
 
-        soupVelocitySetpoint = soupTrapezoidProfile.calculate(1 / 50, soupVelocitySetpoint,
+
+
+        soupVelocitySetpoint = soupTrapezoidProfile.calculate(kDT, soupVelocitySetpoint,
                 soupVelocityGoal);
 
         m_soupMotor.setControl(
                 soupMotorRequest.withVelocity(
                         DegreesPerSecond.of(soupVelocitySetpoint.position)));
 
-        storageWallTrapezoidSetpoint = storageWallTrapezoidProfile.calculate(1 / 50, storageWallTrapezoidSetpoint,
+
+
+        storageWallTrapezoidSetpoint = storageWallTrapezoidProfile.calculate(kDT, storageWallTrapezoidSetpoint,
                 storageWallPositionGoal);
 
         m_storageMotor.setControl(storageMotorRequest.withPosition(Degrees.of(storageWallTrapezoidSetpoint.position)));
