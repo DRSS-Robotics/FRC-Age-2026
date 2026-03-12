@@ -3,7 +3,10 @@ package frc.robot;
 import frc.robot.Constants.*;
 import frc.robot.commands.DriveYawMotor;
 import frc.robot.commands.RotateYawMotor;
+import frc.robot.commands.SetWallPosition;
+import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
+import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveLaunchMotor;
@@ -18,9 +21,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
 
@@ -55,10 +60,15 @@ public class RobotContainer {
                 .of(ShooterConstants.kShooterMaxManualSpeedDPS
                     * powPreserveSign(m_driverController.getRightTriggerAxis(), 2.))));
 
+    m_driverController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7), () -> false));
     m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
     m_driverController.a().onTrue(new ToggleWallCommand(m_superstructure));
     m_driverController.leftTrigger(0.15)
         .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getLeftTriggerAxis));
+
+    m_driverController.leftBumper()
+        .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
 
     /*
      * m_driverController.rightStick().whileFalse(

@@ -119,6 +119,9 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         storagePositionPublisher = table.getDoubleTopic("storagePosition").publish();
         storageIsOpenPublisher = table.getBooleanTopic("storageIsOpen").publish();
 
+
+        storageWallTrapezoidSetpoint = new TrapezoidProfile.State(getStoragePosition().in(Degrees), 0);
+        storageWallPositionGoal = new TrapezoidProfile.State(getStoragePosition().in(Degrees), 0);
     }
 
     @Override

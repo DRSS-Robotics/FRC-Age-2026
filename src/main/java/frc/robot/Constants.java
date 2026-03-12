@@ -16,8 +16,8 @@ public final class Constants {
     public static final double kMaxIntakeDPS3 = 21600;
     public static final int kStorageMotorId = 16;
     public static final int kSoupMotorId = 18;
-    public static final double kMaxStorageDPS = 14400;
-    public static final double kMaxStorageDPS2 = 28800;
+    public static final double kMaxStorageDPS = 28800;
+    public static final double kMaxStorageDPS2 = 28800 * 4;
     public static final double kDefaultSoupSpeedDPS = 18000; // 3000 rpm, max kraken power?
     public static final double kMaxSoupDPS2 = 19600 * 3;
     public static final double kMaxSoupDPS3 = 19600 * 3;
