@@ -7,7 +7,6 @@ package frc.robot.commands;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.*;
 
 import java.util.function.Supplier;
