@@ -62,7 +62,7 @@ public class RobotContainer {
   public final Pigeon2 pigeon = new Pigeon2(Constants.kPigeonID);
     
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
+  // Replace with CommandPS4Controller or Commandm_driverController if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
@@ -103,6 +103,7 @@ public class RobotContainer {
     // new AutoShoot(m_shooterSubsystem, 100);
     // Configure the trigger bindings
     SmartDashboard.putData("Field", field);
+    SmartDashboard.putString("pose", poseEstimator.getEstimatedPosition().toString());
     
     configureBindings();
   }
@@ -115,11 +116,40 @@ public class RobotContainer {
    * predicate, or via the named factories in {@link
    * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
    * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
+   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.Commandm_driverController Flight
+   * m_driverControllers}.
    */
   private void configureBindings() {
-    
+
+    m_drivetrain.setDefaultCommand(
+        m_drivetrain.applyRequest(() ->
+            drive.withVelocityX(-m_driverController.getLeftY() * MaxSpeed) 
+                .withVelocityY(-m_driverController.getLeftX() * MaxSpeed) 
+                .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate) 
+        )
+    );
+
+    final var idle = new SwerveRequest.Idle();
+    RobotModeTriggers.disabled().whileTrue(
+        m_drivetrain.applyRequest(() -> idle).ignoringDisable(true)
+    );
+
+    m_driverController.a().whileTrue(m_drivetrain.applyRequest(() -> brake));
+    m_driverController.b().whileTrue(m_drivetrain.applyRequest(() ->
+        point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
+    ));
+
+    // Note that each routine should be run exactly once in a single log.
+    m_driverController.back().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kForward));
+    m_driverController.back().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdDynamic(Direction.kReverse));
+    m_driverController.start().and(m_driverController.y()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kForward));
+    m_driverController.start().and(m_driverController.x()).whileTrue(m_drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+    m_driverController.leftBumper().onTrue(m_drivetrain.runOnce(m_drivetrain::seedFieldCentric));
+
+
+
+
     m_turretController.setDefaultCommand(new RotateToHub(m_turretController, m_shooterSubsystem));
     m_operatorController.leftBumper().whileTrue(new AutoShoot(m_shooterSubsystem, poseSupplier));
 
@@ -134,8 +164,6 @@ public class RobotContainer {
   
   
   public Pose3d getRobotPose3d(){
-
-    field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
     return poseEstimator.getEstimatedPosition();
   }
   public ChassisSpeeds getChassisSpeeds(){
@@ -154,6 +182,8 @@ public class RobotContainer {
 
   public void updateOdometry() {
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drivetrain.getRotation3d(), getModulePositions());
+    System.out.println(poseEstimator.getEstimatedPosition());
+    field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
   }
 
   public SwerveModulePosition[] getModulePositions() {

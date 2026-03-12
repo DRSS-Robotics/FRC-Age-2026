@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -46,7 +47,10 @@ public final class Constants {
 
   public static class FieldConstants {
     // TODO: find pose of the hub, might be online somewhere for a value
-    public static final Pose3d kHubPose = new Pose3d();
+    public static final Pose3d kHubPoseRed = new Pose3d(12.03,4.06,0,new Rotation3d());
+    public static final Pose3d kHubPoseBlue = new Pose3d(4.74,4.08,0,new Rotation3d());
+    public static final Pose3d kHubPose = kHubPoseRed;
+
     public static final double kGravIN = 0;
   }
 }
