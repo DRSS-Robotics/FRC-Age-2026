@@ -26,22 +26,6 @@ public class Utils {
     {
         return configureTalonGains(talon, kS, kV, kP, kI, kD, 0);
     }
-
-
-    
-    /**
-     * Helper method to make Talon configs less verbose.
-     * 
-     * @param talon the motor to configure
-     * @param kS static voltage compensation
-     * @param kV velocity voltage compensation
-     * @param kP proportional term
-     * @param kI integral term
-     * @param kD derivative term
-     * @param slotIndex the config slot to apply this config to.
-     * @return a {@link SlotConfigs}. Can be converted into a {@code SlotXConfigs}
-     * using the static methods of that class. 
-     */
     public static SlotConfigs configureTalonGains(
         TalonFX talon, 
         double kS,

@@ -4,28 +4,38 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.Constants.HangConstants;
+import frc.robot.subsystems.HangSubsystem;
+import frc.robot.subsystems.HangSubsystem.HangState;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ExampleSubsystem m_subsystem;
+public class ToggleHangLevelCommand extends Command {
+  
+  private HangSubsystem m_hang;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ExampleCommand(ExampleSubsystem subsystem) {
-    m_subsystem = subsystem;
+  public ToggleHangLevelCommand(HangSubsystem hangSubsystem) {
+    m_hang = hangSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
+    addRequirements(hangSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    HangState state = m_hang.getHangState();
+    boolean willOpen = (state == HangState.kIsGrounded || 
+                state == HangState.kIsGoingToGround);
+
+    m_hang.setHangMotorPosition(willOpen ? 
+      HangConstants.kHangL1Rotations : 
+      HangConstants.kHangGroundRotations);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -38,6 +48,6 @@ public class ExampleCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }

@@ -1,5 +1,14 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+
+import static edu.wpi.first.units.Units.Degrees;
+
+import edu.wpi.first.units.measure.Angle;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -19,58 +28,41 @@ import edu.wpi.first.math.geometry.Pose3d;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
-
   }
-  public static final double kGravIN = 0;
-
-    public static class VisionConstants {
-    public static final String kLimelightName = "limelight";
-    public static final String kLimelightStreamURL = "http://limelight.local:5800";
+  public static class HangConstants {
+    public static final double kHangGroundRotations = 0;
+    public static final double kHangL1Rotations = 0;
+    public static final double kHangLevelTolerance = 0;
+    /**
+     *DPS is Degrees Per Second
+     */
+    public static final double kHangManualDriveDPSScale = 0;
     
-    // TODO: fill in all offset values
-    // Distance from the center of the turret to the center of the Limelight
-    public static final Distance kLLTurretCenterDist = Inches.of(99999);
-    // Offset values are measured from the center of the robot horizontally, and from the floor vertically
-    public static final Distance kTurretForwardOffset = Inches.of(99999);
-    public static final Distance kTurretSideOffset = Inches.of(99999);
-    public static final Distance kLimelightHeightOffset = Inches.of(18);
-    public static final Angle kLimelightPitchOffset = Degrees.of(15); 
-      
-    // TODO: get correct driver camera and hopper camera name and id
-    public static final int kDriverCameraId = 0;
-    public static final int kHopperCameraId = 1;
 
-    public static final String kLimelightStreamName = "Limelight";
-    public static final String kDriverCameraStreamName = "Driver Camera";
-    public static final String kOutputStreamName = "Limelight / Driver Camera";
-    public static final String kHopperCameraStreamName = "Hopper Camera";
-    public static final int kLimelightAprilTagsPipeline = 1;
-    public static final int kLimelightBumpersPipeline = 0;
+    //automation stuff
 
-  }
-  public static class ShooterConstants {
-    public static final double kCenterOffset = 0.3;
+    //target pose
+    private static final double hangLeftX = 0;
+    private static final double hangLeftY = 0;
+    private static final Rotation2d hangLeftRotate = Rotation2d.fromDegrees(120);
+    public static final Pose2d hangLeftPose = new Pose2d(hangLeftX, hangLeftY, hangLeftRotate);
 
-    public static final double kShooterManualDriveDPSScale = 1;
-    public static final double kShooterAngleTolerance = 1;
-    public static final double kSetPitchPositionTimeoutSeconds = 1;
+    private static final double hangRightX = 0;
+    private static final double hangRightY = 0;
+    public static final Rotation2d hangRightRotate = Rotation2d.fromDegrees(120);
+    public static final Pose2d hangRightPose = new Pose2d(hangRightX, hangRightY, hangRightRotate);
+    
+    //thresholds
+    public static final double hangThresholdPose = 0;
+    public static final double hangThresholdAngle = 0;
 
-    public static final double kMinPitchDegrees = 0;
-    public static final double kMaxPitchDegrees = 0;
+    //TODO: Get the actual target values (measure with limelight with robot)
 
-    // TODO: set value
-    public static final int kPowerID = 0;
-    public static final int kTurretID = 0;
-    public static final double kPitch = 65;
-    public static final double kHeight = 20;
 
-    // TODO: must do experimenting to find this, see what power/voltage values equal what inches per second
-    public static final double kPowerScalingFactor = 0;
-  }
-  public static class FieldConstants {
-    // TODO: find pose of the hub, might be online somewhere for a value
-    public static final Pose3d kHubPose = new Pose3d();
-    public static final double kGravIN = 0;
+    public static final double kMaxTestHangErrorPercentage = 0.3;
+    public static final double kMaxTesthangTimeToReachHeight = 4.0;
+    public static final Angle kTestTargetHangle = Degrees.of(0);
+
   }
 
   public static class SuperstructureConstants {
@@ -78,10 +70,10 @@ public final class Constants {
     public static final int kStorageMotorId = 16;
     public static final int kSoupMotorId = 18;
     public static final int kTransferMotorId = 14;
-    public static final int kAgitatorMotorId = 67676767;//NEED TO CHANGE TO CORRECT THING!!!
     public static final double kDefaultIntakeSpeed = 2500;
     public static final double kDefaultSoupSpeed = 1080;
     public static final double kDefaultTransferSpeed = 1080;
+    public static final int kAgitatorMotorId = 6767; //CHANGE THE MOTOR ID!!!!!!!!
 
     /**
      * A degree value that affects the tolerance of when the Fuel storage wall is
