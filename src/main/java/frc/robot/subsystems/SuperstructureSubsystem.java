@@ -134,8 +134,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         transferVelocitySetpoint = transferTrapezoidProfile.calculate(kDT, transferVelocitySetpoint,
                 transferVelocityGoal);
 
-
-
         m_transferMotor.setControl(
                 transferMotorRequest.withVelocity(
                         DegreesPerSecond.of(transferVelocitySetpoint.position)));
