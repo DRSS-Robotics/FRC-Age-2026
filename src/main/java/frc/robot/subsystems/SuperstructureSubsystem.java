@@ -40,12 +40,12 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     private AngularVelocity intakeMotorSetSpeed = DegreesPerSecond.of(0);
 
     private final TrapezoidProfile intakeTrapezoidProfile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxIntakeDPS,
-                    SuperstructureConstants.kMaxIntakeDPSPS));
+            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxIntakeDPS2,
+                    SuperstructureConstants.kMaxIntakeDPS3));
 
     private final TrapezoidProfile storageWallTrapezoidProfile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxSoupDPS,
-                    SuperstructureConstants.kMaxSoupDPSPS));
+            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxStorageDPS,
+                    SuperstructureConstants.kMaxStorageDPS2));
 
     private TrapezoidProfile.State intakeVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State intakeVelocitySetpoint = new TrapezoidProfile.State();
@@ -65,8 +65,8 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     private AngularVelocity soupMotorSetSpeed = DegreesPerSecond.of(0);
 
     private final TrapezoidProfile soupTrapezoidProfile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxIntakeDPS,
-                    SuperstructureConstants.kMaxIntakeDPSPS));
+            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxSoupDPS2,
+                    SuperstructureConstants.kMaxSoupDPS3));
 
     private TrapezoidProfile.State soupVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State soupVelocitySetpoint = new TrapezoidProfile.State();
@@ -104,7 +104,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         intakeMotorConfigs = Utils.configureTalonGains(m_intakeMotor, 0, 1.5, 0.05, 0, 0);
         intakeMotorRequest = new VelocityVoltage(0).withSlot(0);
 
-        storageMotorConfigs = Utils.configureTalonGains(m_storageMotor, 0.5, 0.0, 0.6, 0, 0);
+        storageMotorConfigs = Utils.configureTalonGains(m_storageMotor,4.5, 0.0, 0.6, 0, 0);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
 
         soupMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.425, 0.105, 0.03, 0, 0);

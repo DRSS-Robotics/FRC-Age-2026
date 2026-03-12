@@ -24,7 +24,7 @@ public class DriveTransferCommand extends Command {
 
   @Override
   public void execute() {
-   m_intake.runSoupMotor(guh.get() * SuperstructureConstants.kDefaultSoupSpeed);
+   m_intake.runSoupMotor(guh.get() * SuperstructureConstants.kDefaultSoupSpeedDPS);
     m_intake.runTransferMotor(guh.get() * SuperstructureConstants.kDefaultTransferSpeed);
   }
 
