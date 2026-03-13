@@ -64,8 +64,8 @@ public class RobotContainer {
 
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
-  // private final CommandXboxController m_operatorController = new
-  // CommandXboxController(1);
+  private final CommandXboxController m_operatorController = new
+   CommandXboxController(1);
 
   private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
       SuperstructureConstants.kIntakeMotorId,
@@ -80,20 +80,20 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    m_driverController.rightTrigger(0.1).whileTrue(
+    m_operatorController.rightTrigger(0.1).whileTrue(
         new DriveLaunchMotor(m_shooter,
             () -> DegreesPerSecond
                 .of(ShooterConstants.kShooterMaxManualSpeedDPS
                     * powPreserveSign(m_driverController.getRightTriggerAxis(), 2.))));
 
-    m_driverController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
         () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7), () -> false));
-    m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-    m_driverController.a().onTrue(new ToggleWallCommand(m_superstructure));
-    m_driverController.leftTrigger(0.15)
-        .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getLeftTriggerAxis));
+    m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    m_operatorController.a().onTrue(new ToggleWallCommand(m_superstructure));
+    m_operatorController.leftTrigger(0.15)
+        .whileTrue(new DriveTransferCommand(m_superstructure, m_operatorController::getLeftTriggerAxis));
 
-    m_driverController.leftBumper()
+    m_operatorController.leftBumper()
         .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
 
          drivetrain.setDefaultCommand(
