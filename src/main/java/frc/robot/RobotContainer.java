@@ -84,7 +84,7 @@ public class RobotContainer {
         new DriveLaunchMotor(m_shooter,
             () -> DegreesPerSecond
                 .of(ShooterConstants.kShooterMaxManualSpeedDPS
-                    * powPreserveSign(m_driverController.getRightTriggerAxis(), 2.))));
+                    * powPreserveSign(m_operatorController.getRightTriggerAxis(), 2.))));
 
     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
         () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7), () -> false));
