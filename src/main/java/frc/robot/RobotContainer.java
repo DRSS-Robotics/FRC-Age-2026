@@ -3,24 +3,42 @@ package frc.robot;
 import frc.robot.Constants.*;
 import frc.robot.commands.DriveYawMotor;
 import frc.robot.commands.RotateYawMotor;
+import frc.robot.commands.SetWallPosition;
+import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
+import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
+import frc.robot.generated.TunerConstants;
 import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveLaunchMotor;
 import frc.robot.commands.DriveTransferCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.*;
+
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
+
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.generated.TunerConstants;
 
 public class RobotContainer {
 
@@ -30,11 +48,24 @@ public class RobotContainer {
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
       NetworkTableInstance.getDefault().getTable("Turret"));
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+
+     private double MaxSpeed = 0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+   // private final Telemetry logger = new Telemetry(MaxSpeed);
 
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
-  // private final CommandXboxController m_operatorController = new
-  // CommandXboxController(1);
+  private final CommandXboxController m_operatorController = new
+   CommandXboxController(1);
 
   private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
       SuperstructureConstants.kIntakeMotorId,
@@ -49,19 +80,49 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    m_driverController.rightTrigger(0.1).whileTrue(
+    m_operatorController.rightTrigger(0.1).whileTrue(
         new DriveLaunchMotor(m_shooter,
             () -> DegreesPerSecond
                 .of(ShooterConstants.kShooterMaxManualSpeedDPS
-                    * powPreserveSign(m_driverController.getRightTriggerAxis(), 2.))));
+                    * powPreserveSign(m_operatorController.getRightTriggerAxis(), 2.))));
 
-    m_driverController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-    m_driverController.a().onTrue(new ToggleWallCommand(m_superstructure));
-   // m_driverController.rightTrigger(0.1)
-     //   .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getRightTriggerAxis));
-    m_driverController.leftTrigger(0.15)
-        .whileTrue(new DriveTransferCommand(m_superstructure, m_driverController::getLeftTriggerAxis));
+    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7), () -> false));
+    m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    m_operatorController.a().onTrue(new ToggleWallCommand(m_superstructure));
+    m_operatorController.leftTrigger(0.15)
+        .whileTrue(new DriveTransferCommand(m_superstructure, m_operatorController::getLeftTriggerAxis));
 
+    m_operatorController.leftBumper()
+        .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
+
+         drivetrain.setDefaultCommand(
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(-m_driverController.getLeftY() * MaxSpeed) 
+                    .withVelocityY(-m_driverController.getLeftX() * MaxSpeed) 
+                    .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate) 
+            )
+        );
+
+        final var idle = new SwerveRequest.Idle();
+        RobotModeTriggers.disabled().whileTrue(
+            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
+        );
+
+        m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
+        ));
+
+        // Note that each routine should be run exactly once in a single log.
+        m_driverController.back().and(m_driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        m_driverController.back().and(m_driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        m_driverController.start().and(m_driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        m_driverController.start().and(m_driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+        m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+       // drivetrain.registerTelemetry(logger::telemeterize);
     /*
      * m_driverController.rightStick().whileFalse(
      * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
@@ -97,7 +158,7 @@ public class RobotContainer {
     return Commands.none();
   }
 
-  // converts a joystick position into an angle that can be used by turret set
+  // converts a m_driverController position into an angle that can be used by turret set
   // position commands (straight forward on the joytick is 180 deg)
   private static double convertPositionToTurretAngle(double x, double y) {
     return (180 / Math.PI) * Math.atan(
