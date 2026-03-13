@@ -24,7 +24,6 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -48,24 +47,26 @@ public class RobotContainer {
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
       NetworkTableInstance.getDefault().getTable("Turret"));
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+  private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
+                                                                                      // speed
+  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max
+                                                                                    // angular velocity
 
-     private double MaxSpeed = 0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+  private double speedMultiplier = 1;
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-   // private final Telemetry logger = new Telemetry(MaxSpeed);
+  // private final Telemetry logger = new Telemetry(MaxSpeed);
 
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_operatorController = new
-   CommandXboxController(1);
+  private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
   private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
       SuperstructureConstants.kIntakeMotorId,
@@ -96,33 +97,37 @@ public class RobotContainer {
     m_operatorController.leftBumper()
         .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
 
-         drivetrain.setDefaultCommand(
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-m_driverController.getLeftY() * MaxSpeed) 
-                    .withVelocityY(-m_driverController.getLeftX() * MaxSpeed) 
-                    .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate) 
-            )
-        );
+    drivetrain.setDefaultCommand(
+        drivetrain.applyRequest(() -> drive.withVelocityX(-m_driverController.getLeftY() * MaxSpeed * speedMultiplier)
+            .withVelocityY(-m_driverController.getLeftX() * MaxSpeed * speedMultiplier)
+            .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate * speedMultiplier)));
 
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
-        );
+    final var idle = new SwerveRequest.Idle();
+    RobotModeTriggers.disabled().whileTrue(
+        drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-        m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        m_driverController.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))
-        ));
+    m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
+        .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))));
 
-        // Note that each routine should be run exactly once in a single log.
-        m_driverController.back().and(m_driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        m_driverController.back().and(m_driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        m_driverController.start().and(m_driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        m_driverController.start().and(m_driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    // Note that each routine should be run exactly once in a single log.
+    m_driverController.back().and(m_driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+    m_driverController.back().and(m_driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+    m_driverController.start().and(m_driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+    m_driverController.start().and(m_driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+    m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-       // drivetrain.registerTelemetry(logger::telemeterize);
+    m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
+      speedMultiplier = 1 - m_driverController.getRightTriggerAxis();
+      drive
+          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+    }).andThen((Commands.run(() -> drive
+        .withDeadband(MaxSpeed * 0.1)
+        .withRotationalDeadband(MaxAngularRate * 0.1)))));
+
+    // drivetrain.registerTelemetry(logger::telemeterize);
     /*
      * m_driverController.rightStick().whileFalse(
      * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
@@ -158,7 +163,8 @@ public class RobotContainer {
     return Commands.none();
   }
 
-  // converts a m_driverController position into an angle that can be used by turret set
+  // converts a m_driverController position into an angle that can be used by
+  // turret set
   // position commands (straight forward on the joytick is 180 deg)
   private static double convertPositionToTurretAngle(double x, double y) {
     return (180 / Math.PI) * Math.atan(
