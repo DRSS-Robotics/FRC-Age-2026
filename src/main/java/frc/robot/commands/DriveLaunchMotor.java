@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
