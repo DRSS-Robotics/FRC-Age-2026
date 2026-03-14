@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Elastic.NotificationLevel;
+import frc.robot.subsystems.Vision;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -16,8 +17,9 @@ import frc.robot.Elastic.NotificationLevel;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-
+  
   private final RobotContainer m_robotContainer;
+  private final Vision m_vision;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -28,6 +30,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
 
     m_robotContainer = new RobotContainer();
+    this.m_vision = m_robotContainer.m_vision;
   }
 
   /**targetAngle

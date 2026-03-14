@@ -1,13 +1,44 @@
 package frc.robot;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.units.measure.Angle;
 
 import static edu.wpi.first.units.Units.Degrees;
 
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kOperatorControllerPort = 1;
+  }
+  public static class VisionConstants {
+    public static final String kLimelightName = "limelight";
+    public static final String kLimelightStreamURL = "http://limelight.local:5800";
+    
+    // TODO: fill in all offset values
+    // Distance from the center of the turret to the center of the Limelight
+    public static final Distance kLLTurretCenterDist = Inches.of(99999);
+    // Offset values are measured from the center of the robot horizontally, and from the floor vertically
+    public static final Distance kTurretForwardOffset = Inches.of(99999);
+    public static final Distance kTurretSideOffset = Inches.of(99999);
+    public static final Distance kLimelightHeightOffset = Inches.of(18);
+    public static final Angle kLimelightPitchOffset = Degrees.of(15); 
+      
+    // TODO: get correct driver camera and hopper camera id
+    public static final int kDriverCameraId = 0;
+    public static final int kHopperCameraId = 1;
 
+    public static final String kOutputStreamName = "Output Stream";
+    public static final String kHopperCameraStreamName = "Hopper Camera";
+
+    public static final int kLimelightBumpersPipeline = 0;
+    public static final int kLimelightAprilTagsPipeline = 1;
   }
 
   public static class SuperstructureConstants {
