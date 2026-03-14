@@ -92,10 +92,16 @@ public class RobotContainer {
                                 .of(ShooterConstants.kShooterMaxManualSpeedDPS
                                         * Math.pow(m_operatorController
                                                 .getRightTriggerAxis(),
-                                                0.5))));
-
+                                                0.1)))
+                                                
+                        .alongWith(Commands.run(() -> System.out.println(m_operatorController.getRightTriggerAxis()))));
+        //back wall position
         m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7),
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.20),
+                () -> false));
+        //mid position
+         m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5),
                 () -> false));
         m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
         m_operatorController.a().onTrue(new ToggleWallCommand(m_superstructure));
