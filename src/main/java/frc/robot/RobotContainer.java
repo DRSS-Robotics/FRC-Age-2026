@@ -6,6 +6,7 @@ import frc.robot.commands.RotateYawMotor;
 import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
+import frc.robot.commands.ToggleIntakeCommandReverse;
 import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.generated.TunerConstants;
@@ -26,6 +27,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -80,6 +85,13 @@ public class RobotContainer {
             NetworkTableInstance.getDefault().getTable("Superstructure"));
 
     public RobotContainer() {
+        // THIS IS ALL CODE FOR LIMELIGHT FEED
+        HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
+        limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
+        outputStream.setSource(limelight);
+
+
         configureBindings();
         // 77% max power from corner works well
     }
@@ -97,17 +109,22 @@ public class RobotContainer {
                         .alongWith(Commands.run(() -> System.out.println(m_operatorController.getRightTriggerAxis()))));
         //back wall position
         m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.20),
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.45),
                 () -> false));
         //mid position
-         m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5),
+        m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
                 () -> false));
         m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+        m_operatorController.rightBumper().onTrue(new ToggleIntakeCommandReverse(m_superstructure));
+        m_operatorController.x().onTrue(new ToggleIntakeCommand(m_superstructure));
         m_operatorController.a().onTrue(new ToggleWallCommand(m_superstructure));
         m_operatorController.leftTrigger(0.15)
                 .whileTrue(new DriveTransferCommand(m_superstructure,
                         m_operatorController::getLeftTriggerAxis));
+        //Untested but we need to make it so that transfer cannot run without shooter running
+         m_operatorController.leftTrigger(0.15)
+                .whileTrue(new ToggleLaunchMotor(m_shooter, null, null));
 
         m_operatorController.leftBumper()
                 .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));

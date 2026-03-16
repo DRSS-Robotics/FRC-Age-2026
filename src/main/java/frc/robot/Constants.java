@@ -65,7 +65,7 @@ public final class Constants {
   public static class ShooterConstants {
     public static final double kShooterManualDriveDPSScale = 1;
     public static final double kShooterAngleTolerance = 1;
-    public static final double kShooterMaxManualSpeedDPS = 18000;
+    public static final double kShooterMaxManualSpeedDPS = 9000;
     public static final double kTurretMaxManualSpeedDPS = 105;
 
     public static final double kMaxShooterDPS2 = 36000; // accel
