@@ -105,11 +105,9 @@ public class RobotContainer {
     private void configureBindings() {
 
         m_operatorController.rightTrigger(0.1).whileTrue(
-                new DriveLaunchMotor(m_shooter,
-                        () -> DegreesPerSecond
-                                .of(ShooterConstants.kShooterMaxManualSpeedDPS
-                                        * m_operatorController.getRightTriggerAxis())).alongWith(Commands.run(() -> System.out.println(m_operatorController.getRightTriggerAxis())))
-                                        );
+                new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond.of(
+                        ShooterConstants.kShooterMaxManualSpeedDPS * m_operatorController.getRightTriggerAxis()))
+                .alongWith(Commands.run(() -> System.out.println(m_operatorController.getRightTriggerAxis()))));
 
         m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
                 () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7), () -> false));

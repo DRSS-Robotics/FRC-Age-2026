@@ -4,13 +4,13 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.units.measure.Angle;
-
-import static edu.wpi.first.units.Units.Degrees;
 
 public final class Constants {
   public static class OperatorConstants {
@@ -113,5 +113,12 @@ public final class Constants {
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
   }
 
-  public static double kGravIN;
+  public static class FieldConstants {
+    // TODO: find pose of the hub, might be online somewhere for a value
+    public static final Pose3d kHubPoseRed = new Pose3d(12.03,4.06,0,new Rotation3d());
+    public static final Pose3d kHubPoseBlue = new Pose3d(4.74,4.08,0,new Rotation3d());
+    public static final Pose3d kHubPose = kHubPoseRed;
+
+    public static final double kGravIN = 0;
+  }
 }
