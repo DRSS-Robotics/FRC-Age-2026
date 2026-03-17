@@ -4,14 +4,20 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants;
 import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.SuperstructureSubsystem.StorageWallState;
+
+import java.util.function.Supplier;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ToggleWallCommand extends Command {
+public class SetWallPosition extends Command {
 
   private SuperstructureSubsystem m_wall;
+  private Supplier<Angle> angle;
 
 
 
@@ -22,23 +28,16 @@ public class ToggleWallCommand extends Command {
    *
    * @param wallSubsystem The {@link SuperstructureSubsystem Superstructure} subsystem
    */
-  public ToggleWallCommand(SuperstructureSubsystem wallSubsystem) {
+  public SetWallPosition(SuperstructureSubsystem wallSubsystem, Supplier<Angle> angleSupplier) {
     m_wall = wallSubsystem;
+    angle = angleSupplier;
   }
   
   
   
   @Override
   public void initialize() {
-    // if the storage wall is either fully closed or on its way to closing,
-    // open it (defaults to closing otherwise)
-    StorageWallState state = m_wall.getStorageState();
-    boolean willOpen = (state == StorageWallState.kIsClosed || 
-                state == StorageWallState.kIsClosing);
-
-    m_wall.setWallMotorPosition(willOpen ? 
-      SuperstructureConstants.kStorageOpenRotations : 
-      SuperstructureConstants.kStorageClosedRotations);
+    m_wall.setWallMotorPosition(angle.get());
   }
 
 

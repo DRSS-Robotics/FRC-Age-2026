@@ -20,7 +20,6 @@ public class ToggleIntakeCommand extends Command {
    */
   public ToggleIntakeCommand(SuperstructureSubsystem intakeSubsystem) {
     m_intake = intakeSubsystem;
-    addRequirements(intakeSubsystem);
   }
   
 
