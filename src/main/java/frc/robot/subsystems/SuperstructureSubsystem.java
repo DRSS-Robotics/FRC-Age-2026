@@ -264,7 +264,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     public TestableCommand getTestCommand() {
         return new SequencedTest(this,
 
-                new TestBase(this) {
+        new TestBase(this) {
                     // here begins the wall test
                     private double startTime;
                     private Angle maxAllowedError;
