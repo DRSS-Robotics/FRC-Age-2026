@@ -63,7 +63,7 @@ public class RobotContainer {
     // TODO: actually initialize a SwerveDrivePoseEstimator
     // public SwerveDrivePoseEstimator m_poseEstimator = new
     // SwerveDrivePoseEstimator();
-    private final SendableChooser<Command> autoChooser;
+    
     public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
     private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
             NetworkTableInstance.getDefault().getTable("Turret"));
@@ -95,6 +95,8 @@ public class RobotContainer {
             SuperstructureConstants.kSoupMotorId,
             SuperstructureConstants.kTransferMotorId,
             NetworkTableInstance.getDefault().getTable("Superstructure"));
+
+        private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
 
