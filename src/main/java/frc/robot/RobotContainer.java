@@ -35,6 +35,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -43,6 +47,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -100,7 +105,18 @@ public class RobotContainer {
       NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
       NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
 
-      autoChooser = AutoBuilder.buildAutoChooser("Default");
+      //Changed from default auto name- Micah plp
+      autoChooser = AutoBuilder.buildAutoChooser("Path_1_Auto");
+
+      //Recently added- Micah plp
+      SmartDashboard.putData("Auto Mode", autoChooser);
+
+      // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
+        HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
+        limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
+        outputStream.setSource(limelight);
+
 
         configureBindings();
         // 77% max power from corner works well
@@ -108,12 +124,34 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        //Replaced operator commands with the code from the PID tuning branch- Micah plp
+       m_operatorController.rightTrigger(0.1).whileTrue(
+                new DriveLaunchMotor(m_shooter,
+                        () -> DegreesPerSecond
+                                .of(ShooterConstants.kShooterMaxManualSpeedDPS
+                                        * Math.pow(m_operatorController
+                                                .getRightTriggerAxis(),
+                                                0.1)))
+                                                
+                        .alongWith(Commands.run(() -> System.out.println(m_operatorController.getRightTriggerAxis()))));
+        //back wall position
         m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7), () -> false));
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.45),
+                () -> false));
+        //mid position
+        m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
+                () -> false));
         m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+       // m_operatorController.rightBumper().onTrue(new ToggleIntakeCommandReverse(m_superstructure));
+        m_operatorController.x().onTrue(new ToggleIntakeCommand(m_superstructure));
         m_operatorController.a().onTrue(new ToggleWallCommand(m_superstructure));
         m_operatorController.leftTrigger(0.15)
-                .whileTrue(new DriveTransferCommand(m_superstructure, m_operatorController::getLeftTriggerAxis));
+                .whileTrue(new DriveTransferCommand(m_superstructure,
+                        m_operatorController::getLeftTriggerAxis));
+        //Untested but we need to make it so that transfer cannot run without shooter running
+         m_operatorController.leftTrigger(0.15)
+                .whileTrue(new ToggleLaunchMotor(m_shooter, null, null));
 
         m_operatorController.leftBumper()
                 .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
