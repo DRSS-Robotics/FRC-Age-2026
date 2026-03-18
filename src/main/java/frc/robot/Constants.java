@@ -18,7 +18,7 @@ public final class Constants {
     public static final int kSoupMotorId = 18;
     public static final double kMaxStorageDPS = 28800;
     public static final double kMaxStorageDPS2 = 28800 * 4;
-    public static final double kDefaultSoupSpeedDPS = 18000; // 3000 rpm, max kraken power?
+    public static final double kDefaultSoupSpeedDPS = 6000; // 3000 rpm, max kraken power?
     public static final double kMaxSoupDPS2 = 19601 * 4;
     public static final double kMaxSoupDPS3 = 19600 * 4;
     public static final int kTransferMotorId = 14;
@@ -31,7 +31,7 @@ public final class Constants {
      * A degree value that affects the tolerance of when the Fuel storage wall is
      * considered to be closed/open.
      */
-    public static final double kStorageStateTolerance = 32;
+    public static final double kStorageStateTolerance = 360;
 
     /**
      * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED

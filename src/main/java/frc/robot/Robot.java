@@ -83,7 +83,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    Elastic.sendNotification(new Elastic.Notification(NotificationLevel.INFO, "guh", "guh"));
   }
 
   @Override
