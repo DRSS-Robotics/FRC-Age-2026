@@ -4,7 +4,6 @@
 
 package frc.robot.commands.AutoCommands;
 
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 

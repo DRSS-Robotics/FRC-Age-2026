@@ -18,7 +18,7 @@ public class ShooterCommandAuto extends Command{
    * @param subsystem The subsystem used by this command.
     * @return
       */
-     public void ShooterCommandAuto(ShooterSubsystem shooter_Subsystem) { 
+     public ShooterCommandAuto(ShooterSubsystem shooter_Subsystem) { 
     m_shooter = shooter_Subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooter_Subsystem);
