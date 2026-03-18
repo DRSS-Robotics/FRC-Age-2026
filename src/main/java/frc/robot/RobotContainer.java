@@ -8,6 +8,10 @@ import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
+import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
+import frc.robot.commands.AutoCommands.IntakeAutoCommand;
+import frc.robot.commands.AutoCommands.ShooterCommandAuto;
+import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveLaunchMotor;
@@ -16,12 +20,13 @@ import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -32,6 +37,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -44,6 +50,7 @@ public class RobotContainer {
     // TODO: actually initialize a SwerveDrivePoseEstimator
     // public SwerveDrivePoseEstimator m_poseEstimator = new
     // SwerveDrivePoseEstimator();
+    private final SendableChooser<Command> autoChooser;
     public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
     private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
             NetworkTableInstance.getDefault().getTable("Turret"));
@@ -77,8 +84,19 @@ public class RobotContainer {
             NetworkTableInstance.getDefault().getTable("Superstructure"));
 
     public RobotContainer() {
+
+      NamedCommands.registerCommand("Shooter", new ShooterCommandAuto(m_shooter));
+//       NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
+//       NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang)); //we have no hang for buckeye
+      NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
+      NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
+      NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
+
+      autoChooser = AutoBuilder.buildAutoChooser("Default");
+
         configureBindings();
         // 77% max power from corner works well
+
     }
 
     private void configureBindings() {
@@ -168,7 +186,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return Commands.none();
+        return autoChooser.getSelected();
     }
 
     // converts a m_driverController position into an angle that can be used by
