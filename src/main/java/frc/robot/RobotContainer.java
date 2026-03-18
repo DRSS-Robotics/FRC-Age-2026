@@ -83,16 +83,7 @@ public class RobotContainer {
     private final CommandXboxController m_driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
     private final CommandXboxController m_operatorController = new CommandXboxController(1);
-    private final CommandXboxController m_driverController = new CommandXboxController(
-            OperatorConstants.kDriverControllerPort);
-    private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
-    private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
-            SuperstructureConstants.kIntakeMotorId,
-            SuperstructureConstants.kStorageMotorId,
-            SuperstructureConstants.kSoupMotorId,
-            SuperstructureConstants.kTransferMotorId,
-            NetworkTableInstance.getDefault().getTable("Superstructure"));
     private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
             SuperstructureConstants.kIntakeMotorId,
             SuperstructureConstants.kStorageMotorId,
@@ -117,79 +108,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-    private void configureBindings() {
-
-        m_operatorController.rightTrigger(0.1).whileTrue(
-                new DriveLaunchMotor(m_shooter,
-                        () -> DegreesPerSecond
-                                .of(ShooterConstants.kShooterMaxManualSpeedDPS
-                                        * m_operatorController.getRightTriggerAxis())).alongWith(Commands.run(() -> System.out.println(m_operatorController.getRightTriggerAxis())))
-                                        );
-        m_operatorController.rightTrigger(0.1).whileTrue(
-                new DriveLaunchMotor(m_shooter,
-                        () -> DegreesPerSecond
-                                .of(ShooterConstants.kShooterMaxManualSpeedDPS
-                                        * m_operatorController.getRightTriggerAxis())).alongWith(Commands.run(() -> System.out.println(m_operatorController.getRightTriggerAxis())))
-                                        );
-
-        m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7), () -> false));
-        m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-        m_operatorController.a().onTrue(new ToggleWallCommand(m_superstructure));
-        m_operatorController.leftTrigger(0.15)
-                .whileTrue(new DriveTransferCommand(m_superstructure, m_operatorController::getLeftTriggerAxis));
-
-        m_operatorController.leftBumper()
-                .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
-
-        drivetrain.setDefaultCommand(
-                drivetrain.applyRequest(() -> drive
-                        .withVelocityX(-m_driverController.getLeftY() * MaxSpeed * speedMultiplier)
-                        .withVelocityY(-m_driverController.getLeftX() * MaxSpeed * speedMultiplier)
-                        .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate * speedMultiplier)));
-
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
-
-        m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
-                .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))));
-
-        // Note that each routine should be run exactly once in a single log.
-        m_driverController.back().and(m_driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        m_driverController.back().and(m_driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        m_driverController.start().and(m_driverController.y())
-                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        m_driverController.start().and(m_driverController.x())
-                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-
-        m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
-            speedMultiplier = 1 - m_driverController.getRightTriggerAxis();
-            drive
-                    .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-                    .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-        })).whileFalse(Commands.run(() -> {
-            speedMultiplier = 1;
-            drive.withDeadband(MaxSpeed * 0.1)
-                    .withRotationalDeadband(MaxAngularRate * 0.1);
-        }));
-
-        // drivetrain.registerTelemetry(logger::telemeterize);
-        /*
-         * m_driverController.rightStick().whileFalse(
-         * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
-         * ShooterConstants.kTurretMaxManualSpeedDPS
-         * powPreserveSign(-m_driverController.getRightX(), 2.))));
-         * 
-         * m_driverController.rightStick().whileTrue(
-         * new RotateYawMotor(m_shooter, () -> Degrees
-         * .of(convertPositionToTurretAngle(
-         * m_driverController.getRightX(), m_driverController.getRightY()))));
-         */
-    }
         m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
                 () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.7), () -> false));
         m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
@@ -254,22 +172,11 @@ public class RobotContainer {
     private static double powPreserveSign(double a, double b) {
         return Math.pow(Math.abs(a), b) * Math.signum(a);
     }
-    // these should be moved to utils once we have utils class from superstrcuture
-    // !!
-    private static double powPreserveSign(double a, double b) {
-        return Math.pow(Math.abs(a), b) * Math.signum(a);
-    }
-
+  
     private static int signInclusive(double a) {
         return (a >= 0.0) ? 1 : -1;
         // new Trigger(m_exampleSubsystem::exampleCondition)
         // .onTrue(new ExampleCommand(m_exampleSubsystem));
-    private static int signInclusive(double a) {
-        return (a >= 0.0) ? 1 : -1;
-        // new Trigger(m_exampleSubsystem::exampleCondition)
-        // .onTrue(new ExampleCommand(m_exampleSubsystem));
-
-    }
     }
 
     /**
@@ -291,9 +198,5 @@ public class RobotContainer {
     // converts a m_driverController position into an angle that can be used by
     // turret set
     // position commands (straight forward on the joytick is 180 deg)
-    private static double convertPositionToTurretAngle(double x, double y) {
-        return (180 / Math.PI) * Math.atan(
-                y / x) + (90.0 * (signInclusive(x) + 2));
-    }
 
 }
