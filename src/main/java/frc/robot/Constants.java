@@ -111,6 +111,9 @@ public final class Constants {
     public static final double kMaxTestYawMotorErrorPercentage = 0.3;
     public static final double kMaxTestYawMotorTimeToReachPosition = 4.;
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
+
+    public static final double[] kShooterMapKeys = {};
+    public static final double[] kShooterMapValues = {};
   }
 
   public static class FieldConstants {

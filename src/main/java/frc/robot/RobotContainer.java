@@ -19,6 +19,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.*;
@@ -92,6 +95,8 @@ public class RobotContainer {
                         SuperstructureConstants.kSoupMotorId,
                         SuperstructureConstants.kTransferMotorId,
                         NetworkTableInstance.getDefault().getTable("Superstructure"));
+        
+        Field2d field = new Field2d();
 
         public RobotContainer() {
                 poseEstimator = new SwerveDrivePoseEstimator3d(
@@ -100,6 +105,8 @@ public class RobotContainer {
                                 getModulePositions(),
                                 new Pose3d(0, 0, 0, new Rotation3d()));
 
+                SmartDashboard.putData("Field", field);
+
                 configureBindings();
                 // 77% max power from corner works well
         }
@@ -107,7 +114,7 @@ public class RobotContainer {
         private void configureBindings() {
 
                 m_operatorController.rightTrigger(0.1).whileTrue(
-                                new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond.of(
+                                new AutoShoot(m_shooter, () -> DegreesPerSecond.of(
                                                 ShooterConstants.kShooterMaxManualSpeedDPS
                                                                 * m_operatorController.getRightTriggerAxis()))
                                                 .alongWith(Commands.run(() -> System.out
@@ -208,12 +215,21 @@ public class RobotContainer {
                 return Commands.none();
         }
 
+        public Pose3d getRobotPose3d() {
+                return poseEstimator.getEstimatedPosition();
+        }
+
         // converts a m_driverController position into an angle that can be used by
         // turret set
         // position commands (straight forward on the joytick is 180 deg)
         private static double convertPositionToTurretAngle(double x, double y) {
                 return (180 / Math.PI) * Math.atan(
                                 y / x) + (90.0 * (signInclusive(x) + 2));
+        }
+
+        public void updateOdometry(){
+                poseEstimator.updateWithTime(Timer.getFPGATimestamp(), drivetrain.getRotation3d(), getModulePositions());
+                field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
         }
 
         public SwerveModulePosition[] getModulePositions() {
