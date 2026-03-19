@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.797,
+        "y": 0.873
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.0470000000000002,
+        "y": 0.873
+      },
+      "isLocked": false,
+      "linkedName": "4path4"
+    },
+    {
+      "anchor": {
+        "x": 0.797,
+        "y": 0.873
+      },
+      "prevControl": {
+        "x": 0.5469999999999999,
+        "y": 0.873
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Auto_4_Paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -140.0
+  },
+  "useDefaultConstraints": true
+}

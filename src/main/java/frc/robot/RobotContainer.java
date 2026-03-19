@@ -5,10 +5,17 @@ import frc.robot.commands.DriveYawMotor;
 import frc.robot.commands.RotateYawMotor;
 import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.SoupKickback;
+import frc.robot.commands.SetWallPosition;
+import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleIntakeCommandReverse;
 import frc.robot.commands.ToggleLaunchMotor;
+import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
+import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
+import frc.robot.commands.AutoCommands.IntakeAutoCommand;
+import frc.robot.commands.AutoCommands.ShooterCommandAuto;
+import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveLaunchMotor;
@@ -16,13 +23,15 @@ import frc.robot.commands.DriveTransferCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -33,13 +42,19 @@ import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.generated.TunerConstants;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
@@ -49,6 +64,7 @@ public class RobotContainer {
     // TODO: actually initialize a SwerveDrivePoseEstimator
     // public SwerveDrivePoseEstimator m_poseEstimator = new
     // SwerveDrivePoseEstimator();
+    
     public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
     private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
             NetworkTableInstance.getDefault().getTable("Turret"));
@@ -85,16 +101,33 @@ public class RobotContainer {
             SuperstructureConstants.kTransferMotorId,
             NetworkTableInstance.getDefault().getTable("Superstructure"));
 
+        private final SendableChooser<Command> autoChooser;
+
     public RobotContainer() {
-        // THIS IS ALL CODE FOR LIMELIGHT FEED
-        // HttpCamera limelight = new HttpCamera("limelight",
-        // "http://limelight.local:5800");
-        // limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-        // MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
-        // outputStream.setSource(limelight);
+
+      NamedCommands.registerCommand("Shooter", new ShooterCommandAuto(m_shooter));
+//       NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
+//       NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang)); //we have no hang for buckeye
+      NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
+      NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
+      NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
+
+      //Changed from default auto name- Micah plp
+      autoChooser = AutoBuilder.buildAutoChooser("Path_1_Auto");
+
+      //Recently added- Micah plp
+      SmartDashboard.putData("Auto Mode", autoChooser);
+
+      // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
+        HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
+        limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
+        outputStream.setSource(limelight);
+
 
         configureBindings();
         // 77% max power from corner works well
+
     }
 
     private void configureBindings() {
@@ -192,12 +225,11 @@ public class RobotContainer {
     private static double powPreserveSign(double a, double b) {
         return Math.pow(Math.abs(a), b) * Math.signum(a);
     }
-
+  
     private static int signInclusive(double a) {
         return (a >= 0.0) ? 1 : -1;
         // new Trigger(m_exampleSubsystem::exampleCondition)
         // .onTrue(new ExampleCommand(m_exampleSubsystem));
-
     }
 
     /**
@@ -206,7 +238,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return Commands.none();
+        return autoChooser.getSelected();
     }
 
     // converts a m_driverController position into an angle that can be used by
@@ -216,5 +248,8 @@ public class RobotContainer {
         return (180 / Math.PI) * Math.atan(
                 y / x) + (90.0 * (signInclusive(x) + 2));
     }
+    // converts a m_driverController position into an angle that can be used by
+    // turret set
+    // position commands (straight forward on the joytick is 180 deg)
 
 }
