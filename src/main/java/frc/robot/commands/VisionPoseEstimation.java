@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.LimelightHelpers;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.Constants.VisionConstants;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,16 +22,18 @@ public class VisionPoseEstimation extends Command {
   private final Vision m_vision;
   private final SwerveDrivePoseEstimator3d m_poseEstimator;
   private final CorePigeon2 m_pigeon;
+  private final CommandSwerveDrivetrain drivetrain;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionPoseEstimation(Vision vision, SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon) {
+  public VisionPoseEstimation(Vision vision, SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
     m_vision = vision;
     m_poseEstimator = poseEstimator;
     m_pigeon = pigeon;
+    this.drivetrain = drivetrain;
 
     // Use addRequirements() here to declare subsystem dependencies.
     // addRequirements(subsystem);
@@ -56,6 +59,7 @@ public class VisionPoseEstimation extends Command {
     if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
       m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 9999999));
       m_poseEstimator.addVisionMeasurement(new Pose3d(mt2.pose), mt2.timestampSeconds);
+      drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
     }
 
     // The following code is for testing purposes and should be commented out unless

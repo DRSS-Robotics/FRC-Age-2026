@@ -107,7 +107,7 @@ public class RobotContainer {
         };
         SwerveDrivePoseEstimator3d poseEstimator;
         CorePigeon2 pigeon;
-        public final Vision m_vision = new Vision(turretAngleSupplier, poseEstimator, pigeon);
+        public final Vision m_vision = new Vision(turretAngleSupplier, poseEstimator, pigeon, drivetrain);
 
         private double speedMultiplier = 1;
     private final double minSpeedMulti = 0.175;
@@ -311,19 +311,6 @@ public class RobotContainer {
                 field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
         }
 
-        public SwerveModulePosition[] getModulePositions() {
-                var modules = drivetrain.getModules();
-                SwerveModulePosition[] modpos = new SwerveModulePosition[4];
-                for (int x = 0; x < 4; x++) {
-                        modpos[x] = modules[x].getPosition(true);
-                }
-                return modpos;
-        }
-
-        public void updateOdometry(){
-                poseEstimator.updateWithTime(Timer.getFPGATimestamp(), drivetrain.getRotation3d(), getModulePositions());
-                field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
-        }
 
         public SwerveModulePosition[] getModulePositions() {
                 var modules = drivetrain.getModules();
