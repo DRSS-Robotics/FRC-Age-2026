@@ -4,6 +4,7 @@
 
 package frc.robot.commands.AutoCommands;
 
+import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -20,26 +21,32 @@ public class TranslocatorAutoCommand extends Command{
   public TranslocatorAutoCommand(SuperstructureSubsystem transfer_Subsystem) { 
     m_transfer = transfer_Subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(transfer_Subsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
-
+  public void initialize() {
+System.out.println("guhh");
+    m_transfer.runTransferMotor(0.5 * SuperstructureConstants.kDefaultTransferSpeed);
+  }
+  
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_transfer.runTransferMotor(0.5);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
-
+  public void end(boolean interrupted) 
+  {
+System.out.println("guhh2");
+    m_transfer.runTransferMotor(0);
+    
+  }
+  
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return true;
+    return false;
   }
 }

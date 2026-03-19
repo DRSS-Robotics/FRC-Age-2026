@@ -4,6 +4,7 @@
 
 package frc.robot.commands.AutoCommands;
 
+import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -20,17 +21,19 @@ public class ExpandStorageAutoCommand extends Command {
   public ExpandStorageAutoCommand(SuperstructureSubsystem wallSubsystem) {
     m_wall = wallSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(wallSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    m_wall.setWallMotorPosition(SuperstructureConstants.kStorageOpenRotations);
+
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_wall.setWallMotorPosition(0.5);
+    // m_wall.setWallMotorPosition(0.5);
   }
 
   // Called once the command ends or is interrupted.

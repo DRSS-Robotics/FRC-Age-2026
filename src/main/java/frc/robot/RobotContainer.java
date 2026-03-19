@@ -14,7 +14,7 @@ import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
-import frc.robot.commands.AutoCommands.ShooterCommandAuto;
+import frc.robot.commands.AutoCommands.AutoShootMidDistance;
 import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.DriveIntakeCommand;
@@ -64,7 +64,7 @@ public class RobotContainer {
     // TODO: actually initialize a SwerveDrivePoseEstimator
     // public SwerveDrivePoseEstimator m_poseEstimator = new
     // SwerveDrivePoseEstimator();
-    
+
     public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
     private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
             NetworkTableInstance.getDefault().getTable("Turret"));
@@ -101,29 +101,30 @@ public class RobotContainer {
             SuperstructureConstants.kTransferMotorId,
             NetworkTableInstance.getDefault().getTable("Superstructure"));
 
-        private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
 
-      NamedCommands.registerCommand("Shooter", new ShooterCommandAuto(m_shooter));
-//       NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
-//       NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang)); //we have no hang for buckeye
-      NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
-      NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
-      NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
+        NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
+        // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
+        // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
+        // //we have no hang for buckeye
+        NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
+        NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
+        NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
 
-      //Changed from default auto name- Micah plp
-      autoChooser = AutoBuilder.buildAutoChooser("Path_1_Auto");
+        // Changed from default auto name- Micah plp
+        autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
 
-      //Recently added- Micah plp
-      SmartDashboard.putData("Auto Mode", autoChooser);
 
-      // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
+        // Recently added- Micah plp
+        SmartDashboard.putData("Auto Mode", autoChooser);
+
+        // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
         HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
         limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
         MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
         outputStream.setSource(limelight);
-
 
         configureBindings();
         // 77% max power from corner works well
@@ -135,7 +136,8 @@ public class RobotContainer {
         m_operatorController.rightTrigger(0.05).whileTrue(
                 new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
                         .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
-                                Math.pow(m_operatorController.getRightTriggerAxis(), 0.75),
+                                Math.pow(m_operatorController.getRightTriggerAxis(),
+                                        0.75),
                                 12) + 0.225))));
         // back wall position
         m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
@@ -149,7 +151,7 @@ public class RobotContainer {
         m_operatorController.rightBumper().onTrue(new ToggleIntakeCommandReverse(m_superstructure));
         // m_operatorController.x().onTrue(new ToggleIntakeCommand(m_superstructure));
         m_operatorController.a().onTrue(new ToggleWallCommand(m_superstructure));
-        m_operatorController.leftTrigger(0.15)
+        m_operatorController.leftTrigger(0.05)
                 .whileTrue(new DriveTransferCommand(m_superstructure,
                         m_operatorController::getLeftTriggerAxis));
         // Untested but we need to make it so that transfer cannot run without shooter
@@ -225,7 +227,7 @@ public class RobotContainer {
     private static double powPreserveSign(double a, double b) {
         return Math.pow(Math.abs(a), b) * Math.signum(a);
     }
-  
+
     private static int signInclusive(double a) {
         return (a >= 0.0) ? 1 : -1;
         // new Trigger(m_exampleSubsystem::exampleCondition)
