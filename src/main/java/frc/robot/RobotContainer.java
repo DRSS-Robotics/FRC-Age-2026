@@ -114,7 +114,7 @@ public class RobotContainer {
         private void configureBindings() {
 
                 m_operatorController.rightTrigger(0.1).whileTrue(
-                                new AutoShoot(m_shooter, () -> DegreesPerSecond.of(
+                                new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond.of(
                                                 ShooterConstants.kShooterMaxManualSpeedDPS
                                                                 * m_operatorController.getRightTriggerAxis()))
                                                 .alongWith(Commands.run(() -> System.out
@@ -159,6 +159,8 @@ public class RobotContainer {
                                 .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
                 m_driverController.start().and(m_driverController.x())
                                 .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+
 
                 m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
