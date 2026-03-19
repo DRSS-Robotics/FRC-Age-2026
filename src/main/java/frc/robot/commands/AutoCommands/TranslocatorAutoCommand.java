@@ -26,8 +26,8 @@ public class TranslocatorAutoCommand extends Command{
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-System.out.println("guhh");
     m_transfer.runTransferMotor(0.5 * SuperstructureConstants.kDefaultTransferSpeed);
+    m_transfer.runSoupMotor(0.5 * SuperstructureConstants.kDefaultSoupSpeedDPS);
   }
   
   // Called every time the scheduler runs while the command is scheduled.
@@ -39,8 +39,8 @@ System.out.println("guhh");
   @Override
   public void end(boolean interrupted) 
   {
-System.out.println("guhh2");
     m_transfer.runTransferMotor(0);
+    m_transfer.runSoupMotor(0);
     
   }
   
