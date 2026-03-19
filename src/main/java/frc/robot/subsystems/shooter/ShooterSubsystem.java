@@ -150,8 +150,8 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
     m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
 
-    turretPositionPublisher.set(getYawEncoder().in(Degrees));
-    turretSpeedPublisher.set(getLaunchMotorSpeed().in(DegreesPerSecond));
+    // turretPositionPublisher.set(getYawEncoder().in(Degrees));
+    turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
 
   }
 

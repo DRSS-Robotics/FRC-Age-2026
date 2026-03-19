@@ -72,8 +72,8 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     private TrapezoidProfile.State soupVelocitySetpoint = new TrapezoidProfile.State();
 
     private final TrapezoidProfile transferTrapezoidProfile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxTransferDPS,
-                    SuperstructureConstants.kMaxTransferDPSPS));
+            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxTransferDPS2,
+                    SuperstructureConstants.kMaxTransferDPS3));
 
     private TrapezoidProfile.State transferVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State transferVelocitySetpoint = new TrapezoidProfile.State();
@@ -329,7 +329,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     public TestableCommand getTestCommand() {
         return new SequencedTest(this,
 
-                new TestBase(this) {
+        new TestBase(this) {
                     // here begins the wall test
                     private double startTime;
                     private Angle maxAllowedError;

@@ -47,22 +47,22 @@ public final class Constants {
     public static final double kMaxIntakeDPS3 = 21600;
     public static final int kStorageMotorId = 16;
     public static final int kSoupMotorId = 18;
-    public static final double kMaxStorageDPS = 28800;
-    public static final double kMaxStorageDPS2 = 28800 * 4;
-    public static final double kDefaultSoupSpeedDPS = 18000; // 3000 rpm, max kraken power?
-    public static final double kMaxSoupDPS2 = 19600 * 3;
-    public static final double kMaxSoupDPS3 = 19600 * 3;
+    public static final double kMaxStorageDPS = 14400;
+    public static final double kMaxStorageDPS2 = 28800;
+    public static final double kDefaultSoupSpeedDPS = 6000; // 3000 rpm, max kraken power?
+    public static final double kMaxSoupDPS2 = 19601 * 4;
+    public static final double kMaxSoupDPS3 = 19600 * 4;
     public static final int kTransferMotorId = 14;
     public static final double kDefaultIntakeSpeed = 2500;
-    public static final double kDefaultTransferSpeed = 3000;
-    public static final double kMaxTransferDPS = 15000;
-    public static final double kMaxTransferDPSPS = 15000;
+    public static final double kDefaultTransferSpeed = 12000;
+    public static final double kMaxTransferDPS2 = 48000;
+    public static final double kMaxTransferDPS3 = 48000;
 
     /**
      * A degree value that affects the tolerance of when the Fuel storage wall is
      * considered to be closed/open.
      */
-    public static final double kStorageStateTolerance = 32;
+    public static final double kStorageStateTolerance = 360;
 
     /**
      * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED
@@ -96,7 +96,7 @@ public final class Constants {
   public static class ShooterConstants {
     public static final double kShooterManualDriveDPSScale = 1;
     public static final double kShooterAngleTolerance = 1;
-    public static final double kShooterMaxManualSpeedDPS = 6000;
+    public static final double kShooterMaxManualSpeedDPS = 9000;
     public static final double kTurretMaxManualSpeedDPS = 105;
 
     public static final double kMaxShooterDPS2 = 36000; // accel
