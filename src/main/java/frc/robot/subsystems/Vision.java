@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.UsbCamera;
@@ -33,11 +34,11 @@ public class Vision extends SubsystemBase {
   private MjpegServer outputStream;
 
   private Supplier<Angle> turretAngleSupplier;
-  private SwerveDrivePoseEstimator m_poseEstimator;
+  private SwerveDrivePoseEstimator3d m_poseEstimator;
   private CorePigeon2 m_pigeon;
 
   /** Creates a new Vision subsystem */
-  public Vision(Supplier<Angle> turretAngleSupplier, SwerveDrivePoseEstimator poseEstimator, CorePigeon2 pigeon) {
+  public Vision(Supplier<Angle> turretAngleSupplier, SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon) {
     this.turretAngleSupplier = turretAngleSupplier;
     m_poseEstimator = poseEstimator;
     m_pigeon = pigeon;
@@ -56,7 +57,8 @@ public class Vision extends SubsystemBase {
     driverCamera.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     // Initialize and start streaming hopper camera
-    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName, VisionConstants.kHopperCameraId);
+    UsbCamera hopperCamera = CameraServer.startAutomaticCapture(VisionConstants.kHopperCameraStreamName,
+        VisionConstants.kHopperCameraId);
 
     // Initialize output stream and start streaming driver camera
     outputStream = CameraServer.addSwitchedCamera(VisionConstants.kOutputStreamName);
@@ -74,24 +76,28 @@ public class Vision extends SubsystemBase {
     System.out.println("VISION: Hopper camera connected: " + hopperCamera.isConnected());
   }
 
-  /** Update the Limelight's position relative to the robot. This should be called before pose estimation. */
+  /**
+   * Update the Limelight's position relative to the robot. This should be called
+   * before pose estimation.
+   */
   public void updateLimelightPosition() {
     Angle turretAngle = turretAngleSupplier.get();
 
-    // The Limelight's position is modeled in polar coordinates (<distance from Limelight to center>, <turret angle>)
-    // These coordinates are converted to Cartesian coordinates to find the position relative to the center of the turret
+    // The Limelight's position is modeled in polar coordinates (<distance from
+    // Limelight to center>, <turret angle>)
+    // These coordinates are converted to Cartesian coordinates to find the position
+    // relative to the center of the turret
     double limelightForwardOffset = VisionConstants.kLLTurretCenterDist.in(Meters) * Math.sin(turretAngle.in(Radians));
     double limelightSideOffset = VisionConstants.kLLTurretCenterDist.in(Meters) * Math.cos(turretAngle.in(Radians));
 
     // Set the Limelight position in robot space using offset constants
-    LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName, 
-      /* forward offset */ VisionConstants.kTurretForwardOffset.in(Meters) + limelightForwardOffset,
-      /* side offset    */ VisionConstants.kTurretSideOffset.in(Meters) + limelightSideOffset,
-      /* height offset  */ VisionConstants.kLimelightHeightOffset.in(Meters),
-      /* roll offset    */ 0,
-      /* pitch offset   */ VisionConstants.kLimelightPitchOffset.in(Degrees),
-      /* yaw offset     */ turretAngle.in(Degrees)
-    );
+    LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName,
+        /* forward offset */ VisionConstants.kTurretForwardOffset.in(Meters) + limelightForwardOffset,
+        /* side offset */ VisionConstants.kTurretSideOffset.in(Meters) + limelightSideOffset,
+        /* height offset */ VisionConstants.kLimelightHeightOffset.in(Meters),
+        /* roll offset */ 0,
+        /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
+        /* yaw offset */ turretAngle.in(Degrees));
   }
 
   /** Switch output stream to Limelight */
@@ -113,7 +119,8 @@ public class Vision extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+  }
 
   @Override
   public void simulationPeriodic() {
