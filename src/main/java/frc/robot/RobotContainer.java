@@ -8,6 +8,7 @@ import frc.robot.commands.SoupKickback;
 import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
+import frc.robot.commands.ToggleIntakeCommandReverse;
 import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
@@ -69,17 +70,21 @@ public class RobotContainer {
             NetworkTableInstance.getDefault().getTable("Turret"));
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
+    private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired
+                                                                                        // top
                                                                                         // speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
+                                                                                      // second
                                                                                       // max
                                                                                       // angular velocity
 
     private double speedMultiplier = 1;
+    private final double minSpeedMulti = 0.175;
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
+                                                                     // motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -126,43 +131,43 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        //Replaced operator commands with the code from the PID tuning branch- Micah plp
-       m_operatorController.rightTrigger(0.1).whileTrue(
-                new DriveLaunchMotor(m_shooter,
-                        () -> DegreesPerSecond
-                                .of(ShooterConstants.kShooterMaxManualSpeedDPS
-                                        * Math.pow(m_operatorController
-                                                .getRightTriggerAxis(),
-                                                0.1)))
-                                                
-                        .alongWith(Commands.run(() -> System.out.println(m_operatorController.getRightTriggerAxis()))));
-        //back wall position
+
+        m_operatorController.rightTrigger(0.05).whileTrue(
+                new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
+                        .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
+                                Math.pow(m_operatorController.getRightTriggerAxis(), 0.75),
+                                12) + 0.225))));
+        // back wall position
         m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.45),
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
                 () -> false));
-        //mid position
+        // mid position
         m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
                 () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
                 () -> false));
         m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-       // m_operatorController.rightBumper().onTrue(new ToggleIntakeCommandReverse(m_superstructure));
-        m_operatorController.x().onTrue(new ToggleIntakeCommand(m_superstructure));
+        m_operatorController.rightBumper().onTrue(new ToggleIntakeCommandReverse(m_superstructure));
+        // m_operatorController.x().onTrue(new ToggleIntakeCommand(m_superstructure));
         m_operatorController.a().onTrue(new ToggleWallCommand(m_superstructure));
         m_operatorController.leftTrigger(0.15)
                 .whileTrue(new DriveTransferCommand(m_superstructure,
                         m_operatorController::getLeftTriggerAxis));
-        //Untested but we need to make it so that transfer cannot run without shooter running
-         m_operatorController.leftTrigger(0.15)
-                .whileTrue(new ToggleLaunchMotor(m_shooter, null, null));
+        // Untested but we need to make it so that transfer cannot run without shooter
+        // running
+        // m_operatorController.leftTrigger(0.15)
+        // .whileTrue(new ToggleLaunchMotor(m_shooter, null, null));
 
         m_operatorController.leftBumper()
                 .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
 
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive
-                        .withVelocityX(-m_driverController.getLeftY() * MaxSpeed * speedMultiplier)
-                        .withVelocityY(-m_driverController.getLeftX() * MaxSpeed * speedMultiplier)
-                        .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate * speedMultiplier)));
+                        .withVelocityX(-m_driverController.getLeftY() * MaxSpeed
+                                * speedMultiplier)
+                        .withVelocityY(-m_driverController.getLeftX() * MaxSpeed
+                                * speedMultiplier)
+                        .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate
+                                * speedMultiplier)));
 
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
@@ -170,11 +175,14 @@ public class RobotContainer {
 
         m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
-                .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(), -m_driverController.getLeftX()))));
+                .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
+                        -m_driverController.getLeftX()))));
 
         // Note that each routine should be run exactly once in a single log.
-        m_driverController.back().and(m_driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        m_driverController.back().and(m_driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        m_driverController.back().and(m_driverController.y())
+                .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        m_driverController.back().and(m_driverController.x())
+                .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         m_driverController.start().and(m_driverController.y())
                 .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         m_driverController.start().and(m_driverController.x())
@@ -183,7 +191,8 @@ public class RobotContainer {
         m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
-            speedMultiplier = 1 - m_driverController.getRightTriggerAxis();
+            speedMultiplier = minSpeedMulti
+                    + (1 - m_driverController.getRightTriggerAxis()) * (1 - minSpeedMulti);
             drive
                     .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
                     .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
@@ -205,6 +214,10 @@ public class RobotContainer {
          * .of(convertPositionToTurretAngle(
          * m_driverController.getRightX(), m_driverController.getRightY()))));
          */
+    }
+
+    private static double binDouble(double in, double bins) {
+        return Math.round(in * bins) / bins;
     }
 
     // these should be moved to utils once we have utils class from superstrcuture

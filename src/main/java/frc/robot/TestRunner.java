@@ -12,11 +12,12 @@ public class TestRunner {
     private static TestRunner instance = null;
     private boolean hasLoggedTestsComplete = false;
     private List<TestableSubsystem> testSubsystems;
-    private List<TestableCommand> runningCommands;
+    private TestableCommand runningCommand;
+    private List<TestableCommand> commandQueue;
 
     private TestRunner() {
         testSubsystems = new ArrayList<>();
-        runningCommands = new ArrayList<>();
+        runningCommand = null;
         instance = this;
     }
 
@@ -34,51 +35,56 @@ public class TestRunner {
     public static void runTests() {
         System.out.println("starting tests!");
 
-        for (TestableSubsystem test : getInstance().testSubsystems) {
-            TestableCommand command = test.getTestCommand();
-            command.onInitialize();
-            getInstance().runningCommands.add(command);
+        for (TestableSubsystem cmd : getInstance().testSubsystems) {
+            getInstance().commandQueue.add(cmd.getTestCommand());
         }
+        
     }
 
     public static boolean allTestsComplete() {
-        return getInstance().runningCommands.isEmpty();
+        return getInstance().commandQueue.isEmpty();
     }
 
     public static boolean isAnyTestRunning() {
-        return !getInstance().runningCommands.isEmpty();
+        return getInstance().runningCommand != null;
 
     }
 
     public static void periodic() {
-        ArrayList<TestableCommand> commandsToClear = new ArrayList<>();
-        for (TestableCommand cmd : getInstance().runningCommands) {
-            cmd.onExecute();
-            TestResult result = cmd.getCurrentResult();
-            if (result != TestResult.IN_PROGRESS) {
 
-                cmd.onFinished(result);
-                commandsToClear.add(cmd);
+        if (getInstance().runningCommand == null) {
+            getInstance().runningCommand = getInstance().commandQueue.remove(0);
+            getInstance().runningCommand.onInitialize();
+        }
 
-                boolean shouldLog = false;
-                byte logSelection = cmd.getLogSelection();
+        TestableCommand cmd = getInstance().runningCommand;
 
-                switch (result) {
-                    case SUCCESS:
-                        shouldLog = (logSelection & TestableSubsystem.LOG_SUCCESS) != 0;
-                    case KNOWN_FAILURE:
-                        shouldLog = (logSelection & TestableSubsystem.LOG_KNOWN_FAILURE) != 0;
-                    case UNKNOWN_FAILURE:
-                        shouldLog = (logSelection & TestableSubsystem.LOG_UNKNOWN_FAILURE) != 0;
-                    default:
-                        break;
-                }
+        cmd.onExecute();
+        TestResult result = cmd.getCurrentResult();
+        if (result != TestResult.IN_PROGRESS) {
 
-                Optional<String> loggable = cmd.getLoggableResult(result);
-                if (shouldLog && loggable.isPresent()) {
-                    System.out.println(result.toString() + ": " + cmd.toString() + "; " + loggable.get());
-                }
+            cmd.onFinished(result);
+
+            boolean shouldLog = false;
+            byte logSelection = cmd.getLogSelection();
+
+            switch (result) {
+                case SUCCESS:
+                    shouldLog = (logSelection & TestableSubsystem.LOG_SUCCESS) != 0;
+                case KNOWN_FAILURE:
+                    shouldLog = (logSelection & TestableSubsystem.LOG_KNOWN_FAILURE) != 0;
+                case UNKNOWN_FAILURE:
+                    shouldLog = (logSelection & TestableSubsystem.LOG_UNKNOWN_FAILURE) != 0;
+                default:
+                    break;
             }
+
+            Optional<String> loggable = cmd.getLoggableResult(result);
+            if (shouldLog && loggable.isPresent()) {
+                System.out.println(result.toString() + ": " + cmd.toString() + "; " + loggable.get());
+            }
+
+
         }
 
         if (!getInstance().hasLoggedTestsComplete && allTestsComplete()) {
@@ -86,7 +92,8 @@ public class TestRunner {
             getInstance().hasLoggedTestsComplete = true;
         }
 
-        getInstance().runningCommands.removeAll(commandsToClear);
+        getInstance().runningCommand = null;
     }
+
 }
 // secret pinyata!! (guh from william) -noah
