@@ -10,6 +10,13 @@ public final class Constants {
 
   }
 
+  public static enum Driver {
+    kMax,
+    kGavin
+  }
+
+  public static final Driver driverForThisComp = Driver.kGavin;
+
   public static class SuperstructureConstants {
     public static final int kIntakeMotorId = 15;
     public static final double kMaxIntakeDPS2 = 10800;
@@ -22,8 +29,8 @@ public final class Constants {
     public static final double kMaxSoupDPS2 = 19601 * 4;
     public static final double kMaxSoupDPS3 = 19600 * 4;
     public static final int kTransferMotorId = 14;
-    public static final double kDefaultIntakeSpeed = 2500;
-    public static final double kDefaultTransferSpeed = 12000;
+    public static final double kDefaultIntakeSpeed = 6000;
+    public static final double kDefaultTransferSpeed = 12001;
     public static final double kMaxTransferDPS2 = 48000;
     public static final double kMaxTransferDPS3 = 48000;
 

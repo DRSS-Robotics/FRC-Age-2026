@@ -4,6 +4,7 @@
 
 package frc.robot.commands.AutoCommands;
 
+import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -25,7 +26,7 @@ public class IntakeAutoCommand extends Command{
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_intake.runIntake(0.5);
+    m_intake.runIntake(0.5 * SuperstructureConstants.kDefaultIntakeSpeed);
   }
   
   // Called every time the scheduler runs while the command is scheduled.

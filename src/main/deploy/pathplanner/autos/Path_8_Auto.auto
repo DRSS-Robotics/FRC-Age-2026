@@ -19,6 +19,12 @@
                 "data": {
                   "name": "OutIntake"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
               }
             ]
           }

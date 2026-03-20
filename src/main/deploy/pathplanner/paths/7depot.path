@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.4255985915492966,
-        "y": 5.32843309859155
+        "x": 3.592666666666667,
+        "y": 7.581977777777778
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8028345070422545,
-        "y": 7.915299295774648
+        "x": 6.135966666666666,
+        "y": 7.601466666666667
       },
       "isLocked": false,
       "linkedName": "7path2"
@@ -20,8 +20,8 @@
         "y": 6.4302464788749605
       },
       "prevControl": {
-        "x": 5.63522887324314,
-        "y": 8.106919014086229
+        "x": 6.204177777777778,
+        "y": 7.0168
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,12 +30,12 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5024154589371982,
-      "rotationDegrees": -179.52442450932534
+      "waypointRelativePos": 0.0664395229982973,
+      "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 0.6135265700483093,
-      "rotationDegrees": -178.5676517903004
+      "waypointRelativePos": 0.42487223168654675,
+      "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [],
@@ -57,7 +57,7 @@
   "folder": "Auto_7_Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 141.76
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

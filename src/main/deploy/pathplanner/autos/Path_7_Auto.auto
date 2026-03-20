@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "7start"
+                  "pathName": "7depot"
                 }
               },
               {
@@ -43,12 +43,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "7shooot"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
@@ -65,12 +59,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "7depot"
           }
         },
         {
