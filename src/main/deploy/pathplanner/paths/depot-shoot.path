@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.580401033598269,
-        "y": 5.827941691420844
+        "x": 1.796965811965812,
+        "y": 6.321880341880342
       },
       "isLocked": false,
       "linkedName": "2path1"
     },
     {
       "anchor": {
-        "x": 2.1845726495726496,
-        "y": 3.8670370370370373
+        "x": 1.8228062678062678,
+        "y": 3.9187179487179495
       },
       "prevControl": {
-        "x": 2.3921606777416637,
-        "y": 4.234308163797601
+        "x": 2.1587321937321935,
+        "y": 4.4742877492877495
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 179.4743653935424
   },
   "reversed": false,
   "folder": "Auto_2_Paths",

@@ -232,8 +232,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
      * @param newPosition rotational setpoint value.
      */
     public void setWallMotorPosition(Angle newPosition) {
-        System.out.println(newPosition);
-        System.out.println(storageOpenAngle);
         if (newPosition.lt(storageClosedAngle) ||
                 newPosition.gt(storageOpenAngle)) {
             System.out.println(
@@ -271,6 +269,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
         return storageState;
     }
+
 
     /**
      * @return a {@link StorageWallState} enum representing the storage wall's state
@@ -465,6 +464,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                     }
 
                 });
+    }
+
+    public Angle getStorageSetpoint() {
+        return storageWallSetpoint;
     }
 
 }
