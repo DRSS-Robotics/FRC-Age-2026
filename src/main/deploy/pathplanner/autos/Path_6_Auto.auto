@@ -15,15 +15,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "OutIntake"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "6Path_Collect"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "OutIntake"
                 }
               }
             ]
