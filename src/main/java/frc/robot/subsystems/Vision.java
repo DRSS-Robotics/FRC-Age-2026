@@ -38,6 +38,8 @@ public class Vision extends SubsystemBase {
   private CorePigeon2 m_pigeon;
   private CommandSwerveDrivetrain drivetrain;
 
+  private VisionPoseEstimation viscommand;
+
   /** Creates a new Vision subsystem */
   public Vision(Supplier<Angle> turretAngleSupplier, SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
     this.turretAngleSupplier = turretAngleSupplier;
@@ -52,7 +54,7 @@ public class Vision extends SubsystemBase {
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     // Start pose estimation command (runs forever)
-    new VisionPoseEstimation(this, m_poseEstimator, m_pigeon, drivetrain);
+    viscommand = new VisionPoseEstimation(this, m_poseEstimator, m_pigeon, drivetrain);
 
     // Initialize driver camera
     driverCamera = new UsbCamera("driverCamera", VisionConstants.kDriverCameraId);

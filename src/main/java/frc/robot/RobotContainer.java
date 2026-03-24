@@ -24,6 +24,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -72,6 +73,8 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import java.time.LocalDateTime;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.core.CorePigeon2;
 
 /**
@@ -138,6 +141,7 @@ public class RobotContainer {
         private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+
                 poseEstimator = new SwerveDrivePoseEstimator3d(
                                 drivetrain.getKinematics(),
                                 drivetrain.getRotation3d(),
@@ -307,18 +311,15 @@ public class RobotContainer {
     }
 
         public void updateOdometry(){
+                
                 poseEstimator.updateWithTime(Timer.getFPGATimestamp(), drivetrain.getRotation3d(), getModulePositions());
                 field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
         }
 
 
         public SwerveModulePosition[] getModulePositions() {
-                var modules = drivetrain.getModules();
-                SwerveModulePosition[] modpos = new SwerveModulePosition[4];
-                for (int x = 0; x < 4; x++) {
-                        modpos[x] = modules[x].getPosition(true);
-                }
-                return modpos;
+                SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = drivetrain.getModules();
+                return new SwerveModulePosition[]{modules[0].getPosition(true), modules[1].getPosition(true), modules[2].getPosition(true), modules[3].getPosition(true)};
         }
 
 }

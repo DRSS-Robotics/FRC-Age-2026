@@ -11,7 +11,9 @@ import frc.robot.Constants.VisionConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.hardware.core.CorePigeon2;
@@ -47,7 +49,7 @@ public class VisionPoseEstimation extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_vision.updateLimelightPosition();
+    // m_vision.updateLimelightPosition();
 
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
@@ -57,6 +59,7 @@ public class VisionPoseEstimation extends Command {
     // only update if angular velocity is less than 360 degrees per second and at
     // least 1 tag is detected
     if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
+      System.out.println("viewed");
       m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 9999999));
       m_poseEstimator.addVisionMeasurement(new Pose3d(mt2.pose), mt2.timestampSeconds);
       drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
@@ -65,14 +68,13 @@ public class VisionPoseEstimation extends Command {
     // The following code is for testing purposes and should be commented out unless
     // testing
     // note that measurements are assumed to be in meters
-    /*
-     * Pose2d estimatedPosition = m_poseEstimator.getEstimatedPosition();
-     * System.out.print("pose estimate: (");
-     * System.out.print(estimatedPosition.getX());
-     * System.out.print(", ");
-     * System.out.print(estimatedPosition.getY());
-     * System.out.println(")");
-     */
+    
+    Pose2d estimatedPosition = m_poseEstimator.getEstimatedPosition().toPose2d();
+    System.out.print("pose estimate: (");
+    System.out.print(estimatedPosition.getX());
+    System.out.print(", ");
+    System.out.print(estimatedPosition.getY());
+    System.out.println(")");
   }
 
   // Called once the command ends or is interrupted.
