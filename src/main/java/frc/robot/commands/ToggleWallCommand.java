@@ -34,7 +34,8 @@ public class ToggleWallCommand extends Command {
     // open it (defaults to closing otherwise)
     StorageWallState state = m_wall.getStorageState();
     boolean willOpen = (state == StorageWallState.kIsClosed || 
-                state == StorageWallState.kIsClosing);
+      state == StorageWallState.kIsClosing);
+    System.out.println("moving?" + willOpen);
 
     m_wall.setWallMotorPosition(willOpen ? 
       SuperstructureConstants.kStorageOpenRotations : 

@@ -1,15 +1,9 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
-import frc.robot.commands.DriveYawMotor;
-import frc.robot.commands.RotateYawMotor;
-import frc.robot.commands.SetWallPosition;
-import frc.robot.commands.SoupKickback;
-import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleIntakeCommandReverse;
-import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
@@ -20,8 +14,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
@@ -32,45 +24,28 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 
-import java.time.LocalDateTime;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -97,48 +72,47 @@ public class RobotContainer {
             NetworkTableInstance.getDefault().getTable("Turret"));
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-        private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired
-                                                                                            // top
-        // speed
-        private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-                                                                                          // second
-        // max
-        // angular velocity
+    private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired
+                                                                                        // top
+    // speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
+                                                                                        // second
+    // max
+    // angular velocity
 
-        Supplier<Angle> turretAngleSupplier = () -> {
-                return Degrees.of(0);
-        };
-        SwerveDrivePoseEstimator3d poseEstimator;
-        CorePigeon2 pigeon;
-        public final Vision m_vision = new Vision(turretAngleSupplier, poseEstimator, pigeon, drivetrain);
+    Supplier<Angle> turretAngleSupplier = () -> {
+            return Degrees.of(0);
+    };
+    SwerveDrivePoseEstimator3d poseEstimator;
+    public final Vision m_vision;
 
-        private double speedMultiplier = 1;
+    private double speedMultiplier = 1;
     private final double minSpeedMulti = 0.175;
 
-        private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-                        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
-                                                                                 //
-                                                                     // motors
-        private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-        private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+                    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
+                                                                                //
+                                                                    // motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-        // private final Telemetry logger = new Telemetry(MaxSpeed);
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
 
-        private final CommandXboxController m_driverController = new CommandXboxController(
-                        OperatorConstants.kDriverControllerPort);
-        private final CommandXboxController m_operatorController = new CommandXboxController(1);
+    private final CommandXboxController m_driverController = new CommandXboxController(
+                    OperatorConstants.kDriverControllerPort);
+    private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
-        private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
-                        SuperstructureConstants.kIntakeMotorId,
-                        SuperstructureConstants.kStorageMotorId,
-                        SuperstructureConstants.kSoupMotorId,
-                        SuperstructureConstants.kTransferMotorId,
-                        NetworkTableInstance.getDefault().getTable("Superstructure"));
-        
-        Field2d field = new Field2d();
+    private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
+                    SuperstructureConstants.kIntakeMotorId,
+                    SuperstructureConstants.kStorageMotorId,
+                    SuperstructureConstants.kSoupMotorId,
+                    SuperstructureConstants.kTransferMotorId,
+                    NetworkTableInstance.getDefault().getTable("Superstructure"));
+    
+    Field2d field = new Field2d();
 
-        private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
 
@@ -172,6 +146,8 @@ public class RobotContainer {
         limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
         MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
         outputStream.setSource(limelight);
+
+        m_vision = new Vision(turretAngleSupplier, poseEstimator, drivetrain.getPigeon2(), drivetrain);
 
         configureBindings();
                 // 77% max power from corner works well
@@ -311,7 +287,6 @@ public class RobotContainer {
     }
 
         public void updateOdometry(){
-                
                 poseEstimator.updateWithTime(Timer.getFPGATimestamp(), drivetrain.getRotation3d(), getModulePositions());
                 field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
         }
@@ -319,7 +294,7 @@ public class RobotContainer {
 
         public SwerveModulePosition[] getModulePositions() {
                 SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = drivetrain.getModules();
-                return new SwerveModulePosition[]{modules[0].getPosition(true), modules[1].getPosition(true), modules[2].getPosition(true), modules[3].getPosition(true)};
+                return new SwerveModulePosition[]{modules[0].getPosition(false), modules[1].getPosition(false), modules[2].getPosition(false), modules[3].getPosition(false)};
         }
 
 }

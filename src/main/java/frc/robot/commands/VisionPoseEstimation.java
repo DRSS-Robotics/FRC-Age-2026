@@ -37,8 +37,10 @@ public class VisionPoseEstimation extends Command {
     m_pigeon = pigeon;
     this.drivetrain = drivetrain;
 
+
     // Use addRequirements() here to declare subsystem dependencies.
-    // addRequirements(subsystem);
+    // addRequirements(m_vision);
+
   }
 
   // Called when the command is initially scheduled.
@@ -54,27 +56,32 @@ public class VisionPoseEstimation extends Command {
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
         m_poseEstimator.getEstimatedPosition().getRotation().getZ(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+    
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
         .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
-    // only update if angular velocity is less than 360 degrees per second and at
-    // least 1 tag is detected
-    if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
-      System.out.println("viewed");
-      m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 9999999));
-      m_poseEstimator.addVisionMeasurement(new Pose3d(mt2.pose), mt2.timestampSeconds);
-      drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+        // only update if angular velocity is less than 360 degrees per second and at
+        // least 1 tag is detected
+        
+    if(mt2 != null){
+      if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360) {
+        System.out.println("viewed a tag");
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 9999999));
+        m_poseEstimator.addVisionMeasurement(new Pose3d(mt2.pose), mt2.timestampSeconds);
+        drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+      }
     }
+
 
     // The following code is for testing purposes and should be commented out unless
     // testing
     // note that measurements are assumed to be in meters
     
-    Pose2d estimatedPosition = m_poseEstimator.getEstimatedPosition().toPose2d();
-    System.out.print("pose estimate: (");
-    System.out.print(estimatedPosition.getX());
-    System.out.print(", ");
-    System.out.print(estimatedPosition.getY());
-    System.out.println(")");
+    // Pose2d estimatedPosition = m_poseEstimator.getEstimatedPosition().toPose2d();
+    // System.out.print("pose estimate: (");
+    // System.out.print(estimatedPosition.getX());
+    // System.out.print(", ");
+    // System.out.print(estimatedPosition.getY());
+    // System.out.println(")");
   }
 
   // Called once the command ends or is interrupted.
