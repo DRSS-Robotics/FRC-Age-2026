@@ -1,55 +1,275 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.Constants.*;
+import frc.robot.commands.DriveYawMotor;
+import frc.robot.commands.RotateYawMotor;
+import frc.robot.commands.SetWallPosition;
+import frc.robot.commands.WallInterpCommand;
+import frc.robot.commands.SoupKickback;
+import frc.robot.commands.SetWallPosition;
+import frc.robot.commands.SoupKickback;
+import frc.robot.commands.ToggleIntakeCommand;
+import frc.robot.commands.ToggleIntakeCommandReverse;
+import frc.robot.commands.ToggleLaunchMotor;
+import frc.robot.commands.ToggleLaunchMotor;
+import frc.robot.commands.ToggleWallCommand;
+import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
+import frc.robot.commands.AutoCommands.IntakeAutoCommand;
+import frc.robot.commands.AutoCommands.AutoShootMidDistance;
+import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
+import frc.robot.generated.TunerConstants;
+import frc.robot.commands.DriveIntakeCommand;
+import frc.robot.commands.DriveLaunchMotor;
+import frc.robot.commands.DriveTransferCommand;
+import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+
+import static edu.wpi.first.units.Units.*;
+
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.generated.TunerConstants;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.generated.TunerConstants;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  // TODO: actually initialize a SwerveDrivePoseEstimator
+  // public SwerveDrivePoseEstimator m_poseEstimator = new
+  // SwerveDrivePoseEstimator();
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
+  private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
+      NetworkTableInstance.getDefault().getTable("Turret"));
+  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
+  // second
+  // max
+  // angular velocity
+
+  private double speedMultiplier = 1;
+  private final double speedModifier = 0.35;
+  private final double minSpeedMulti = 0.175;
+  private final double slowSpeedMulti = 0.25;
+
+  private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
+                                                                                                // desired
+  // top
+  // speed
+
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
+                                                               // motors
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+  // private final Telemetry logger = new Telemetry(MaxSpeed);
+
+  private final CommandXboxController m_driverController = new CommandXboxController(
+      OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_operatorController = new CommandXboxController(1);
+
+  private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
+      SuperstructureConstants.kIntakeMotorId,
+      SuperstructureConstants.kStorageMotorId,
+      SuperstructureConstants.kSoupMotorId,
+      SuperstructureConstants.kTransferMotorId,
+      NetworkTableInstance.getDefault().getTable("Superstructure"));
+
+  private final SendableChooser<Command> autoChooser;
+  private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
+
   public RobotContainer() {
-    // Configure the trigger bindings
+
+    NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
+    // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
+    // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
+    // //we have no hang for buckeye
+
+    NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
+    NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
+    NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
+
+    // Changed from default auto name- Micah plp
+    autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
+
+    SmartDashboard.putData("Driver", driverChooser);
+
+    // Recently added- Micah plp
+    SmartDashboard.putData("Auto Mode", autoChooser);
+
+    // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
+    HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
+    limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
+    outputStream.setSource(limelight);
+
     configureBindings();
     ElasticTelemetry.getInstance();
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_operatorController.rightTrigger(0.05).whileTrue(
+        new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
+            .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
+                Math.pow(m_operatorController.getRightTriggerAxis(),
+                    0.75),
+                12) + 0.225))));
+
+    // back wall position
+    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
+        () -> false));
+    // mid position
+    m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
+        () -> false));
+    // close position
+    m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
+        () -> false));
+
+    m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
+
+    m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
+    m_operatorController.leftTrigger(0.05)
+        .whileTrue(new DriveTransferCommand(m_superstructure,
+            m_operatorController::getLeftTriggerAxis));
+
+    m_operatorController.povUp().whileTrue(new WallInterpCommand(m_superstructure, () -> 0., false));
+    m_operatorController.povLeft().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
+    m_operatorController.povRight().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
+    m_operatorController.povDown().whileTrue(new WallInterpCommand(m_superstructure, () -> 1., false));
+
+    drivetrain.setDefaultCommand(
+        drivetrain.applyRequest(() -> drive
+            .withVelocityX(-m_driverController.getLeftY() * MaxSpeed
+                * speedMultiplier)
+            .withVelocityY(-m_driverController.getLeftX() * MaxSpeed
+                * speedMultiplier)
+            .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate
+                * speedMultiplier)));
+
+    final var idle = new SwerveRequest.Idle();
+    RobotModeTriggers.disabled().whileTrue(
+        drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+
+    m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
+        .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
+            -m_driverController.getLeftX()))));
+
+    // Note that each routine should be run exactly once in a single log.
+    m_driverController.back().and(m_driverController.y())
+        .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+    m_driverController.back().and(m_driverController.x())
+        .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+    m_driverController.start().and(m_driverController.y())
+        .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+    m_driverController.start().and(m_driverController.x())
+        .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+    m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+    m_driverController.leftTrigger().whileTrue(Commands.run(() ->
+
+    {
+      speedMultiplier = 1 / speedModifier;
+      drive
+          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+    })).onFalse(Commands.run(() -> {
+      speedMultiplier = 1;
+      drive.withDeadband(MaxSpeed * 0.1)
+          .withRotationalDeadband(MaxAngularRate * 0.1);
+    }));
+
+    m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
+      speedMultiplier = minSpeedMulti
+          + (1 - m_driverController.getRightTriggerAxis()) * (1 - minSpeedMulti);
+      drive
+          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+    })).onFalse(Commands.run(() -> {
+      speedMultiplier = 1;
+      drive.withDeadband(MaxSpeed * 0.1)
+          .withRotationalDeadband(MaxAngularRate * 0.1);
+    }));
+
+    m_driverController.rightBumper().whileTrue(Commands.run(() ->
+
+    {
+      speedMultiplier = slowSpeedMulti;
+      drive
+          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+    })).onFalse(Commands.run(() -> {
+      speedMultiplier = 1;
+      drive.withDeadband(MaxSpeed * 0.1)
+          .withRotationalDeadband(MaxAngularRate * 0.1);
+    }));
+
+    // drivetrain.registerTelemetry(logger::telemeterize);
+    /*
+     * m_driverController.rightStick().whileFalse(
+     * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
+     * ShooterConstants.kTurretMaxManualSpeedDPS
+     * powPreserveSign(-m_driverController.getRightX(), 2.))));
+     * 
+     * m_driverController.rightStick().whileTrue(
+     * new RotateYawMotor(m_shooter, () -> Degrees
+     * .of(convertPositionToTurretAngle(
+     * m_driverController.getRightX(), m_driverController.getRightY()))));
+     */
+  }
+
+  private static double binDouble(double in, double bins) {
+    return Math.round(in * bins) / bins;
+  }
+
+  // these should be moved to utils once we have utils class from superstrcuture
+  // !!
+  private static double powPreserveSign(double a, double b) {
+    return Math.pow(Math.abs(a), b) * Math.signum(a);
+  }
+
+  private static int signInclusive(double a) {
+    return (a >= 0.0) ? 1 : -1;
+    // new Trigger(m_exampleSubsystem::exampleCondition)
+    // .onTrue(new ExampleCommand(m_exampleSubsystem));
   }
 
   /**
@@ -58,7 +278,18 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return autoChooser.getSelected();
   }
+
+  // converts a m_driverController position into an angle that can be used by
+  // turret set
+  // position commands (straight forward on the joytick is 180 deg)
+  private static double convertPositionToTurretAngle(double x, double y) {
+    return (180 / Math.PI) * Math.atan(
+        y / x) + (90.0 * (signInclusive(x) + 2));
+  }
+  // converts a m_driverController position into an angle that can be used by
+  // turret set
+  // position commands (straight forward on the joytick is 180 deg)
+
 }

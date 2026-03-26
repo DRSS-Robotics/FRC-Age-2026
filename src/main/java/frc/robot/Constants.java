@@ -1,19 +1,93 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
-/**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
- * constants are needed, to reduce verbosity.
- */
+import edu.wpi.first.units.measure.Angle;
+
+import static edu.wpi.first.units.Units.Degrees;
+
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
   }
+
+  public static enum Driver {
+    kMax,
+    kGavin
+  }
+
+  public static final Driver driverForThisComp = Driver.kGavin;
+
+  public static class SuperstructureConstants {
+    public static final int kIntakeMotorId = 15;
+    public static final double kMaxIntakeDPS2 = 10800;
+    public static final double kMaxIntakeDPS3 = 21600;
+    public static final int kStorageMotorId = 16;
+    public static final int kSoupMotorId = 18;
+    public static final double kMaxStorageDPS = 14400;
+    public static final double kMaxStorageDPS2 = 28800;
+    public static final double kDefaultSoupSpeedDPS = 4500;
+    public static final double kMaxSoupDPS2 = 19601 * 4;
+    public static final double kMaxSoupDPS3 = 19600 * 4;
+    public static final int kTransferMotorId = 14;
+    public static final double kDefaultIntakeSpeed = 6000;
+    public static final double kDefaultTransferSpeed = 6001;
+    public static final double kMaxTransferDPS2 = 48000;
+    public static final double kMaxTransferDPS3 = 48000;
+
+    /**
+     * A degree value that affects the tolerance of when the Fuel storage wall is
+     * considered to be closed/open.
+     */
+    public static final double kStorageStateTolerance = 360;
+
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its CLOSED
+     * state
+     */
+    public static final double kStorageClosedRotations = 0;
+
+    /**
+     * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN
+     * state
+     */
+    public static final double kStorageOpenRotations = 31 * 360; // temp, converting rottions to fdegrees
+
+    public static final double kMaxTestIntakeSpeedErrorPercentage = 3.;
+    public static final double kMaxTestIntakeTimeToSpinUp = 0.25;
+    public static final double kMinTestIntakeTimeToMaintainSpeed = 20;
+    public static final double kTestIntakeTargetDPS = 540;
+
+    public static final double kMaxTestSoupSpeedErrorPercentage = 3;
+    public static final double kMaxTestSoupTimeToSpinUp = 0.25;
+    public static final double kMinTestSoupTimeToMaintainSpeed = 20;
+    public static final double kTestSoupTargetDPS = 540;
+    // guh guh
+
+    public static final double kMaxTestWallErrorPercentage = 0.3;
+    public static final double kMaxTestWallTimeToReachHeight = 4.0;
+    public static final Angle kTestWallTargetAngle = Degrees.of(0);
+
+  }
+
+  public static class ShooterConstants {
+    public static final double kShooterManualDriveDPSScale = 1;
+    public static final double kShooterAngleTolerance = 1;
+    public static final double kShooterMaxManualSpeedDPS = 9000;
+    public static final double kTurretMaxManualSpeedDPS = 105;
+
+    public static final double kMaxShooterDPS2 = 36000; // accel
+    public static final double kMaxShooterDPS3 = 72000; // jerk
+
+    public static final double kMaxTestLaunchMotorSpeedErrorPercentage = 0.3;
+    public static final double kMaxTestLaunchMotorTimeToSpinUp = 4.;
+    public static final double kMinTestLaunchMotorTimeToMaintainSpeed = 10;
+    // DPS is degrees per second
+    public static final double kMaxTestLaunchMotorTargetDPS = 540;
+
+    public static final double kMaxTestYawMotorErrorPercentage = 0.3;
+    public static final double kMaxTestYawMotorTimeToReachPosition = 4.;
+    public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
+  }
+
+  public static double kGravIN;
 }

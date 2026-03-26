@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.7968309859154936,
+        "y": 0.6976232394366195
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.9465492957746486,
+        "y": 1.1607042253521116
+      },
+      "isLocked": false,
+      "linkedName": "5pathNew1"
+    },
+    {
+      "anchor": {
+        "x": 2.489471830985916,
+        "y": 2.2465492957746482
+      },
+      "prevControl": {
+        "x": 1.6112147887323953,
+        "y": 1.8313732394366196
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "5pathNew2"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -138.41800000000003
+  },
+  "reversed": false,
+  "folder": "Auto_5_Paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}
