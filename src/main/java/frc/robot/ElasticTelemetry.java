@@ -23,6 +23,7 @@ public final class ElasticTelemetry {
     private StringPublisher blueAllianceWonAuto;
     private StringPublisher ourHubIsActive;
     private DoublePublisher matchTime;
+    private DoublePublisher timeTillShift;
 
     private static Color redAllianceColor = new Color(255, 0, 0);
     private static Color blueAllianceColor = new Color(0, 0, 255);
@@ -44,6 +45,7 @@ public final class ElasticTelemetry {
         blueAllianceWonAuto = telemetryNetworkTable.getStringTopic("autoWinningAlliance").publish();
         ourHubIsActive = telemetryNetworkTable.getStringTopic("ourHubIsActive").publish();
         matchTime = telemetryNetworkTable.getDoubleTopic("matchTime").publish();
+        timeTillShift = telemetryNetworkTable.getDoubleTopic("timeTillShift").publish();
     }
 
     public static ElasticTelemetry getInstance() {
@@ -77,9 +79,9 @@ public final class ElasticTelemetry {
                             : hubInactiveColor).toHexString());
         }
 
-        //getInstance().matchTime.set(Timer.getMatchTime());
-        getInstance().matchTime.set(getInstance().guh);
-        getInstance().guh += 0.02;
+        getInstance().matchTime.set(DriverStation.getMatchTime());
+        getInstance().timeTillShift.set(timeUntilShift());
+        //getInstance().matchTime.set(getInstance().guh);
     }
 
     public static Optional<Alliance> getAutoWinner() {
@@ -97,15 +99,35 @@ public final class ElasticTelemetry {
     }
 
     public static boolean isHubActive(Alliance alliance) {
-        double time = DriverStation.getMatchTime();
+        double time = 160 - DriverStation.getMatchTime();
         if (time < 30 || time >= matchLength - 30) {
             return true;
         }
 
-        // shifts from 1, 2, 3, 4
+        if (getAutoWinner().isEmpty()) return false;
         boolean shiftIsEven = (time - 30) % 50 > 25;
-        return (getAutoWinner().get() == alliance) ? !shiftIsEven : shiftIsEven;
+        return (getAutoWinner().get() == alliance) ? shiftIsEven : !shiftIsEven;
 
+    }
+
+    public static double timeUntilShift() {
+        double time = DriverStation.getMatchTime();
+
+        // if we're in auto we don't have to do any logic
+        // if we're in endgame we don't have to do any logic
+        if (time <= 30) {
+            return time;
+        }
+
+
+        // transition shift
+        if (time > 130) {
+            return time - 130;
+        }
+
+
+        double timeSinceEndOfShift = time - 130;
+        return 25 + (timeSinceEndOfShift % 25);
     }
 
 }
