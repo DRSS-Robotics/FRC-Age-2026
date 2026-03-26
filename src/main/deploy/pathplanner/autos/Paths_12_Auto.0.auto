@@ -95,6 +95,12 @@
                 "data": {
                   "name": "Transfer"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RaiseIntakeHalfway"
+                }
               }
             ]
           }

@@ -88,6 +88,12 @@
                 "data": {
                   "waitTime": 6.0
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RaiseIntakeHalfway"
+                }
               }
             ]
           }

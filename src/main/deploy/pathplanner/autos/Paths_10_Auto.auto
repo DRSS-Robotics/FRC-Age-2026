@@ -63,6 +63,18 @@
                 "data": {
                   "waitTime": 4.0
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Transfer"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RaiseIntakeHalfway"
+                }
               }
             ]
           }
@@ -99,6 +111,12 @@
                 "type": "named",
                 "data": {
                   "name": "Transfer"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RaiseIntakeHalfway"
                 }
               }
             ]
