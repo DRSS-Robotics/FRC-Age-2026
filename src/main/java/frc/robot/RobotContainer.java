@@ -120,6 +120,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
     NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
     NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
+    NamedCommands.registerCommand("RaiseIntakeHalfway", new WallInterpCommand(m_superstructure, () -> 0.5, true));
 
     // Changed from default auto name- Micah plp
     autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
