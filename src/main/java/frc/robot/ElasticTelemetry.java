@@ -127,7 +127,7 @@ public final class ElasticTelemetry {
 
 
         double timeSinceEndOfShift = time - 130;
-        return 25 + (timeSinceEndOfShift % 25);
+        return 26 + (timeSinceEndOfShift % 25);
     }
 
 }
