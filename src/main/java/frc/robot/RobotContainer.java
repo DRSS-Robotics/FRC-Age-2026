@@ -136,7 +136,7 @@ public class RobotContainer {
     outputStream.setSource(limelight);
 
     configureBindings();
-
+    ElasticTelemetry.getInstance();
   }
 
   private void configureBindings() {
