@@ -8,11 +8,27 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.074295774647888,
-        "y": 10.278609154929576
+        "x": 2.423333333335811,
+        "y": 7.9230333333328655
       },
       "isLocked": false,
       "linkedName": "11.1"
+    },
+    {
+      "anchor": {
+        "x": 4.674300000000001,
+        "y": 7.416322222222221
+      },
+      "prevControl": {
+        "x": 3.942905599400314,
+        "y": 7.442758164413377
+      },
+      "nextControl": {
+        "x": 5.483088888891334,
+        "y": 7.387088888887909
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,8 +36,8 @@
         "y": 6.366373239436619
       },
       "prevControl": {
-        "x": 8.04644366197183,
-        "y": 6.20669014084507
+        "x": 6.866800000002477,
+        "y": 7.533255555555089
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,11 +46,11 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.3695652173913045,
+      "waypointRelativePos": 0.75,
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 0.541062801932367,
+      "waypointRelativePos": 1.1,
       "rotationDegrees": 0.0
     }
   ],
@@ -51,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -92.6025622024997
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Auto_11_Paths",

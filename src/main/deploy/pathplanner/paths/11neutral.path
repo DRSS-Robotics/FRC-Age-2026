@@ -48,7 +48,7 @@
   "folder": "Auto_11_Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -92.6025622024997
+    "rotation": -90.0
   },
   "useDefaultConstraints": false
 }

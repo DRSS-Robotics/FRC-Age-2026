@@ -3,16 +3,64 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.355,
-        "y": 2.9626210826210833
+        "x": 7.617122222222221,
+        "y": 3.4211
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.329066901408453,
-        "y": -0.6941218751253957
+        "x": 7.557677777777776,
+        "y": 2.5056122507122494
       },
       "isLocked": false,
       "linkedName": "13path2"
+    },
+    {
+      "anchor": {
+        "x": 7.355,
+        "y": 0.9167777777799608
+      },
+      "prevControl": {
+        "x": 7.356731435649894,
+        "y": 1.589735661302393
+      },
+      "nextControl": {
+        "x": 7.3540222222258,
+        "y": 0.5367444444466276
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.227016738009949,
+        "y": 0.6050309285164835
+      },
+      "prevControl": {
+        "x": 6.263443936690148,
+        "y": 0.6191984095481848
+      },
+      "nextControl": {
+        "x": 4.508644444448024,
+        "y": 0.5952111111132945
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.124933333333334,
+        "y": 0.6926555555555558
+      },
+      "prevControl": {
+        "x": 3.7778111111111112,
+        "y": 0.6049555555555548
+      },
+      "nextControl": {
+        "x": 2.3947702076540547,
+        "y": 0.7907371694527733
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,8 +68,8 @@
         "y": 2.1826760563380287
       },
       "prevControl": {
-        "x": 2.265915492957747,
-        "y": -0.622706498382485
+        "x": 2.2674222222222222,
+        "y": 1.598888888888888
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,8 +78,16 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6642512077294682,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.2,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 2.5,
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [],
