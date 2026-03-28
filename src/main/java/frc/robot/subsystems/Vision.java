@@ -34,7 +34,6 @@ public class Vision extends SubsystemBase {
   private UsbCamera driverCamera;
   private MjpegServer outputStream;
 
-  private Supplier<Angle> turretAngleSupplier;
   private SwerveDrivePoseEstimator3d m_poseEstimator;
   private CorePigeon2 m_pigeon;
   private CommandSwerveDrivetrain drivetrain;
@@ -42,8 +41,7 @@ public class Vision extends SubsystemBase {
   public VisionPoseEstimation viscommand;
 
   /** Creates a new Vision subsystem */
-  public Vision(Supplier<Angle> turretAngleSupplier, SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
-    this.turretAngleSupplier = turretAngleSupplier;
+  public Vision(SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
     m_poseEstimator = poseEstimator;
     m_pigeon = pigeon;
     this.drivetrain = drivetrain;
@@ -87,23 +85,20 @@ public class Vision extends SubsystemBase {
    * before pose estimation.
    */
   public void updateLimelightPosition() {
-    Angle turretAngle = turretAngleSupplier.get();
     
     // The Limelight's position is modeled in polar coordinates (<distance from
     // Limelight to center>, <turret angle>)
     // These coordinates are converted to Cartesian coordinates to find the position
     // relative to the center of the turret
-    double limelightForwardOffset = VisionConstants.kLLTurretCenterDist.in(Meters) * Math.sin(turretAngle.in(Radians));
-    double limelightSideOffset = VisionConstants.kLLTurretCenterDist.in(Meters) * Math.cos(turretAngle.in(Radians));
     
     // Set the Limelight position in robot space using offset constants
     LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName,
-    /* forward offset */ VisionConstants.kTurretForwardOffset.in(Meters) + limelightForwardOffset,
-    /* side offset */ VisionConstants.kTurretSideOffset.in(Meters) + limelightSideOffset,
+    /* forward offset */ VisionConstants.kTurretForwardOffset.in(Meters),
+    /* side offset */ VisionConstants.kTurretSideOffset.in(Meters),
     /* height offset */ VisionConstants.kLimelightHeightOffset.in(Meters),
     /* roll offset */ 0,
     /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
-    /* yaw offset */ turretAngle.in(Degrees));
+    /* yaw offset */ 180);
   }
   
   /** Switch output stream to Limelight */

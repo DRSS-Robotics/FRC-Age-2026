@@ -47,15 +47,15 @@ public class VisionPoseEstimation extends Command {
   @Override
   public void initialize() {
   }
-
+  
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     // m_vision.updateLimelightPosition();
-
+    
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        m_poseEstimator.getEstimatedPosition().getRotation().getZ(), 0, 0, 0, 0, 0);
+    m_poseEstimator.getEstimatedPosition().getRotation().getZ(), 0, 0, 0, 0, 0);
     
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
         .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
@@ -63,11 +63,14 @@ public class VisionPoseEstimation extends Command {
         // least 1 tag is detected
         
     if(mt2 != null){
-      if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360) {
-        System.out.println("viewed a tag");
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 9999999));
+      if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
+
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 999999));
         m_poseEstimator.addVisionMeasurement(new Pose3d(mt2.pose), mt2.timestampSeconds);
+
+        drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
         drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+
       }
     }
 

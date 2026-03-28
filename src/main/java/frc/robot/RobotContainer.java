@@ -76,12 +76,12 @@ public class RobotContainer {
                                                                                         // top
     // speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-                                                                                        // second
+                                                                                      // second
     // max
     // angular velocity
 
     Supplier<Angle> turretAngleSupplier = () -> {
-            return Degrees.of(0);
+        return Degrees.of(0);
     };
     SwerveDrivePoseEstimator3d poseEstimator;
     public final Vision m_vision;
@@ -90,53 +90,51 @@ public class RobotContainer {
     private final double minSpeedMulti = 0.175;
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-                    .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
-                                                                                //
-                                                                    // motors
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
+                                                                     //
+    // motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     // private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController m_driverController = new CommandXboxController(
-                    OperatorConstants.kDriverControllerPort);
+            OperatorConstants.kDriverControllerPort);
     private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
     private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
-                    SuperstructureConstants.kIntakeMotorId,
-                    SuperstructureConstants.kStorageMotorId,
-                    SuperstructureConstants.kSoupMotorId,
-                    SuperstructureConstants.kTransferMotorId,
-                    NetworkTableInstance.getDefault().getTable("Superstructure"));
-    
+            SuperstructureConstants.kIntakeMotorId,
+            SuperstructureConstants.kStorageMotorId,
+            SuperstructureConstants.kSoupMotorId,
+            SuperstructureConstants.kTransferMotorId,
+            NetworkTableInstance.getDefault().getTable("Superstructure"));
+
     Field2d field = new Field2d();
 
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
 
-                poseEstimator = new SwerveDrivePoseEstimator3d(
-                                drivetrain.getKinematics(),
-                                drivetrain.getRotation3d(),
-                                getModulePositions(),
-                                new Pose3d(0, 0, 0, new Rotation3d()));
+        poseEstimator = new SwerveDrivePoseEstimator3d(
+                drivetrain.getKinematics(),
+                drivetrain.getRotation3d(),
+                getModulePositions(),
+                new Pose3d(0, 0, 0, new Rotation3d()));
 
-                SmartDashboard.putData("Field", field);
+        SmartDashboard.putData("Field", field);
 
-        
         NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
         // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
         // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
         // //we have no hang for buckeye
-        
+
         NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
         NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
         NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
 
         // Changed from default auto name- Micah plp
         autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
-
 
         // Recently added- Micah plp
         SmartDashboard.putData("Auto Mode", autoChooser);
@@ -147,14 +145,14 @@ public class RobotContainer {
         MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
         outputStream.setSource(limelight);
 
-        m_vision = new Vision(turretAngleSupplier, poseEstimator, drivetrain.getPigeon2(), drivetrain);
+        m_vision = new Vision(poseEstimator, drivetrain.getPigeon2(), drivetrain);
 
         configureBindings();
-                // 77% max power from corner works well
-    
+        // 77% max power from corner works well
+
     }
 
-        private void configureBindings() {
+    private void configureBindings() {
 
         m_operatorController.rightTrigger(0.05).whileTrue(
                 new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
@@ -182,8 +180,8 @@ public class RobotContainer {
         // m_operatorController.leftTrigger(0.15)
         // .whileTrue(new ToggleLaunchMotor(m_shooter, null, null));
 
-                m_operatorController.leftBumper()
-                                .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
+        m_operatorController.leftBumper()
+                .whileTrue(new SoupKickback(m_superstructure).withTimeout(0.5));
 
         drivetrain.setDefaultCommand(
                 drivetrain.applyRequest(() -> drive
@@ -194,9 +192,9 @@ public class RobotContainer {
                         .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate
                                 * speedMultiplier)));
 
-                final var idle = new SwerveRequest.Idle();
-                RobotModeTriggers.disabled().whileTrue(
-                                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+        final var idle = new SwerveRequest.Idle();
+        RobotModeTriggers.disabled().whileTrue(
+                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
         m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
@@ -213,9 +211,7 @@ public class RobotContainer {
         m_driverController.start().and(m_driverController.x())
                 .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-
-
-                m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
             speedMultiplier = minSpeedMulti
@@ -229,35 +225,35 @@ public class RobotContainer {
                     .withRotationalDeadband(MaxAngularRate * 0.1);
         }));
 
-                m_driverController.y().toggleOnTrue(new SwapCamera(m_vision));
-                m_driverController.a().onTrue(Commands.runOnce(() -> {
-                        System.out.println("CAN DETECT: " + CameraServer.getServer(VisionConstants.kOutputStreamName));
-                }));
-                // This one switches the camera while the button is held
-                m_driverController.x().whileTrue(new SwapCamera(m_vision));
-                // drivetrain.registerTelemetry(logger::telemeterize);
-                /*
-                 * m_driverController.rightStick().whileFalse(
-                 * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
-                 * ShooterConstants.kTurretMaxManualSpeedDPS
-                 * powPreserveSign(-m_driverController.getRightX(), 2.))));
-                 * 
-                 * m_driverController.rightStick().whileTrue(
-                 * new RotateYawMotor(m_shooter, () -> Degrees
-                 * .of(convertPositionToTurretAngle(
-                 * m_driverController.getRightX(), m_driverController.getRightY()))));
-                 */
-        }
+        m_driverController.y().toggleOnTrue(new SwapCamera(m_vision));
+        m_driverController.a().onTrue(Commands.runOnce(() -> {
+            System.out.println("CAN DETECT: " + CameraServer.getServer(VisionConstants.kOutputStreamName));
+        }));
+        // This one switches the camera while the button is held
+        m_driverController.x().whileTrue(new SwapCamera(m_vision));
+        // drivetrain.registerTelemetry(logger::telemeterize);
+        /*
+         * m_driverController.rightStick().whileFalse(
+         * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
+         * ShooterConstants.kTurretMaxManualSpeedDPS
+         * powPreserveSign(-m_driverController.getRightX(), 2.))));
+         * 
+         * m_driverController.rightStick().whileTrue(
+         * new RotateYawMotor(m_shooter, () -> Degrees
+         * .of(convertPositionToTurretAngle(
+         * m_driverController.getRightX(), m_driverController.getRightY()))));
+         */
+    }
 
     private static double binDouble(double in, double bins) {
         return Math.round(in * bins) / bins;
     }
 
-        // these should be moved to utils once we have utils class from superstrcuture
-        // !!
-        private static double powPreserveSign(double a, double b) {
-                return Math.pow(Math.abs(a), b) * Math.signum(a);
-        }
+    // these should be moved to utils once we have utils class from superstrcuture
+    // !!
+    private static double powPreserveSign(double a, double b) {
+        return Math.pow(Math.abs(a), b) * Math.signum(a);
+    }
 
     private static int signInclusive(double a) {
         return (a >= 0.0) ? 1 : -1;
@@ -265,18 +261,18 @@ public class RobotContainer {
         // .onTrue(new ExampleCommand(m_exampleSubsystem));
     }
 
-        /**
-         * Use this to pass the autonomous command to the main {@link Robot} class.
-         *
-         * @return the command to run in autonomous
-         */
-        public Command getAutonomousCommand() {
-                return autoChooser.getSelected();
-        }
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
 
-        public Pose3d getRobotPose3d() {
-                return poseEstimator.getEstimatedPosition();
-        }
+    public Pose3d getRobotPose3d() {
+        return poseEstimator.getEstimatedPosition();
+    }
 
     // converts a m_driverController position into an angle that can be used by
     // turret set
@@ -286,15 +282,16 @@ public class RobotContainer {
                 y / x) + (90.0 * (signInclusive(x) + 2));
     }
 
-        public void updateOdometry(){
-                poseEstimator.updateWithTime(Timer.getFPGATimestamp(), drivetrain.getRotation3d(), getModulePositions());
-                field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
-        }
+    public void updateOdometry() {
+        poseEstimator.updateWithTime(Timer.getFPGATimestamp(), drivetrain.getRotation3d(),
+                getModulePositions());
+        field.setRobotPose(poseEstimator.getEstimatedPosition().toPose2d());
+    }
 
-
-        public SwerveModulePosition[] getModulePositions() {
-                SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = drivetrain.getModules();
-                return new SwerveModulePosition[]{modules[0].getPosition(false), modules[1].getPosition(false), modules[2].getPosition(false), modules[3].getPosition(false)};
-        }
+    public SwerveModulePosition[] getModulePositions() {
+        SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = drivetrain.getModules();
+        return new SwerveModulePosition[] { modules[0].getPosition(false), modules[1].getPosition(false),
+                modules[2].getPosition(false), modules[3].getPosition(false) };
+    }
 
 }
