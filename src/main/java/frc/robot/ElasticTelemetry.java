@@ -5,7 +5,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 
 import static edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -32,11 +31,9 @@ public final class ElasticTelemetry {
     private static Color hubActiveColor = new Color(0, 255, 0);
     private static Color hubInactiveColor = new Color(20, 20, 20);
 
-    private float guh = 0;
 
     private ElasticTelemetry() {
         if (instance == null) {
-            System.out.println("guh");
             instance = this;
         }
 
@@ -81,7 +78,6 @@ public final class ElasticTelemetry {
 
         getInstance().matchTime.set(DriverStation.getMatchTime());
         getInstance().timeTillShift.set(timeUntilShift());
-        //getInstance().matchTime.set(getInstance().guh);
     }
 
     public static Optional<Alliance> getAutoWinner() {
@@ -114,19 +110,20 @@ public final class ElasticTelemetry {
         double time = DriverStation.getMatchTime();
 
         // if we're in auto we don't have to do any logic
-        // if we're in endgame we don't have to do any logic
+        // or if we're in endgame
         if (time <= 30) {
             return time;
         }
 
 
         // transition shift
+        double timeSinceEndOfShift = time - 130;
+        
         if (time > 130) {
-            return time - 130;
+            return timeSinceEndOfShift;
         }
 
 
-        double timeSinceEndOfShift = time - 130;
         return 26 + (timeSinceEndOfShift % 25);
     }
 
