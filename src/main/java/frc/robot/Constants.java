@@ -6,11 +6,7 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import static edu.wpi.first.units.Units.*;
 
-import edu.wpi.first.units.measure.Angle;
 
 public final class Constants {
   public static class OperatorConstants {
@@ -23,10 +19,10 @@ public final class Constants {
     
     // TODO: fill in all offset values
     // Distance from the center of the turret to the center of the Limelight
-    public static final Distance kLLTurretCenterDist = Inches.of(0);
+    public static final Distance kLimelightCenterDist = Inches.of(0);
     // Offset values are measured from the center of the robot horizontally, and from the floor vertically
-    public static final Distance kTurretForwardOffset = Inches.of(-12);
-    public static final Distance kTurretSideOffset = Inches.of(0);
+    public static final Distance kLimelightForwardOffset = Inches.of(-12);
+    public static final Distance kLimelightSideOffset = Inches.of(0);
     public static final Distance kLimelightHeightOffset = Inches.of(18);
     public static final Angle kLimelightPitchOffset = Degrees.of(15); 
       

@@ -93,8 +93,8 @@ public class Vision extends SubsystemBase {
     
     // Set the Limelight position in robot space using offset constants
     LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName,
-    /* forward offset */ VisionConstants.kTurretForwardOffset.in(Meters),
-    /* side offset */ VisionConstants.kTurretSideOffset.in(Meters),
+    /* forward offset */ VisionConstants.kLimelightForwardOffset.in(Meters),
+    /* side offset */ VisionConstants.kLimelightSideOffset.in(Meters),
     /* height offset */ VisionConstants.kLimelightHeightOffset.in(Meters),
     /* roll offset */ 0,
     /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),

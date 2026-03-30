@@ -11,13 +11,10 @@ import frc.robot.Constants.VisionConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.core.CorePigeon2;
 
 /** An example command that uses an example subsystem. */
@@ -60,19 +57,19 @@ public class VisionPoseEstimation extends Command {
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
     m_pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
     
-        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
-        .getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+        .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
         // only update if angular velocity is less than 360 degrees per second and at
         // least 1 tag is detected
         
-    if(mt1 != null){
-      if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt1.tagCount > 0) {
+    if(mt2 != null){
+      if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
 
         m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 999999));
-        m_poseEstimator.addVisionMeasurement(new Pose3d(mt1.pose), mt1.timestampSeconds);
+        m_poseEstimator.addVisionMeasurement(new Pose3d(mt2.pose), mt2.timestampSeconds);
 
         drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-        drivetrain.addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
+        drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
 
       }
     }
