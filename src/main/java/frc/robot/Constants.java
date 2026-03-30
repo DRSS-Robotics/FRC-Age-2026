@@ -25,7 +25,7 @@ public final class Constants {
     // Distance from the center of the turret to the center of the Limelight
     public static final Distance kLLTurretCenterDist = Inches.of(0);
     // Offset values are measured from the center of the robot horizontally, and from the floor vertically
-    public static final Distance kTurretForwardOffset = Inches.of(-9);
+    public static final Distance kTurretForwardOffset = Inches.of(-12);
     public static final Distance kTurretSideOffset = Inches.of(0);
     public static final Distance kLimelightHeightOffset = Inches.of(18);
     public static final Angle kLimelightPitchOffset = Degrees.of(15); 
