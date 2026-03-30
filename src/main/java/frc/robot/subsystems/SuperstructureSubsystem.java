@@ -16,6 +16,7 @@ import frc.robot.TestableSubsystem;
 import frc.robot.Utils;
 import frc.robot.Constants.SuperstructureConstants;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
@@ -104,7 +105,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         intakeMotorConfigs = Utils.configureTalonGains(m_intakeMotor, 0, 1.5, 0.05, 0, 0);
         intakeMotorRequest = new VelocityVoltage(0).withSlot(0);
 
-        storageMotorConfigs = Utils.configureTalonGains(m_storageMotor,4.5, 0.0, 0.6, 0, 0);
+        storageMotorConfigs = Utils.configureTalonGains(m_storageMotor, 4.5, 0.0, 0.6, 0, 0);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
 
         soupMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.425, 0.105, 0.03, 0, 0);
@@ -118,7 +119,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         transferSpeedPublisher = table.getDoubleTopic("transferSpeed").publish();
         storagePositionPublisher = table.getDoubleTopic("storagePosition").publish();
         storageIsOpenPublisher = table.getBooleanTopic("storageIsOpen").publish();
-
 
         storageWallTrapezoidSetpoint = new TrapezoidProfile.State(getStoragePosition().in(Degrees), 0);
         storageWallPositionGoal = new TrapezoidProfile.State(getStoragePosition().in(Degrees), 0);
@@ -138,16 +138,12 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                 transferMotorRequest.withVelocity(
                         DegreesPerSecond.of(transferVelocitySetpoint.position)));
 
-
-
         intakeVelocitySetpoint = intakeTrapezoidProfile.calculate(kDT, intakeVelocitySetpoint,
                 intakeVelocityGoal);
 
         m_intakeMotor.setControl(
                 intakeMotorRequest.withVelocity(
                         DegreesPerSecond.of(intakeVelocitySetpoint.position)));
-
-
 
         soupVelocitySetpoint = soupTrapezoidProfile.calculate(kDT, soupVelocitySetpoint,
                 soupVelocityGoal);
@@ -156,12 +152,21 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
                 soupMotorRequest.withVelocity(
                         DegreesPerSecond.of(soupVelocitySetpoint.position)));
 
-
-
         storageWallTrapezoidSetpoint = storageWallTrapezoidProfile.calculate(kDT, storageWallTrapezoidSetpoint,
                 storageWallPositionGoal);
 
         m_storageMotor.setControl(storageMotorRequest.withPosition(Degrees.of(storageWallTrapezoidSetpoint.position)));
+
+
+        if (m_storageMotor.getStatorCurrent().getValue().gt(Amps.of(35))) {
+            m_storageMotor.setControl(storageMotorRequest.withPosition(m_storageMotor.getPosition().getValue()));
+
+            storageWallTrapezoidSetpoint = new TrapezoidProfile.State(
+                    m_storageMotor.getPosition().getValue().in(Degrees), 0);
+
+            storageWallPositionGoal = new TrapezoidProfile.State(
+                    m_storageMotor.getPosition().getValue().in(Degrees), 0);
+        }
 
     }
 
@@ -270,7 +275,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         return storageState;
     }
 
-
     /**
      * @return a {@link StorageWallState} enum representing the storage wall's state
      */
@@ -328,7 +332,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     public TestableCommand getTestCommand() {
         return new SequencedTest(this,
 
-        new TestBase(this) {
+                new TestBase(this) {
                     // here begins the wall test
                     private double startTime;
                     private Angle maxAllowedError;
