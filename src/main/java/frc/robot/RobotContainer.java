@@ -5,9 +5,9 @@ import frc.robot.commands.DriveYawMotor;
 import frc.robot.commands.RotateYawMotor;
 import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.WallInterpCommand;
-import frc.robot.commands.SoupKickback;
+import frc.robot.commands.Kickback;
 import frc.robot.commands.SetWallPosition;
-import frc.robot.commands.SoupKickback;
+import frc.robot.commands.Kickback;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleIntakeCommandReverse;
 import frc.robot.commands.ToggleLaunchMotor;
@@ -166,7 +166,7 @@ public class RobotContainer {
                                 () -> false));
 
                 m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-                m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure, m_shooter));
+                m_operatorController.rightBumper().whileTrue(new Kickback(m_superstructure, m_shooter, () -> 0.33));
 
                 m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
                 m_operatorController.leftTrigger(0.05)

@@ -154,7 +154,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   public void runLaunchMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
     launchVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
-
   }
 
 
