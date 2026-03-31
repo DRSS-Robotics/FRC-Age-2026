@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 import java.util.function.Supplier;
 
@@ -12,26 +13,26 @@ public class DriveTransferCommand extends Command {
 
   private SuperstructureSubsystem m_intake;
   private Supplier<Double> guh;
+  private ShooterSubsystem m_shooter;
 
   /**
    * Toggles the intake on/off, based on its current state and the default
    * intake speed in {@link SuperstructureConstants#kDefaultIntakeSpeed}
    */
-  public DriveTransferCommand(SuperstructureSubsystem transferSubsystem, Supplier<Double> transferSpeedSupplier) {
+  public DriveTransferCommand(SuperstructureSubsystem transferSubsystem,
+      Supplier<Double> transferSpeedSupplier) {
     m_intake = transferSubsystem;
     guh = transferSpeedSupplier;
   }
 
   @Override
   public void execute() {
-   m_intake.runSoupMotor(guh.get() * SuperstructureConstants.kDefaultSoupSpeedDPS);
-    m_intake.runTransferMotor(guh.get() * SuperstructureConstants.kDefaultTransferSpeed);
+    m_intake.runSoupMotor(guh.get() * SuperstructureConstants.kDefaultSoupSpeedDPS);
   }
 
   @Override
   public void end(boolean interrupted) {
     m_intake.runSoupMotor(0);
-    m_intake.runTransferMotor(0);
 
   }
 

@@ -31,7 +31,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
     private DoublePublisher intakeSpeedPublisher;
     private DoublePublisher soupSpeedPublisher;
-    private DoublePublisher transferSpeedPublisher;
     private DoublePublisher storagePositionPublisher;
     private BooleanPublisher storageIsOpenPublisher;
 
@@ -72,17 +71,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     private TrapezoidProfile.State soupVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State soupVelocitySetpoint = new TrapezoidProfile.State();
 
-    private final TrapezoidProfile transferTrapezoidProfile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxTransferDPS2,
-                    SuperstructureConstants.kMaxTransferDPS3));
 
-    private TrapezoidProfile.State transferVelocityGoal = new TrapezoidProfile.State();
-    private TrapezoidProfile.State transferVelocitySetpoint = new TrapezoidProfile.State();
-
-    private TalonFX m_transferMotor;
-    private SlotConfigs transferMotorConfigs;
-    private VelocityVoltage transferMotorRequest;
-    private AngularVelocity transferMotorSetSpeed = DegreesPerSecond.of(0);
 
     public static Angle storageClosedAngle = Degrees.of(SuperstructureConstants.kStorageClosedRotations);
     public static Angle storageOpenAngle = Degrees.of(SuperstructureConstants.kStorageOpenRotations);
@@ -94,12 +83,11 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
      * Subsystem that encompasses both the over-the-bumper intake as well as Fuel
      * storage.
      */
-    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int soupMotorId, int transferMotorId,
+    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int soupMotorId,
             NetworkTable table) {
         m_intakeMotor = new TalonFX(intakeMotorId);
         m_storageMotor = new TalonFX(wallMotorId);
         m_soupMotor = new TalonFX(soupMotorId);
-        m_transferMotor = new TalonFX(transferMotorId);
 
         // TODO: use actual PID values instead of placeholder
         intakeMotorConfigs = Utils.configureTalonGains(m_intakeMotor, 0, 1.5, 0.05, 0, 0);
@@ -111,12 +99,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         soupMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.425, 0.105, 0.03, 0, 0);
         soupMotorRequest = new VelocityVoltage(0).withSlot(0);
 
-        transferMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.05, 0.65, 0.03, 0, 0);
-        transferMotorRequest = new VelocityVoltage(0).withSlot(0);
+
 
         intakeSpeedPublisher = table.getDoubleTopic("intakeSpeed").publish();
         soupSpeedPublisher = table.getDoubleTopic("soupSpeed").publish();
-        transferSpeedPublisher = table.getDoubleTopic("transferSpeed").publish();
         storagePositionPublisher = table.getDoubleTopic("storagePosition").publish();
         storageIsOpenPublisher = table.getBooleanTopic("storageIsOpen").publish();
 
@@ -131,12 +117,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         storagePositionPublisher.set(getStoragePosition().in(Degrees));
         storageIsOpenPublisher.set(getStorageState() == StorageWallState.kIsOpen);
 
-        transferVelocitySetpoint = transferTrapezoidProfile.calculate(kDT, transferVelocitySetpoint,
-                transferVelocityGoal);
 
-        m_transferMotor.setControl(
-                transferMotorRequest.withVelocity(
-                        DegreesPerSecond.of(transferVelocitySetpoint.position)));
 
         intakeVelocitySetpoint = intakeTrapezoidProfile.calculate(kDT, intakeVelocitySetpoint,
                 intakeVelocityGoal);
@@ -204,19 +185,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         return m_soupMotor.getVelocity(true).getValue();
     }
 
-    public void runTransferMotor(double speed) {
-        runTransferMotor(DegreesPerSecond.of(speed));
-    }
-
-    public void runTransferMotor(AngularVelocity speed) {
-        transferMotorSetSpeed = speed;
-        transferVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
-
-    }
-
-    public AngularVelocity getTransferSpeed() {
-        return m_transferMotor.getVelocity(true).getValue();
-    }
 
     /**
      * Sets the PID setpoint (in DEGREES) of the wall motor. Values exceeding the
