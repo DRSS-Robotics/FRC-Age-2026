@@ -96,7 +96,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         storageMotorConfigs = Utils.configureTalonGains(m_storageMotor, 4.5, 0.0, 0.6, 0, 0);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
 
-        soupMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.05, 0.65, 0.03, 0, 0);
+        soupMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.425, 0.105, 0.06, 0, 0);
         soupMotorRequest = new VelocityVoltage(0).withSlot(0);
 
 
