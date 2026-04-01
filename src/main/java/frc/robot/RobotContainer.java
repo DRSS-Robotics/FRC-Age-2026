@@ -169,6 +169,7 @@ public class RobotContainer {
                 m_operatorController.rightBumper().whileTrue(new Kickback(m_superstructure, m_shooter, () -> 0.33));
 
                 m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
+                
                 m_operatorController.leftTrigger(0.05)
                                 .whileTrue(new DriveTransferCommand(m_superstructure,
                                                 m_operatorController::getLeftTriggerAxis));
