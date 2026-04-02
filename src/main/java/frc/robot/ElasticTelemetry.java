@@ -21,10 +21,8 @@ public final class ElasticTelemetry {
 
     private StringPublisher blueAllianceWonAuto;
     private StringPublisher ourHubIsActive;
-    private StringPublisher nextHubState;
     private DoublePublisher matchTime;
     private DoublePublisher timeTillShift;
-    private DoublePublisher guh;
 
     private static Color redAllianceColor = new Color(255, 0, 0);
     private static Color blueAllianceColor = new Color(0, 0, 255);
@@ -32,6 +30,7 @@ public final class ElasticTelemetry {
 
     private static Color hubActiveColor = new Color(0, 255, 0);
     private static Color hubInactiveColor = new Color(20, 20, 20);
+
 
     private ElasticTelemetry() {
         if (instance == null) {
@@ -42,12 +41,8 @@ public final class ElasticTelemetry {
 
         blueAllianceWonAuto = telemetryNetworkTable.getStringTopic("autoWinningAlliance").publish();
         ourHubIsActive = telemetryNetworkTable.getStringTopic("ourHubIsActive").publish();
-        nextHubState = telemetryNetworkTable.getStringTopic("nextHubState").publish();
         matchTime = telemetryNetworkTable.getDoubleTopic("matchTime").publish();
         timeTillShift = telemetryNetworkTable.getDoubleTopic("timeTillShift").publish();
-
-        guh = telemetryNetworkTable.getDoubleTopic("guhh").publish();
-
     }
 
     public static ElasticTelemetry getInstance() {
@@ -75,26 +70,14 @@ public final class ElasticTelemetry {
         getInstance().blueAllianceWonAuto.set(allianceWinnerColor.toHexString());
 
         if (DriverStation.getAlliance().isPresent()) {
-
             getInstance().ourHubIsActive.set(
-                    (isHubActive(DriverStation.getAlliance().get(), DriverStation.getMatchTime())
+                    (isHubActive(DriverStation.getAlliance().get())
                             ? hubActiveColor
                             : hubInactiveColor).toHexString());
-
-            getInstance().nextHubState.set(
-                    (isHubActive(DriverStation.getAlliance().get(),
-                            DriverStation.getMatchTime() - timeUntilShift())
-                                    ? hubActiveColor
-                                    : hubInactiveColor)
-                            .toHexString());
-            
-            
         }
 
-        getInstance().matchTime.set(DriverStation.getMatchTime() + 1);
-        getInstance().timeTillShift.set(timeUntilShift() + 1);
-
-        getInstance().guh.set(DriverStation.getMatchTime() - timeUntilShift());
+        getInstance().matchTime.set(DriverStation.getMatchTime());
+        getInstance().timeTillShift.set(timeUntilShift());
     }
 
     public static Optional<Alliance> getAutoWinner() {
@@ -111,16 +94,16 @@ public final class ElasticTelemetry {
         }
     }
 
-    public static boolean isHubActive(Alliance alliance, double t) {
-        double time = 160 - t;
+    public static boolean isHubActive(Alliance alliance) {
+        double time = 160 - DriverStation.getMatchTime();
         if (time < 30 || time >= matchLength - 30) {
             return true;
         }
 
-        if (getAutoWinner().isEmpty())
-            return false;
+        if (getAutoWinner().isEmpty()) return false;
         boolean shiftIsEven = (time - 30) % 50 > 25;
         return (getAutoWinner().get() == alliance) ? shiftIsEven : !shiftIsEven;
+
     }
 
     public static double timeUntilShift() {
@@ -132,14 +115,16 @@ public final class ElasticTelemetry {
             return time;
         }
 
+
         // transition shift
         double timeSinceEndOfShift = time - 130;
-
+        
         if (time > 130) {
             return timeSinceEndOfShift;
         }
 
-        return 25 + (timeSinceEndOfShift % 25);
+
+        return 26 + (timeSinceEndOfShift % 25);
     }
 
 }

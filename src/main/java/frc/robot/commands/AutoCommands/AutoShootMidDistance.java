@@ -28,7 +28,6 @@ public class AutoShootMidDistance extends Command{
   @Override
   public void initialize() {
     m_shooter.runLaunchMotors(0.3 * ShooterConstants.kShooterMaxManualSpeedDPS);
-    m_shooter.runTransferMotor(0.125 * ShooterConstants.kShooterMaxManualSpeedDPS);
     
   }
   
@@ -41,7 +40,6 @@ public class AutoShootMidDistance extends Command{
   @Override
   public void end(boolean interrupted) {
     m_shooter.runLaunchMotors(0);
-    m_shooter.runTransferMotor(0);
 
   }
 

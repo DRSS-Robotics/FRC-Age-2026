@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
@@ -18,13 +17,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class DriveLaunchMotor extends Command {
 
   private final ShooterSubsystem m_subsystem;
-  private Supplier<AngularVelocity> shooterSpeed;
-    private Supplier<AngularVelocity> transfer;
-  
-    public DriveLaunchMotor(ShooterSubsystem shooter, Supplier<AngularVelocity> launchSpeed, Supplier<AngularVelocity> transferSpeed) {
-      m_subsystem = shooter;
-      shooterSpeed = launchSpeed;
-      transfer = transferSpeed;
+  private Supplier<AngularVelocity> speed;
+
+  public DriveLaunchMotor(ShooterSubsystem shooter, Supplier<AngularVelocity> speedSupplier) {
+    m_subsystem = shooter;
+    speed = speedSupplier;
   }
 
   @Override
@@ -33,14 +30,14 @@ public class DriveLaunchMotor extends Command {
 
   @Override
   public void execute() {
-    m_subsystem.runLaunchMotors(shooterSpeed.get());
-    m_subsystem.runTransferMotor(transfer.get());
+
+    m_subsystem.runLaunchMotors(speed.get());
   }
 
   @Override
   public void end(boolean interrupted) {
-    m_subsystem.runLaunchMotors(0);
-    m_subsystem.runTransferMotor(0);
+    m_subsystem.runLaunchMotors(
+        DegreesPerSecond.of(0));
         
   }
 

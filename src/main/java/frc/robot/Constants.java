@@ -15,7 +15,7 @@ public final class Constants {
     kGavin
   }
 
-  public static final Driver driverForThisComp = Driver.kMax;
+  public static final Driver driverForThisComp = Driver.kGavin;
 
   public static class SuperstructureConstants {
     public static final int kIntakeMotorId = 15;
