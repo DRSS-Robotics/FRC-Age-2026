@@ -10,13 +10,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.TestableSubsystem;
+import frc.robot.Utils;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
-
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -47,7 +48,23 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private DoublePublisher turretPositionPublisher;
   private DoublePublisher turretSpeedPublisher;
 
-  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId, NetworkTable table) {
+  private final TrapezoidProfile transferTrapezoidProfile = new TrapezoidProfile(
+      new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxTransferDPS2,
+          SuperstructureConstants.kMaxTransferDPS3));
+
+  private TrapezoidProfile.State transferVelocityGoal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State transferVelocitySetpoint = new TrapezoidProfile.State();
+
+  private TalonFX m_transferMotor;
+  private SlotConfigs transferMotorConfigs;
+  private VelocityVoltage transferMotorRequest;
+  private AngularVelocity transferMotorSetSpeed = DegreesPerSecond.of(0);
+  private DoublePublisher transferSpeedPublisher;
+
+  public final double kDT = 0.02;
+
+  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId, int transferMotorId,
+      NetworkTable table) {
 
     m_launchMotorL = new TalonFX(launchMotorIdL);
     launchMotorConfigs = new Slot0Configs();
@@ -86,6 +103,13 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
     turretPositionPublisher = table.getDoubleTopic("turretPosition").publish();
     turretSpeedPublisher = table.getDoubleTopic("turretFlywheelSpeed").publish();
+
+    m_transferMotor = new TalonFX(transferMotorId);
+
+    transferMotorConfigs = Utils.configureTalonGains(m_transferMotor, 0.05, 0.65, 0.03, 0, 0);
+    transferMotorRequest = new VelocityVoltage(0).withSlot(0);
+    transferSpeedPublisher = table.getDoubleTopic("transferSpeed").publish();
+
   }
 
   // in degrees
@@ -130,9 +154,23 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   public void runLaunchMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
     launchVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
-
-
   }
+
+
+      public void runTransferMotor(double speed) {
+        runTransferMotor(DegreesPerSecond.of(speed));
+    }
+
+    public void runTransferMotor(AngularVelocity speed) {
+        transferMotorSetSpeed = speed;
+        transferVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
+
+    }
+
+    public AngularVelocity getTransferSpeed() {
+        return m_transferMotor.getVelocity(true).getValue();
+    }
+
 
   @Override
   public void periodic() {
@@ -144,13 +182,18 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     launchVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, launchVelocitySetpoint,
         launchVelocityGoal);
 
-
-
     m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
     m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
 
     // turretPositionPublisher.set(getYawEncoder().in(Degrees));
     turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
+
+    transferVelocitySetpoint = transferTrapezoidProfile.calculate(kDT, transferVelocitySetpoint,
+        transferVelocityGoal);
+
+    m_transferMotor.setControl(
+        transferMotorRequest.withVelocity(
+            DegreesPerSecond.of(transferVelocitySetpoint.position)));
 
   }
 

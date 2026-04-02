@@ -5,9 +5,9 @@ import frc.robot.commands.DriveYawMotor;
 import frc.robot.commands.RotateYawMotor;
 import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.WallInterpCommand;
-import frc.robot.commands.SoupKickback;
+import frc.robot.commands.Kickback;
 import frc.robot.commands.SetWallPosition;
-import frc.robot.commands.SoupKickback;
+import frc.robot.commands.Kickback;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleIntakeCommandReverse;
 import frc.robot.commands.ToggleLaunchMotor;
@@ -47,250 +47,245 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
 
 public class RobotContainer {
 
-  // TODO: actually initialize a SwerveDrivePoseEstimator
-  // public SwerveDrivePoseEstimator m_poseEstimator = new
-  // SwerveDrivePoseEstimator();
+    // TODO: actually initialize a SwerveDrivePoseEstimator
+    // public SwerveDrivePoseEstimator m_poseEstimator = new
+    // SwerveDrivePoseEstimator();
 
-  public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
-  private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
-      NetworkTableInstance.getDefault().getTable("Turret"));
-  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
+    private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
+            SuperstructureConstants.kTransferMotorId,
+            NetworkTableInstance.getDefault().getTable("Turret"));
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-  // second
-  // max
-  // angular velocity
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
+    // second
+    // max
+    // angular velocity
 
-  private double speedMultiplier = 1;
-  private final double speedModifier = 0.35;
-  private final double minSpeedMulti = 0.175;
-  private final double slowSpeedMulti = 0.25;
+    private double speedMultiplier = 1;
+    private final double speedModifier = 0.5;
+    private final double minSpeedMulti = 0.175;
+    private final double slowSpeedMulti = 0.25;
 
-  private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
-                                                                                                // desired
-  // top
-  // speed
+    private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
+                                                                                                  // desired
+    // top
+    // speed
 
-  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
-                                                               // motors
-  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
+                                                                     // motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-  // private final Telemetry logger = new Telemetry(MaxSpeed);
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
 
-  private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_operatorController = new CommandXboxController(1);
+    private final CommandXboxController m_driverController = new CommandXboxController(
+            OperatorConstants.kDriverControllerPort);
+    private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
-  private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
-      SuperstructureConstants.kIntakeMotorId,
-      SuperstructureConstants.kStorageMotorId,
-      SuperstructureConstants.kSoupMotorId,
-      SuperstructureConstants.kTransferMotorId,
-      NetworkTableInstance.getDefault().getTable("Superstructure"));
+    private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
+            SuperstructureConstants.kIntakeMotorId,
+            SuperstructureConstants.kStorageMotorId,
+            SuperstructureConstants.kSoupMotorId,
+            NetworkTableInstance.getDefault().getTable("Superstructure"));
 
-  private final SendableChooser<Command> autoChooser;
-  private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
+    private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
 
-  public RobotContainer() {
+    public RobotContainer() {
 
-    NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
-    // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
-    // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
-    // //we have no hang for buckeye
+        NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
+        // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
+        // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
+        // //we have no hang for buckeye
 
-    NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
-    NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
-    NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
-    NamedCommands.registerCommand("RaiseIntakeHalfway", new WallInterpCommand(m_superstructure, () -> 0.5, true));
+        NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
+        NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
+        NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
+        NamedCommands.registerCommand("RaiseIntakeHalfway",
+                new WallInterpCommand(m_superstructure, () -> 0.5, true));
 
-    // Changed from default auto name- Micah plp
-    autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
+        // Changed from default auto name- Micah plp
+        autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
 
-    SmartDashboard.putData("Driver", driverChooser);
+        SmartDashboard.putData("Driver", driverChooser);
 
-    // Recently added- Micah plp
-    SmartDashboard.putData("Auto Mode", autoChooser);
+        // Recently added- Micah plp
+        SmartDashboard.putData("Auto Mode", autoChooser);
 
-    // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
-    HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
-    limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
-    outputStream.setSource(limelight);
+        // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
+        HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
+        limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
+        outputStream.setSource(limelight);
 
-    configureBindings();
-    ElasticTelemetry.getInstance();
-  }
+        configureBindings();
+        ElasticTelemetry.getInstance();
+    }
 
-  private void configureBindings() {
+    private void configureBindings() {
 
-    m_operatorController.rightTrigger(0.05).whileTrue(
-        new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
-            .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
-                Math.pow(m_operatorController.getRightTriggerAxis(),
-                    0.75),
-                12) + 0.225))));
+        m_operatorController.rightTrigger(0.05).whileTrue(
+                new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
+                        .of(ShooterConstants.kShooterMaxManualSpeedDPS * (0.5 * (binDouble(
+                                Math.pow(m_operatorController.getRightTriggerAxis(),
+                                        0.75),
+                                12) + 0.225))),
+                        () -> DegreesPerSecond.of(SuperstructureConstants.kDefaultTransferSpeed
+                                * m_operatorController.getRightTriggerAxis())));
 
-    // back wall position
-    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
-        () -> false));
-    // mid position
-    m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
-        () -> false));
-    // close position
-    m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
-        () -> false));
+        // back wall position
+        m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
+                () -> false));
+        // mid position
+        m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
+                () -> false));
+        // close position
+        m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
+                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
+                () -> false));
 
-    m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-    m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
+        m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+        m_operatorController.rightBumper().whileTrue(new Kickback(m_superstructure, m_shooter, () -> 0.33));
 
-    m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
-    m_operatorController.leftTrigger(0.05)
-        .whileTrue(new DriveTransferCommand(m_superstructure,
-            m_operatorController::getLeftTriggerAxis));
+        m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
 
-    m_operatorController.povUp().whileTrue(new WallInterpCommand(m_superstructure, () -> 0., false));
-    m_operatorController.povLeft().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
-    m_operatorController.povRight().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
-    m_operatorController.povDown().whileTrue(new WallInterpCommand(m_superstructure, () -> 1., false));
+        m_operatorController.leftTrigger(0.05)
+                .whileTrue(new DriveTransferCommand(m_superstructure,
+                        m_operatorController::getLeftTriggerAxis));
 
-    drivetrain.setDefaultCommand(
-        drivetrain.applyRequest(() -> drive
-            .withVelocityX(-m_driverController.getLeftY() * MaxSpeed
-                * speedMultiplier)
-            .withVelocityY(-m_driverController.getLeftX() * MaxSpeed
-                * speedMultiplier)
-            .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate
-                * speedMultiplier)));
+        m_operatorController.povUp().whileTrue(new WallInterpCommand(m_superstructure, () -> 0., false));
+        m_operatorController.povLeft().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
+        m_operatorController.povRight().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
+        m_operatorController.povDown().whileTrue(new WallInterpCommand(m_superstructure, () -> 1., false));
 
-    final var idle = new SwerveRequest.Idle();
-    RobotModeTriggers.disabled().whileTrue(
-        drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+        drivetrain.setDefaultCommand(
+                drivetrain.applyRequest(() -> drive
+                        .withVelocityX(-m_driverController.getLeftY() * MaxSpeed
+                                * speedMultiplier)
+                        .withVelocityY(-m_driverController.getLeftX() * MaxSpeed
+                                * speedMultiplier)
+                        .withRotationalRate(-m_driverController.getRightX() * MaxAngularRate
+                                * speedMultiplier)));
 
-    m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-    m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
-        .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
-            -m_driverController.getLeftX()))));
+        final var idle = new SwerveRequest.Idle();
+        RobotModeTriggers.disabled().whileTrue(
+                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-    // Note that each routine should be run exactly once in a single log.
-    m_driverController.back().and(m_driverController.y())
-        .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    m_driverController.back().and(m_driverController.x())
-        .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-    m_driverController.start().and(m_driverController.y())
-        .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    m_driverController.start().and(m_driverController.x())
-        .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
+                .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
+                        -m_driverController.getLeftX()))));
 
-    m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        // Note that each routine should be run exactly once in a single log.
+        m_driverController.back().and(m_driverController.y())
+                .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        m_driverController.back().and(m_driverController.x())
+                .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        m_driverController.start().and(m_driverController.y())
+                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        m_driverController.start().and(m_driverController.x())
+                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-    m_driverController.leftTrigger().whileTrue(Commands.run(() ->
+        m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-    {
-      speedMultiplier = 1 / speedModifier;
-      drive
-          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-    })).onFalse(Commands.run(() -> {
-      speedMultiplier = 1;
-      drive.withDeadband(MaxSpeed * 0.1)
-          .withRotationalDeadband(MaxAngularRate * 0.1);
-    }));
+        m_driverController.leftTrigger().whileTrue(Commands.run(() -> {
+            speedMultiplier = 1 / speedModifier;
+            drive
+                    .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+                    .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+        })).onFalse(Commands.run(() -> {
+            speedMultiplier = 1;
+            drive.withDeadband(MaxSpeed * 0.1)
+                    .withRotationalDeadband(MaxAngularRate * 0.1);
+        }));
 
-    m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
-      speedMultiplier = minSpeedMulti
-          + (1 - m_driverController.getRightTriggerAxis()) * (1 - minSpeedMulti);
-      drive
-          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-    })).onFalse(Commands.run(() -> {
-      speedMultiplier = 1;
-      drive.withDeadband(MaxSpeed * 0.1)
-          .withRotationalDeadband(MaxAngularRate * 0.1);
-    }));
+        m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
+            speedMultiplier = minSpeedMulti
+                    + (1 - m_driverController.getRightTriggerAxis()) * (1 - minSpeedMulti);
+            drive
+                    .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+                    .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+        })).onFalse(Commands.run(() -> {
+            speedMultiplier = 1;
+            drive.withDeadband(MaxSpeed * 0.1)
+                    .withRotationalDeadband(MaxAngularRate * 0.1);
+        }));
 
-    m_driverController.rightBumper().whileTrue(Commands.run(() ->
+        m_driverController.rightBumper().whileTrue(Commands.run(() ->
 
-    {
-      speedMultiplier = slowSpeedMulti;
-      drive
-          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-    })).onFalse(Commands.run(() -> {
-      speedMultiplier = 1;
-      drive.withDeadband(MaxSpeed * 0.1)
-          .withRotationalDeadband(MaxAngularRate * 0.1);
-    }));
+        {
+            speedMultiplier = slowSpeedMulti;
+            drive
+                    .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+                    .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+        })).onFalse(Commands.run(() -> {
+            speedMultiplier = 1;
+            drive.withDeadband(MaxSpeed * 0.1)
+                    .withRotationalDeadband(MaxAngularRate * 0.1);
+        }));
 
-    // drivetrain.registerTelemetry(logger::telemeterize);
-    /*
-     * m_driverController.rightStick().whileFalse(
-     * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
-     * ShooterConstants.kTurretMaxManualSpeedDPS
-     * powPreserveSign(-m_driverController.getRightX(), 2.))));
-     * 
-     * m_driverController.rightStick().whileTrue(
-     * new RotateYawMotor(m_shooter, () -> Degrees
-     * .of(convertPositionToTurretAngle(
-     * m_driverController.getRightX(), m_driverController.getRightY()))));
+        // drivetrain.registerTelemetry(logger::telemeterize);
+        /*
+         * m_driverController.rightStick().whileFalse(
+         * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
+         * ShooterConstants.kTurretMaxManualSpeedDPS
+         * powPreserveSign(-m_driverController.getRightX(), 2.))));
+         * 
+         * m_driverController.rightStick().whileTrue(
+         * new RotateYawMotor(m_shooter, () -> Degrees
+         * .of(convertPositionToTurretAngle(
+         * m_driverController.getRightX(), m_driverController.getRightY()))));
+         */
+    }
+
+    private static double binDouble(double in, double bins) {
+        return Math.round(in * bins) / bins;
+    }
+
+    // these should be moved to utils once we have utils class from superstrcuture
+    // !!
+    private static double powPreserveSign(double a, double b) {
+        return Math.pow(Math.abs(a), b) * Math.signum(a);
+    }
+
+    private static int signInclusive(double a) {
+        return (a >= 0.0) ? 1 : -1;
+        // new Trigger(m_exampleSubsystem::exampleCondition)
+        // .onTrue(new ExampleCommand(m_exampleSubsystem));
+    }
+
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
      */
-  }
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
 
-  private static double binDouble(double in, double bins) {
-    return Math.round(in * bins) / bins;
-  }
-
-  // these should be moved to utils once we have utils class from superstrcuture
-  // !!
-  private static double powPreserveSign(double a, double b) {
-    return Math.pow(Math.abs(a), b) * Math.signum(a);
-  }
-
-  private static int signInclusive(double a) {
-    return (a >= 0.0) ? 1 : -1;
-    // new Trigger(m_exampleSubsystem::exampleCondition)
-    // .onTrue(new ExampleCommand(m_exampleSubsystem));
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
-
-  // converts a m_driverController position into an angle that can be used by
-  // turret set
-  // position commands (straight forward on the joytick is 180 deg)
-  private static double convertPositionToTurretAngle(double x, double y) {
-    return (180 / Math.PI) * Math.atan(
-        y / x) + (90.0 * (signInclusive(x) + 2));
-  }
-  // converts a m_driverController position into an angle that can be used by
-  // turret set
-  // position commands (straight forward on the joytick is 180 deg)
+    // converts a m_driverController position into an angle that can be used by
+    // turret set
+    // position commands (straight forward on the joytick is 180 deg)
+    private static double convertPositionToTurretAngle(double x, double y) {
+        return (180 / Math.PI) * Math.atan(
+                y / x) + (90.0 * (signInclusive(x) + 2));
+    }
+    // converts a m_driverController position into an angle that can be used by
+    // turret set
+    // position commands (straight forward on the joytick is 180 deg)
 
 }

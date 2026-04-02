@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.530522222222223,
-        "y": 4.863277777777778
+        "x": 1.0631669044222536,
+        "y": 7.0820542082738935
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.780522222222223,
-        "y": 4.863277777777778
+        "x": 1.3131669044222536,
+        "y": 7.0820542082738935
       },
       "isLocked": false,
       "linkedName": "4path6"
@@ -48,7 +48,7 @@
   "folder": "Auto_4_Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 140.0
+    "rotation": 130.0
   },
   "useDefaultConstraints": true
 }

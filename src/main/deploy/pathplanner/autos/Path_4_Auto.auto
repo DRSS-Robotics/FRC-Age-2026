@@ -90,12 +90,6 @@
               }
             ]
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "TrueTruEnd_4"
-          }
         }
       ]
     }
