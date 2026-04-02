@@ -5,22 +5,21 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Start_4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "OutIntake"
-                }
-              }
-            ]
+            "pathName": "Start_4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OutIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Start_Again_4"
           }
         },
         {

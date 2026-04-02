@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.637,
-        "y": 6.763444444444445
+        "x": 5.634,
+        "y": 7.433
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.637441640678167,
-        "y": 6.227889571340352
+        "x": 6.634,
+        "y": 7.433
       },
       "isLocked": false,
-      "linkedName": "4path2"
+      "linkedName": "4pathstart"
     },
     {
       "anchor": {
-        "x": 7.529,
-        "y": 4.999700000000001
+        "x": 7.637,
+        "y": 6.763444444444445
       },
       "prevControl": {
-        "x": 7.523668466589228,
-        "y": 5.466174905673928
+        "x": 6.637,
+        "y": 6.763444444444445
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "4path3"
+      "linkedName": "4path2"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.5,
+    "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -48,7 +48,7 @@
   "folder": "Auto_4_Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -8.695749501050773
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
