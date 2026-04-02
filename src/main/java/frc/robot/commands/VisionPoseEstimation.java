@@ -45,7 +45,7 @@ public class VisionPoseEstimation extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, 0);
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, 4);
   }
   
   // Called every time the scheduler runs while the command is scheduled.
