@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -24,6 +25,7 @@ public class VisionPoseEstimation extends Command {
   private final SwerveDrivePoseEstimator3d m_poseEstimator;
   private final CorePigeon2 m_pigeon;
   private final CommandSwerveDrivetrain drivetrain;
+  private final FieldObject2d whereTheLimelightThinkRobotIs = new FieldObject2d("john");
 
   /**
    * Creates a new ExampleCommand.
@@ -70,6 +72,8 @@ public class VisionPoseEstimation extends Command {
 
         drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
         drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+
+
 
       }
     }
