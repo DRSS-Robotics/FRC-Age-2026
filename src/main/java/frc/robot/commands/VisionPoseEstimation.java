@@ -12,11 +12,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.hardware.core.CorePigeon2;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 /** An example command that uses an example subsystem. */
 public class VisionPoseEstimation extends Command {
@@ -25,29 +28,33 @@ public class VisionPoseEstimation extends Command {
   private final SwerveDrivePoseEstimator3d m_poseEstimator;
   private final CorePigeon2 m_pigeon;
   private final CommandSwerveDrivetrain drivetrain;
-  private final FieldObject2d whereTheLimelightThinkRobotIs = new FieldObject2d("john");
+  private final FieldObject2d whereTheLimelightThinkRobotIs;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionPoseEstimation(Vision vision, SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
+  public VisionPoseEstimation(Vision vision, SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain, Field2d field) {
     m_vision = vision;
     m_poseEstimator = poseEstimator;
     m_pigeon = pigeon;
     this.drivetrain = drivetrain;
+
+    whereTheLimelightThinkRobotIs = field.getObject("whereTheLimelightThinkRobotIs");
 
 
     // Use addRequirements() here to declare subsystem dependencies.
     // addRequirements(m_vision);
 
   }
-
+  
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, 4);
+    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 999999));
+    drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
   }
   
   // Called every time the scheduler runs while the command is scheduled.
@@ -56,8 +63,31 @@ public class VisionPoseEstimation extends Command {
     // m_vision.updateLimelightPosition();
     
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
+    // LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
+    // m_pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+    
+    //     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+    //     .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
+    //     // only update if angular velocity is less than 360 degrees per second and at
+    //     // least 1 tag is detected
+        
+    // if(mt2 != null){
+    //   if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
+
+    //     m_poseEstimator.addVisionMeasurement(new Pose3d(mt2.pose), mt2.timestampSeconds);
+
+    //     drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+
+    //     whereTheLimelightThinkRobotIs.setPose(mt2.pose);
+
+    //   }
+    // }
+
+
+    SwerveDriveState state = drivetrain.getState();
+
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-    m_pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+    state.Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
     
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
         .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
@@ -67,16 +97,15 @@ public class VisionPoseEstimation extends Command {
     if(mt2 != null){
       if (Math.abs(m_pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
 
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, .7, 999999));
         m_poseEstimator.addVisionMeasurement(new Pose3d(mt2.pose), mt2.timestampSeconds);
 
-        drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
         drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
 
-
+        whereTheLimelightThinkRobotIs.setPose(mt2.pose);
 
       }
     }
+
 
 
     // The following code is for testing purposes and should be commented out unless

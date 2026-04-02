@@ -19,6 +19,7 @@ import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
 import frc.robot.commands.VisionPoseEstimation;
@@ -41,7 +42,8 @@ public class Vision extends SubsystemBase {
   public VisionPoseEstimation viscommand;
 
   /** Creates a new Vision subsystem */
-  public Vision(SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
+  public Vision(SwerveDrivePoseEstimator3d poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain, Field2d field
+  ) {
     m_poseEstimator = poseEstimator;
     m_pigeon = pigeon;
     this.drivetrain = drivetrain;
@@ -53,7 +55,7 @@ public class Vision extends SubsystemBase {
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     // Start pose estimation command (runs forever)
-    viscommand = new VisionPoseEstimation(this, m_poseEstimator, m_pigeon, drivetrain);
+    viscommand = new VisionPoseEstimation(this, m_poseEstimator, m_pigeon, drivetrain, field);
     
     
     // Initialize driver camera

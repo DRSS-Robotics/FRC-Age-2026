@@ -110,7 +110,7 @@ public class RobotContainer {
             SuperstructureConstants.kTransferMotorId,
             NetworkTableInstance.getDefault().getTable("Superstructure"));
 
-    Field2d field = new Field2d();
+    public Field2d field = new Field2d();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -145,7 +145,7 @@ public class RobotContainer {
         MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
         outputStream.setSource(limelight);
 
-        m_vision = new Vision(poseEstimator, drivetrain.getPigeon2(), drivetrain);
+        m_vision = new Vision(poseEstimator, drivetrain.getPigeon2(), drivetrain, field);
 
         configureBindings();
         // 77% max power from corner works well
