@@ -34,13 +34,13 @@ public class ToggleLaunchMotor extends Command {
   @Override
   public void execute() {
     m_subsystem.runLaunchMotors(speed.get());
-   // m_subsystem.runTransferMotor(speed.get().times(0.33));
+    m_subsystem.runTransferMotor(speed.get().times(0.33));
   }
 
   @Override
   public void end(boolean interrupted) {
     m_subsystem.runLaunchMotors(0);
- //   m_subsystem.runTransferMotor(0);
+    m_subsystem.runTransferMotor(0);
   }
 
   @Override
