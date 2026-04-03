@@ -40,6 +40,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -81,6 +82,11 @@ public class RobotContainer {
   private final double speedModifier = 0.35;
   private final double minSpeedMulti = 0.175;
   private final double slowSpeedMulti = 0.25;
+
+
+  // this is all stuff for cameras that is temporary code in main
+  private final HttpCamera limelight;
+
 
   private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
                                                                                                 // desired
@@ -131,12 +137,8 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
 
     // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
-    HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
+    limelight = new HttpCamera("limelight", "http://limelight.local:5800");
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
-    outputStream.setSource(limelight);
-
-    
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -161,7 +163,7 @@ public class RobotContainer {
         () -> false));
     // close position
     m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.315),
         () -> false));
 
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
@@ -195,15 +197,16 @@ public class RobotContainer {
         .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
             -m_driverController.getLeftX()))));
 
+
     // Note that each routine should be run exactly once in a single log.
-    m_driverController.back().and(m_driverController.y())
-        .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    m_driverController.back().and(m_driverController.x())
-        .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-    m_driverController.start().and(m_driverController.y())
-        .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    m_driverController.start().and(m_driverController.x())
-        .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+//     m_driverController.back().and(m_driverController.y())
+//         .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+//     m_driverController.back().and(m_driverController.x())
+//         .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+//     m_driverController.start().and(m_driverController.y())
+//         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+//     m_driverController.start().and(m_driverController.x())
+//         .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
     m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 

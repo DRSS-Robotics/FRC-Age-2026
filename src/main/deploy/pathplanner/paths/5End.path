@@ -3,37 +3,82 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.695140845070423,
-        "y": 1.2405457746478874
+        "x": 7.480741797432238,
+        "y": 1.259657631954351
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.685748100688092,
-        "y": 2.2646368401760535
+        "x": 6.743238231098432,
+        "y": 1.259657631954351
       },
       "isLocked": false,
-      "linkedName": "5pathNew3"
+      "linkedName": "5pathNew1"
     },
     {
       "anchor": {
-        "x": 7.461211111111112,
-        "y": 3.7426666666666666
+        "x": 5.384679029957203,
+        "y": 0.5739087018544944
       },
       "prevControl": {
-        "x": 7.494119719413875,
-        "y": 2.8522467333438684
+        "x": 6.549158345221112,
+        "y": 0.7857792439372331
+      },
+      "nextControl": {
+        "x": 4.220199714693294,
+        "y": 0.36203815977175546
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.2794008559201138,
+        "y": 1.013823109843081
+      },
+      "prevControl": {
+        "x": 2.616154437267139,
+        "y": 0.6338959924259241
+      },
+      "nextControl": {
+        "x": 1.7747931526390868,
+        "y": 1.583124108416548
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.9984736091298143,
+        "y": 1.013823109843081
+      },
+      "prevControl": {
+        "x": 1.7877318116975744,
+        "y": 2.1394864479315254
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "5pathNew4"
+      "linkedName": "PathFiveRoEnd"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 1.010660980810239,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 1.5607675906183367,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -42,7 +87,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -138.0
   },
   "reversed": false,
   "folder": "Auto_5_Paths",
@@ -50,5 +95,5 @@
     "velocity": 0,
     "rotation": 90.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5Start"
+            "pathName": "Start_4"
           }
         },
         {
@@ -15,15 +15,15 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "5EndCollect"
+                  "name": "OutIntake"
                 }
               },
               {
-                "type": "named",
+                "type": "wait",
                 "data": {
-                  "name": "Intake"
+                  "waitTime": 1.0
                 }
               }
             ]
@@ -32,13 +32,44 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5EndCollect2"
+            "pathName": "Start_Again_4"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Collect+Move_4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "5End"
+            "pathName": "End_4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ToCorner"
           }
         },
         {
@@ -52,15 +83,15 @@
                 }
               },
               {
-                "type": "named",
+                "type": "wait",
                 "data": {
-                  "name": "Transfer"
+                  "waitTime": 7.0
                 }
               },
               {
-                "type": "wait",
+                "type": "named",
                 "data": {
-                  "waitTime": 6.0
+                  "name": "Transfer"
                 }
               },
               {
@@ -75,7 +106,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5TTTTTrueEnd"
+            "pathName": "ToCorner_FaceForward"
           }
         }
       ]

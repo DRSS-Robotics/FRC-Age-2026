@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.545233333333333,
-        "y": 0.7274216524216535
+        "x": 7.364293865905848,
+        "y": 2.721726105563481
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.139644444444445,
-        "y": 0.7706111111111102
+        "x": 7.457046904409183,
+        "y": 2.962246040953619
       },
       "isLocked": false,
-      "linkedName": "5pathNew2.5"
+      "linkedName": "Path5CollectEnd"
     },
     {
       "anchor": {
-        "x": 7.695140845070423,
-        "y": 1.2405457746478874
+        "x": 7.480741797432238,
+        "y": 1.259657631954351
       },
       "prevControl": {
-        "x": 7.256577777777777,
-        "y": 0.7218888888888886
+        "x": 7.483001771483802,
+        "y": 1.0096678471284781
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "5pathNew3"
+      "linkedName": "5pathNew1"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 1.5,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -48,7 +48,7 @@
   "folder": "Auto_5_Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
