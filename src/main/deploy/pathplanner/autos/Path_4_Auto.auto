@@ -11,9 +11,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "OutIntake"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "OutIntake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              }
+            ]
           }
         },
         {
