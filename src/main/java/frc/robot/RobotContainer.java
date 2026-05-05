@@ -71,7 +71,7 @@ public class RobotContainer {
     // max
     // angular velocity
 
-    private double speedMultiplier = 1;
+    private double speedMultiplier = 0.2;
     private final double speedModifier = 0.5;
     private final double minSpeedMulti = 0.175;
     private final double slowSpeedMulti = 0.25;
@@ -201,55 +201,6 @@ public class RobotContainer {
                 .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-
-        m_driverController.leftTrigger().whileTrue(Commands.run(() -> {
-            speedMultiplier = 1 / speedModifier;
-            drive
-                    .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-                    .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-        })).onFalse(Commands.run(() -> {
-            speedMultiplier = 1;
-            drive.withDeadband(MaxSpeed * 0.1)
-                    .withRotationalDeadband(MaxAngularRate * 0.1);
-        }));
-
-        m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
-            speedMultiplier = minSpeedMulti
-                    + (1 - m_driverController.getRightTriggerAxis()) * (1 - minSpeedMulti);
-            drive
-                    .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-                    .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-        })).onFalse(Commands.run(() -> {
-            speedMultiplier = 1;
-            drive.withDeadband(MaxSpeed * 0.1)
-                    .withRotationalDeadband(MaxAngularRate * 0.1);
-        }));
-
-        m_driverController.rightBumper().whileTrue(Commands.run(() ->
-
-        {
-            speedMultiplier = slowSpeedMulti;
-            drive
-                    .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-                    .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-        })).onFalse(Commands.run(() -> {
-            speedMultiplier = 1;
-            drive.withDeadband(MaxSpeed * 0.1)
-                    .withRotationalDeadband(MaxAngularRate * 0.1);
-        }));
-
-        // drivetrain.registerTelemetry(logger::telemeterize);
-        /*
-         * m_driverController.rightStick().whileFalse(
-         * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
-         * ShooterConstants.kTurretMaxManualSpeedDPS
-         * powPreserveSign(-m_driverController.getRightX(), 2.))));
-         * 
-         * m_driverController.rightStick().whileTrue(
-         * new RotateYawMotor(m_shooter, () -> Degrees
-         * .of(convertPositionToTurretAngle(
-         * m_driverController.getRightX(), m_driverController.getRightY()))));
-         */
     }
 
     private static double binDouble(double in, double bins) {
