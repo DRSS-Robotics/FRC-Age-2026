@@ -50,7 +50,7 @@ public final class Constants {
      * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN
      * state
      */
-    public static final double kStorageOpenRotations = 31 * 360; // temp, converting rottions to fdegrees
+    public static final double kStorageOpenRotations = 28 * 360; // temp, converting rottions to fdegrees
 
     public static final double kMaxTestIntakeSpeedErrorPercentage = 3.;
     public static final double kMaxTestIntakeTimeToSpinUp = 0.25;
