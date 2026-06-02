@@ -22,6 +22,7 @@ import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveLaunchMotor;
 import frc.robot.commands.DriveTransferCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -42,10 +43,13 @@ import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
@@ -64,10 +68,6 @@ import frc.robot.generated.TunerConstants;
 
 public class RobotContainer {
 
-  // TODO: actually initialize a SwerveDrivePoseEstimator
-  // public SwerveDrivePoseEstimator m_poseEstimator = new
-  // SwerveDrivePoseEstimator();
-
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
       NetworkTableInstance.getDefault().getTable("Turret"));
@@ -82,10 +82,6 @@ public class RobotContainer {
   private final double speedModifier = 0.35;
   private final double minSpeedMulti = 0.175;
   private final double slowSpeedMulti = 0.25;
-
-
-  // this is all stuff for cameras that is temporary code in main
-  private final HttpCamera limelight;
 
 
   private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
@@ -116,29 +112,35 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
 
+  private final SwerveDrivePoseEstimator poseEstimator;
+  private final Vision visionSystem;
+
   public RobotContainer() {
 
     NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
-    // //we have no hang for buckeye
 
     NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
     NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
     NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
     NamedCommands.registerCommand("RaiseIntakeHalfway", new WallInterpCommand(m_superstructure, () -> 0.5, true));
 
-    // Changed from default auto name- Micah plp
     autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
 
     SmartDashboard.putData("Driver", driverChooser);
-
-    // Recently added- Micah plp
     SmartDashboard.putData("Auto Mode", autoChooser);
+    
+    // TODO: link initial pose to maybe a draggable object on a field? something like that
+    Pose2d initialPose = new Pose2d(0, 0, new Rotation2d());
+    poseEstimator = new SwerveDrivePoseEstimator(
+            drivetrain.getKinematics(), 
+            drivetrain.getRotation3d().toRotation2d(),
+            getModulePositions(),
+            initialPose);
 
-    // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
-    limelight = new HttpCamera("limelight", "http://limelight.local:5800");
-    limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    visionSystem = new Vision(null, poseEstimator, drivetrain.getPigeon2(), drivetrain);
+    
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -297,5 +299,14 @@ public class RobotContainer {
   // converts a m_driverController position into an angle that can be used by
   // turret set
   // position commands (straight forward on the joytick is 180 deg)
+
+  private SwerveModulePosition[] getModulePositions() {
+    var modules = drivetrain.getModules();
+    SwerveModulePosition[] modpos = new SwerveModulePosition[4];
+    for(int x=0; x<4; x++){
+        modpos[x] = modules[x].getPosition(true);
+    }
+    return modpos;
+  }
 
 }

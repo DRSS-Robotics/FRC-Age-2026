@@ -1,8 +1,15 @@
 package frc.robot;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 
 public final class Constants {
   public static class OperatorConstants {
@@ -67,6 +74,23 @@ public final class Constants {
     public static final double kMaxTestWallTimeToReachHeight = 4.0;
     public static final Angle kTestWallTargetAngle = Degrees.of(0);
 
+  }
+
+  public static class VisionConstants {
+    public static final String kLimelightName = "limelight";
+    public static final String kLimelightStreamURL = "http://limelight.local:5800";
+
+    public static final Distance kLimelightHeightOffset = Inches.of(18);
+    public static final Distance kLimelightSideOffset = Inches.of(0);
+    public static final Distance kLimelightForwardOffset = Inches.of(-12);
+    public static final Angle kLimelightYawOffset = Degrees.of(180);
+    public static final Angle kLimelightPitchOffset = Degrees.of(15);
+
+    public static final int kLimelightAprilTagPipeline = 1;
+
+    public static final Transform3d questNavOffset = new Transform3d(
+            new Translation3d(0,0,0), 
+            new Rotation3d(0,0,0));
   }
 
   public static class ShooterConstants {
