@@ -17,15 +17,14 @@ import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.QuestNavSystem;
+
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -36,7 +35,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -92,6 +90,7 @@ public class RobotContainer {
 
   private final SwerveDrivePoseEstimator poseEstimator;
   private final Vision m_vision;
+  private final QuestNavSystem m_questNav;
 
   private final Field2d gameField;
 
@@ -122,6 +121,8 @@ public class RobotContainer {
 
 
     m_vision = new Vision(poseEstimator, drivetrain.getPigeon2(), drivetrain);
+
+    m_questNav = new QuestNavSystem(poseEstimator, drivetrain);
     
     // making field2d and separate objects: one for each poseEst system
     gameField = new Field2d();
@@ -236,35 +237,10 @@ public class RobotContainer {
       drive.withDeadband(MaxSpeed * 0.1)
           .withRotationalDeadband(MaxAngularRate * 0.1);
     }));
-
-    // drivetrain.registerTelemetry(logger::telemeterize);
-    /*
-     * m_driverController.rightStick().whileFalse(
-     * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
-     * ShooterConstants.kTurretMaxManualSpeedDPS
-     * powPreserveSign(-m_driverController.getRightX(), 2.))));
-     * 
-     * m_driverController.rightStick().whileTrue(
-     * new RotateYawMotor(m_shooter, () -> Degrees
-     * .of(convertPositionToTurretAngle(
-     * m_driverController.getRightX(), m_driverController.getRightY()))));
-     */
   }
 
   private static double binDouble(double in, double bins) {
     return Math.round(in * bins) / bins;
-  }
-
-  // these should be moved to utils once we have utils class from superstrcuture
-  // !!
-  private static double powPreserveSign(double a, double b) {
-    return Math.pow(Math.abs(a), b) * Math.signum(a);
-  }
-
-  private static int signInclusive(double a) {
-    return (a >= 0.0) ? 1 : -1;
-    // new Trigger(m_exampleSubsystem::exampleCondition)
-    // .onTrue(new ExampleCommand(m_exampleSubsystem));
   }
 
   /**
@@ -275,17 +251,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
   }
-
-  // converts a m_driverController position into an angle that can be used by
-  // turret set
-  // position commands (straight forward on the joytick is 180 deg)
-  private static double convertPositionToTurretAngle(double x, double y) {
-    return (180 / Math.PI) * Math.atan(
-        y / x) + (90.0 * (signInclusive(x) + 2));
-  }
-  // converts a m_driverController position into an angle that can be used by
-  // turret set
-  // position commands (straight forward on the joytick is 180 deg)
 
   private SwerveModulePosition[] getModulePositions() {
     var modules = drivetrain.getModules();
@@ -302,6 +267,8 @@ public class RobotContainer {
         poseEstimator.update(drivetrain.getRotation3d().toRotation2d(), getModulePositions());
     }
     m_vision.limelightPeriodic();
+    m_questNav.periodicUpdate();
+    
     gameField.setRobotPose(poseEstimator.getEstimatedPosition());
     
   }

@@ -4,14 +4,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.TestableSubsystem;
 import frc.robot.Utils;
 import frc.robot.Constants.SuperstructureConstants;
@@ -21,7 +17,6 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import java.util.Optional;
 
-import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -30,12 +25,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
     private DoublePublisher intakeSpeedPublisher;
     private DoublePublisher soupSpeedPublisher;
-    private DoublePublisher transferSpeedPublisher;
     private DoublePublisher storagePositionPublisher;
     private BooleanPublisher storageIsOpenPublisher;
 
     private TalonFX m_intakeMotor;
-    private SlotConfigs intakeMotorConfigs;
     private VelocityVoltage intakeMotorRequest;
     private AngularVelocity intakeMotorSetSpeed = DegreesPerSecond.of(0);
 
@@ -55,12 +48,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
     private TalonFX m_storageMotor;
     private StorageWallState storageState;
-    private SlotConfigs storageMotorConfigs;
     private PositionVoltage storageMotorRequest;
     private Angle storageWallSetpoint = Degrees.of(0);
 
     private TalonFX m_soupMotor;
-    private SlotConfigs soupMotorConfigs;
     private VelocityVoltage soupMotorRequest;
     private AngularVelocity soupMotorSetSpeed = DegreesPerSecond.of(0);
 
@@ -79,10 +70,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     private TrapezoidProfile.State transferVelocitySetpoint = new TrapezoidProfile.State();
 
     private TalonFX m_transferMotor;
-    private SlotConfigs transferMotorConfigs;
     private VelocityVoltage transferMotorRequest;
-    private AngularVelocity transferMotorSetSpeed = DegreesPerSecond.of(0);
-
     public static Angle storageClosedAngle = Degrees.of(SuperstructureConstants.kStorageClosedRotations);
     public static Angle storageOpenAngle = Degrees.of(SuperstructureConstants.kStorageOpenRotations);
     public static Angle storageAngleTolerance = Degrees.of(SuperstructureConstants.kStorageStateTolerance);
@@ -100,22 +88,21 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         m_soupMotor = new TalonFX(soupMotorId);
         m_transferMotor = new TalonFX(transferMotorId);
 
-        // TODO: use actual PID values instead of placeholder
-        intakeMotorConfigs = Utils.configureTalonGains(m_intakeMotor, 0, 1.5, 0.05, 0, 0);
+        Utils.configureTalonGains(m_intakeMotor, 0, 1.5, 0.05, 0, 0);
         intakeMotorRequest = new VelocityVoltage(0).withSlot(0);
 
-        storageMotorConfigs = Utils.configureTalonGains(m_storageMotor,4.5, 0.0, 0.6, 0, 0);
+        Utils.configureTalonGains(m_storageMotor,4.5, 0.0, 0.6, 0, 0);
         storageMotorRequest = new PositionVoltage(0).withSlot(0);
 
-        soupMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.425, 0.105, 0.03, 0, 0);
+        Utils.configureTalonGains(m_soupMotor, 0.425, 0.105, 0.03, 0, 0);
         soupMotorRequest = new VelocityVoltage(0).withSlot(0);
 
-        transferMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.05, 0.65, 0.03, 0, 0);
+        Utils.configureTalonGains(m_soupMotor, 0.05, 0.65, 0.03, 0, 0);
         transferMotorRequest = new VelocityVoltage(0).withSlot(0);
 
         intakeSpeedPublisher = table.getDoubleTopic("intakeSpeed").publish();
         soupSpeedPublisher = table.getDoubleTopic("soupSpeed").publish();
-        transferSpeedPublisher = table.getDoubleTopic("transferSpeed").publish();
+        table.getDoubleTopic("transferSpeed").publish();
         storagePositionPublisher = table.getDoubleTopic("storagePosition").publish();
         storageIsOpenPublisher = table.getBooleanTopic("storageIsOpen").publish();
 
@@ -204,7 +191,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     }
 
     public void runTransferMotor(AngularVelocity speed) {
-        transferMotorSetSpeed = speed;
         transferVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
 
     }

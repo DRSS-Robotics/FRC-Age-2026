@@ -8,7 +8,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.TestableSubsystem;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -40,11 +39,8 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private TalonFX m_yawMotor;
   private Slot0Configs yawMotorPositionConfigs;
   private Slot1Configs yawMotorVelocityConfigs;
-  private PositionVoltage yawPositionRequest;
-  private VelocityVoltage yawVelocityRequest;
   private Angle yawTargetPosition;
 
-  private DoublePublisher turretPositionPublisher;
   private DoublePublisher turretSpeedPublisher;
 
   public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId, NetworkTable table) {
@@ -81,10 +77,10 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     yawMotorVelocityConfigs.kD = 0;
     m_yawMotor.getConfigurator().apply(yawMotorVelocityConfigs);
 
-    yawPositionRequest = new PositionVoltage(0).withSlot(0);
-    yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
+    new PositionVoltage(0).withSlot(0);
+    new VelocityVoltage(0).withSlot(1);
 
-    turretPositionPublisher = table.getDoubleTopic("turretPosition").publish();
+    table.getDoubleTopic("turretPosition").publish();
     turretSpeedPublisher = table.getDoubleTopic("turretFlywheelSpeed").publish();
   }
 
@@ -94,8 +90,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   }
 
   public void setYawMotorPosition(Angle pos) {
-    double correctedAngle = pos.in(Degrees) % 360;
-    // m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
   }
 
   // in degrees per second
@@ -167,8 +161,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
           // testing yaw motor
           private double startTime;
           private Angle maxAllowedError;
-          private String output;
-
           @Override
           public void onInitialize() {
             startTime = Timer.getFPGATimestamp();
@@ -181,12 +173,10 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
             Angle currentYawMotorAngle = m_yawMotor.getPosition().getValue();
             if (Timer.getFPGATimestamp()
                 - startTime >= ShooterConstants.kMaxTestYawMotorTimeToReachPosition) {
-              output = "The yaw motor took too long to get to the desired position.";
               return TestResult.KNOWN_FAILURE;
 
             }
             if (currentYawMotorAngle.isNear(ShooterConstants.kTestYawMotorTargetPosition, maxAllowedError)) {
-              output = "The yaw motor succesfully moved to the desired position in the specified amount of time. ";
               return TestResult.SUCCESS;
             }
             return TestResult.IN_PROGRESS;
@@ -198,8 +188,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
           private double startTime;
           private AngularVelocity maxAllowedError;
           private AngularVelocity targetSpeed = DegreesPerSecond.of(ShooterConstants.kMaxTestLaunchMotorTargetDPS);
-          private String output = "";
-
           @Override
           public void onInitialize() {
             startTime = Timer.getFPGATimestamp();
@@ -212,7 +200,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
             AngularVelocity currentSpeed = getLaunchMotorSpeed();
             if (Timer.getFPGATimestamp() -
                 startTime >= ShooterConstants.kMaxTestLaunchMotorTimeToSpinUp) {
-              output = "The shooter motors took too long to spin up";
               return TestResult.KNOWN_FAILURE;
             }
             if (currentSpeed.isNear(targetSpeed, maxAllowedError)) {

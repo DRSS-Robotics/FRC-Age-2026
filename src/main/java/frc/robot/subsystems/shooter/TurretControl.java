@@ -8,19 +8,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 
 public class TurretControl extends SubsystemBase {
   private TalonFX m_turretMotor;
   private Slot0Configs turretMotorConfigs;
-  private VelocityVoltage turretMotorRequest;
-  private CANcoder m_turretCANcoder;
-
   public TurretControl(int turretMotorID, int turretCANcoderID) {
     m_turretMotor = new TalonFX(turretMotorID);
-    m_turretCANcoder = new CANcoder(turretCANcoderID);
 
     turretMotorConfigs = new Slot0Configs();
     //Placeholder PID values
@@ -29,7 +24,7 @@ public class TurretControl extends SubsystemBase {
     turretMotorConfigs.kI = 0;
     turretMotorConfigs.kD = 0;
     m_turretMotor.getConfigurator().apply(turretMotorConfigs);
-    turretMotorRequest = new VelocityVoltage(0).withSlot(0);
+    new VelocityVoltage(0).withSlot(0);
   }
 
    

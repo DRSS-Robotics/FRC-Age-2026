@@ -11,7 +11,6 @@ public class ShotCalculator {
     double l_pitch;
     double power; 
     public ShotCalculator() {
-        int l_pitch;
     }
 
    
