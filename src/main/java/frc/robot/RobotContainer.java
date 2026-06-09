@@ -1,16 +1,9 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
-import frc.robot.commands.DriveYawMotor;
-import frc.robot.commands.RotateYawMotor;
-import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.WallInterpCommand;
 import frc.robot.commands.SoupKickback;
-import frc.robot.commands.SetWallPosition;
-import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
-import frc.robot.commands.ToggleIntakeCommandReverse;
-import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
@@ -18,53 +11,38 @@ import frc.robot.commands.AutoCommands.IntakeAutoCommand;
 import frc.robot.commands.AutoCommands.AutoShootMidDistance;
 import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
 import frc.robot.generated.TunerConstants;
-import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveLaunchMotor;
 import frc.robot.commands.DriveTransferCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
 
 public class RobotContainer {
 
@@ -113,7 +91,9 @@ public class RobotContainer {
   private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
 
   private final SwerveDrivePoseEstimator poseEstimator;
-  private final Vision visionSystem;
+  private final Vision m_vision;
+
+  private final Field2d gameField;
 
   public RobotContainer() {
 
@@ -138,9 +118,16 @@ public class RobotContainer {
             drivetrain.getRotation3d().toRotation2d(),
             getModulePositions(),
             initialPose);
+    poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
 
-    visionSystem = new Vision(null, poseEstimator, drivetrain.getPigeon2(), drivetrain);
+
+    m_vision = new Vision(poseEstimator, drivetrain.getPigeon2(), drivetrain);
     
+    // making field2d and separate objects: one for each poseEst system
+    gameField = new Field2d();
+    SmartDashboard.putData("Field", gameField);
+
+    // FieldObject2d odometryRobot = gameField.getObject("JustOdometry");
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -307,6 +294,16 @@ public class RobotContainer {
         modpos[x] = modules[x].getPosition(true);
     }
     return modpos;
+  }
+
+  // this function should be called periodically
+  public void updateOdometry(){
+    if(!DriverStation.isDisabled()){
+        poseEstimator.update(drivetrain.getRotation3d().toRotation2d(), getModulePositions());
+    }
+    m_vision.limelightPeriodic();
+    gameField.setRobotPose(poseEstimator.getEstimatedPosition());
+    
   }
 
 }

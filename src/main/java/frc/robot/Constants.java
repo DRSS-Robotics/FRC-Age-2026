@@ -83,7 +83,7 @@ public final class Constants {
     public static final Distance kLimelightHeightOffset = Inches.of(18);
     public static final Distance kLimelightSideOffset = Inches.of(0);
     public static final Distance kLimelightForwardOffset = Inches.of(-12);
-    public static final Angle kLimelightYawOffset = Degrees.of(180);
+    public static final Angle kLimelightYawOffset = Degrees.of(0);
     public static final Angle kLimelightPitchOffset = Degrees.of(15);
 
     public static final int kLimelightAprilTagPipeline = 1;

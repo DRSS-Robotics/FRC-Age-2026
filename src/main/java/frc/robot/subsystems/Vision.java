@@ -6,14 +6,16 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.LimelightHelpers;
 
-import java.util.function.Supplier;
 import java.lang.Math;
 import com.ctre.phoenix6.hardware.core.CorePigeon2;
 
@@ -21,22 +23,20 @@ public class Vision extends SubsystemBase {
 
   private HttpCamera limelight;
 
-  private Supplier<Angle> robotYawSupplier;
   private SwerveDrivePoseEstimator poseEstimator;
   private CorePigeon2 pigeon;
   private CommandSwerveDrivetrain drivetrain;
+  
 
   /** Creates a new Vision subsystem */
-  public Vision(Supplier<Angle> robotYaw, SwerveDrivePoseEstimator poseEstimator, CorePigeon2 pigeon,
-      CommandSwerveDrivetrain drivetrain) {
-    robotYawSupplier = robotYaw;
+  public Vision(SwerveDrivePoseEstimator poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
     this.poseEstimator = poseEstimator;
     this.pigeon = pigeon;
     this.drivetrain = drivetrain;
 
     // Initialize Limelight
     setLimelightPipeline(VisionConstants.kLimelightAprilTagPipeline);
-    limelight = new HttpCamera("limelight", VisionConstants.kLimelightStreamURL);
+    limelight = new HttpCamera(VisionConstants.kLimelightName, VisionConstants.kLimelightStreamURL);
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     // Camera status logging
@@ -49,6 +49,8 @@ public class Vision extends SubsystemBase {
         /* roll offset */ 0,
         /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
         /* yaw offset */ VisionConstants.kLimelightYawOffset.in(Degrees));
+
+    
   }
 
   /** Set the Limelight's pipeline */
@@ -57,19 +59,18 @@ public class Vision extends SubsystemBase {
     System.out.println("VISION: Set Limelight pipeline to " + index);
   }
 
-  @Override
-  public void periodic() {
+  public void limelightPeriodic(){
+
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        robotYawSupplier.get().in(Degrees), 0, 0, 0, 0, 0);
+        pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
         .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at
     // least 1 tag is detected
+    System.out.println(mt2.tagCount);
     if (Math.abs(pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
-      poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
       poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
-      drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
     }
 
   }
