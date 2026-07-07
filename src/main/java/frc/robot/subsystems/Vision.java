@@ -64,7 +64,7 @@ public class Vision extends SubsystemBase {
         .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at
     // least 1 tag is detected
-    System.out.println(mt2.tagCount);
+
     if (Math.abs(pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
       // CHECK IF THIS IS ACTUALLY CHANGING ROBOT CONTAINER POSE ESTIMATOR
       poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);

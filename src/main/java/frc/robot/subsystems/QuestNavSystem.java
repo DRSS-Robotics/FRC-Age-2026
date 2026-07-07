@@ -31,7 +31,7 @@ public class QuestNavSystem extends SubsystemBase {
 
   private static final Transform3d questOffset =
       new Transform3d(
-          new Translation3d(0.0, 0.0, 0.5),
+          new Translation3d(0.1778, 0.0, 0.5),
           new Rotation3d(0.0, 0.0, 0.0));
 
   private static final Matrix<N3, N1> QUESTNAV_STD_DEVS =
@@ -57,6 +57,9 @@ public class QuestNavSystem extends SubsystemBase {
   public QuestNavSystem(SwerveDrivePoseEstimator poseEstimator, CommandSwerveDrivetrain drivetrain) {
     m_drivetrain = drivetrain;
     this.poseEstimator = poseEstimator;
+
+    // set initial pose
+    questNav.setPose(new Pose3d(poseEstimator.getEstimatedPosition()).plus(questOffset));
 
     var nt = NetworkTableInstance.getDefault();
     m_allPosesPub =
@@ -98,9 +101,9 @@ public class QuestNavSystem extends SubsystemBase {
     SmartDashboard.putNumber("QuestNav/Latency", questNav.getLatency());
     questNav.getBatteryPercent().ifPresent(b -> {
       SmartDashboard.putNumber("QuestNav/Battery%", b);
-      if (b < BATTERY_CRITICAL_PERCENT) {
-        DriverStation.reportWarning("Quest battery CRITICAL: " + b + "%", false);
-      }
+      // if (b < BATTERY_CRITICAL_PERCENT) {
+      //   DriverStation.reportWarning("Quest battery CRITICAL: " + b + "%", false);
+      // }
     });
     questNav.getTrackingLostCounter().ifPresent(
         c -> SmartDashboard.putNumber("QuestNav/TrackingLostCount", c));

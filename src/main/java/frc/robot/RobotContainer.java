@@ -111,7 +111,7 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
     
     // TODO: link initial pose to maybe a draggable object on a field? something like that
-    Pose2d initialPose = new Pose2d(0, 0, new Rotation2d());
+    Pose2d initialPose = new Pose2d(1.75, 3.7, new Rotation2d());
     poseEstimator = new SwerveDrivePoseEstimator(
             drivetrain.getKinematics(), 
             drivetrain.getRotation3d().toRotation2d(),
@@ -127,6 +127,7 @@ public class RobotContainer {
     // making field2d and separate objects: one for each poseEst system
     gameField = new Field2d();
     SmartDashboard.putData("Field", gameField);
+    // SmartDashboard.putData("PoseEstimator", poseEstimator.getEstimatedPosition());
 
     // FieldObject2d odometryRobot = gameField.getObject("JustOdometry");
 
