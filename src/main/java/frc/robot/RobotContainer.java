@@ -150,7 +150,7 @@ public class RobotContainer {
                                                 () -> DegreesPerSecond.of(SuperstructureConstants.kDefaultTransferSpeed
                                                                 * m_operatorController.getRightTriggerAxis())));
 
-                //New rotate to hub command, definitely doesn't work yet
+                //New rotate to hub command, definitely doesn't work yet or at least isn't tested -Micah
                 m_operatorController.x().onTrue(new RotateToHub(m_turret));
                 // back wall position
                 m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
