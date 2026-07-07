@@ -26,7 +26,7 @@ public class TurretControl extends SubsystemBase {
     m_turretMotor = new TalonFX(turretMotorID);
    // m_turretCANcoder = new CANcoder(turretCANcoderID);
     //Don't know if the values are right
-    m_turretEncoder = new Encoder(turretCANcoderID, turretMotorID, turretCANcoderID);
+    m_turretEncoder = new Encoder(0, 1, false);
 
     turretMotorConfigs = new Slot0Configs();
     //Placeholder PID values
