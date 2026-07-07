@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
+import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.commands.DriveYawMotor;
 import frc.robot.commands.RotateYawMotor;
 import frc.robot.commands.SetWallPosition;
@@ -21,8 +22,10 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveLaunchMotor;
 import frc.robot.commands.DriveTransferCommand;
+import frc.robot.commands.RotateToHub;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.TurretControl;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -100,6 +103,8 @@ public class RobotContainer {
                         SuperstructureConstants.kSoupMotorId,
                         NetworkTableInstance.getDefault().getTable("Superstructure"));
 
+        private final TurretControl m_turret = new TurretControl(ShooterConstants.kTurretMotorId, ShooterConstants.kTurretEncoderId);
+
         private final SendableChooser<Command> autoChooser;
         private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
 
@@ -145,14 +150,16 @@ public class RobotContainer {
                                                 () -> DegreesPerSecond.of(SuperstructureConstants.kDefaultTransferSpeed
                                                                 * m_operatorController.getRightTriggerAxis())));
 
+                //New rotate to hub command, definitely doesn't work yet
+                m_operatorController.x().onTrue(new RotateToHub(m_turret));
                 // back wall position
                 m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
                                 () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
                                 () -> false));
                 // mid position
-                m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-                                () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
-                                () -> false));
+                // m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+                //                 () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
+                //                 () -> false));
                 // close position
                 m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
                                 () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),

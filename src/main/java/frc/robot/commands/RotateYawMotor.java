@@ -35,7 +35,6 @@ public class RotateYawMotor extends Command {
     double ticksPerDegree = 8192/360;
     targetAngle = angle.get();
     //Need to convert from angle to double for calculation- can't cast not primitive type
-    double targetTicks = targetAngle * ticksPerDegree;
     m_subsystem.setYawMotorPosition(
         targetAngle);
   }

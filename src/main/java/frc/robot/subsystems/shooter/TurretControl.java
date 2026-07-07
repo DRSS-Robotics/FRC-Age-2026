@@ -6,6 +6,8 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -17,12 +19,12 @@ public class TurretControl extends SubsystemBase {
   private TalonFX m_turretMotor;
   private Slot0Configs turretMotorConfigs;
   private VelocityVoltage turretMotorRequest;
-  private CANcoder m_turretCANcoder;
+ // private CANcoder m_turretCANcoder;
   private Encoder m_turretEncoder;
 
   public TurretControl(int turretMotorID, int turretCANcoderID) {
     m_turretMotor = new TalonFX(turretMotorID);
-    m_turretCANcoder = new CANcoder(turretCANcoderID);
+   // m_turretCANcoder = new CANcoder(turretCANcoderID);
     //Don't know if the values are right
     m_turretEncoder = new Encoder(turretCANcoderID, turretMotorID, turretCANcoderID);
 
@@ -36,7 +38,14 @@ public class TurretControl extends SubsystemBase {
     turretMotorRequest = new VelocityVoltage(0).withSlot(0);
   }
 
-   
+    public void runTurretMotor(double speed, double position) {
+        if(m_turretEncoder.getDistance() < position){
+          m_turretMotor.set(speed);
+        }
+        else{
+          m_turretMotor.set(0);
+        }
+    }
   /**
    * Example command factory method.
    *
