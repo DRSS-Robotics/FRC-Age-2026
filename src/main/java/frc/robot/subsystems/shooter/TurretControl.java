@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.wpilibj.Encoder;
 
 
 public class TurretControl extends SubsystemBase {
@@ -17,10 +18,13 @@ public class TurretControl extends SubsystemBase {
   private Slot0Configs turretMotorConfigs;
   private VelocityVoltage turretMotorRequest;
   private CANcoder m_turretCANcoder;
+  private Encoder m_turretEncoder;
 
   public TurretControl(int turretMotorID, int turretCANcoderID) {
     m_turretMotor = new TalonFX(turretMotorID);
     m_turretCANcoder = new CANcoder(turretCANcoderID);
+    //Don't know if the values are right
+    m_turretEncoder = new Encoder(turretCANcoderID, turretMotorID, turretCANcoderID);
 
     turretMotorConfigs = new Slot0Configs();
     //Placeholder PID values
