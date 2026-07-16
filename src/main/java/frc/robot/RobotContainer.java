@@ -1,8 +1,6 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
-import frc.robot.commands.DriveYawMotor;
-import frc.robot.commands.RotateYawMotor;
 import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.WallInterpCommand;
 import frc.robot.commands.SoupKickback;
@@ -10,19 +8,13 @@ import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleIntakeCommandReverse;
-import frc.robot.commands.ToggleLaunchMotor;
-import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
-import frc.robot.commands.AutoCommands.AutoShootMidDistance;
 import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.DriveIntakeCommand;
-import frc.robot.commands.DriveLaunchMotor;
-import frc.robot.commands.DriveTransferCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -68,8 +60,8 @@ public class RobotContainer {
   // SwerveDrivePoseEstimator();
 
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
-  private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
-      NetworkTableInstance.getDefault().getTable("Turret"));
+//   private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
+//       NetworkTableInstance.getDefault().getTable("Turret"));
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
@@ -112,7 +104,6 @@ public class RobotContainer {
 
   public RobotContainer() {
 
-    NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
     // //we have no hang for buckeye
@@ -131,10 +122,10 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
 
     // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
-    HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
-    limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
-    outputStream.setSource(limelight);
+//     HttpCamera limelight = new HttpCamera("limelight", "http://limelight.local:5800");
+//     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+//     MjpegServer outputStream = CameraServer.addSwitchedCamera("Output Stream");
+//     outputStream.setSource(limelight);
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -142,33 +133,30 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    m_operatorController.rightTrigger(0.05).whileTrue(
-        new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
-            .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
-                Math.pow(m_operatorController.getRightTriggerAxis(),
-                    0.75),
-                12) + 0.225))));
+//     m_operatorController.rightTrigger(0.05).whileTrue(
+//         new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
+//             .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
+//                 Math.pow(m_operatorController.getRightTriggerAxis(),
+//                     0.75),
+//                 12) + 0.225))));
 
-    // back wall position
-    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
-        () -> false));
-    // mid position
-    m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
-        () -> false));
-    // close position
-    m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
-        () -> false));
+//     // back wall position
+//     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+//         () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
+//         () -> false));
+//     // mid position
+//     m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+//         () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
+//         () -> false));
+//     // close position
+//     m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
+//         () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.3),
+//         () -> false));
 
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
     m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
 
     m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
-    m_operatorController.leftTrigger(0.05)
-        .whileTrue(new DriveTransferCommand(m_superstructure,
-            m_operatorController::getLeftTriggerAxis));
 
     m_operatorController.povUp().whileTrue(new WallInterpCommand(m_superstructure, () -> 0., false));
     m_operatorController.povLeft().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
@@ -285,10 +273,10 @@ public class RobotContainer {
   // converts a m_driverController position into an angle that can be used by
   // turret set
   // position commands (straight forward on the joytick is 180 deg)
-  private static double convertPositionToTurretAngle(double x, double y) {
-    return (180 / Math.PI) * Math.atan(
-        y / x) + (90.0 * (signInclusive(x) + 2));
-  }
+//   private static double convertPositionToTurretAngle(double x, double y) {
+//     return (180 / Math.PI) * Math.atan(
+//         y / x) + (90.0 * (signInclusive(x) + 2));
+//   }
   // converts a m_driverController position into an angle that can be used by
   // turret set
   // position commands (straight forward on the joytick is 180 deg)
