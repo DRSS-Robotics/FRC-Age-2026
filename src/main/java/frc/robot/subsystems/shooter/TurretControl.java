@@ -57,9 +57,6 @@ public class TurretControl extends SubsystemBase {
    *
    * @return value of some boolean subsystem state, such as a digital sensor.
    */
-  public void runOuttakeMotor(double speed) {
-    
-  }
 
   @Override
   public void periodic() {

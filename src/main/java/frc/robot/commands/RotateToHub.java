@@ -46,6 +46,10 @@ public class RotateToHub extends Command {
   }
 
   @Override
+    public void end(boolean interrupted) {
+    }
+
+  @Override
   public InterruptionBehavior getInterruptionBehavior() {
     return InterruptionBehavior.kCancelIncoming;
   }
