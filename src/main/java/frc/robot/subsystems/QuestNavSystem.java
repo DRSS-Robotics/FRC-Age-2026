@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 import java.util.ArrayList;
@@ -28,17 +29,18 @@ public class QuestNavSystem extends SubsystemBase {
   private final QuestNav questNav = new QuestNav();
   private final CommandSwerveDrivetrain m_drivetrain;
   private final SwerveDrivePoseEstimator poseEstimator;
+  private final RobotContainer robotContainer;
 
   private static final Transform3d questOffset =
       new Transform3d(
           new Translation3d(0.1778, 0.0, 0.5),
-          new Rotation3d(0.0, 0.0, 0.0));
+          new Rotation3d(Math.PI, 0, 0));
 
   private static final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
           0.02,       // X position trust (20mm)
           0.02,       // Y position trust (20mm)
-          0.0872665); // Rotation trust (5 degrees)
+          0.001); // Rotation trust (5 degrees)
 
   private static final AprilTagFieldLayout FIELD_LAYOUT =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
@@ -54,12 +56,14 @@ public class QuestNavSystem extends SubsystemBase {
 
   private double m_lastPoseTimestamp = -1;
 
-  public QuestNavSystem(SwerveDrivePoseEstimator poseEstimator, CommandSwerveDrivetrain drivetrain) {
+  public QuestNavSystem(SwerveDrivePoseEstimator poseEstimator, CommandSwerveDrivetrain drivetrain, RobotContainer robotContainer) {
     m_drivetrain = drivetrain;
     this.poseEstimator = poseEstimator;
+    this.robotContainer = robotContainer;
 
     // set initial pose
     questNav.setPose(new Pose3d(poseEstimator.getEstimatedPosition()).plus(questOffset));
+    
 
     var nt = NetworkTableInstance.getDefault();
     m_allPosesPub =
@@ -132,7 +136,7 @@ public class QuestNavSystem extends SubsystemBase {
       if (frame.isTracking()) {
         m_drivetrain.addVisionMeasurement(
             robotPose.toPose2d(), frame.dataTimestamp(), QUESTNAV_STD_DEVS);
-        poseEstimator.addVisionMeasurement(robotPose.toPose2d(), frame.dataTimestamp());
+        robotContainer.questNavUpdate(robotPose.toPose2d(), frame.dataTimestamp());
       }
 
       m_lastPoseTimestamp = frame.dataTimestamp();

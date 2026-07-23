@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 public class RobotContainer {
 
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
+  private final Pose2d initialPose = new Pose2d(2, 5, new Rotation2d(0));
   private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
       NetworkTableInstance.getDefault().getTable("Turret"));
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -88,7 +89,7 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
 
-  private final SwerveDrivePoseEstimator poseEstimator;
+  public final SwerveDrivePoseEstimator poseEstimator;
   private final Vision m_vision;
   private final QuestNavSystem m_questNav;
 
@@ -111,7 +112,7 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
     
     // TODO: link initial pose to maybe a draggable object on a field? something like that
-    Pose2d initialPose = new Pose2d(1.75, 3.7, new Rotation2d());
+    // rotations affect counterclockwise, like a standard graph
     poseEstimator = new SwerveDrivePoseEstimator(
             drivetrain.getKinematics(), 
             drivetrain.getRotation3d().toRotation2d(),
@@ -122,7 +123,7 @@ public class RobotContainer {
 
     m_vision = new Vision(poseEstimator, drivetrain.getPigeon2(), drivetrain);
 
-    m_questNav = new QuestNavSystem(poseEstimator, drivetrain);
+    m_questNav = new QuestNavSystem(poseEstimator, drivetrain, this);
     
     // making field2d and separate objects: one for each poseEst system
     gameField = new Field2d();
@@ -130,6 +131,10 @@ public class RobotContainer {
     // SmartDashboard.putData("PoseEstimator", poseEstimator.getEstimatedPosition());
 
     // FieldObject2d odometryRobot = gameField.getObject("JustOdometry");
+    
+    // we have this line so we trust the gyro less and trust the quest more
+    drivetrain.setStateStdDevs(VecBuilder.fill(0.02, 0.02, 0.0872665*100));
+    
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -184,6 +189,7 @@ public class RobotContainer {
         drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
     m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    m_driverController.x().onTrue(Commands.runOnce(() -> {m_questNav.resetPose(initialPose);}));
     m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
         .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
             -m_driverController.getLeftX()))));
@@ -262,6 +268,9 @@ public class RobotContainer {
     return modpos;
   }
 
+  public void questNavUpdate(Pose2d measuredPose, double timestamp){
+    poseEstimator.addVisionMeasurement(measuredPose, timestamp);
+  }
   // this function should be called periodically
   public void updateOdometry(){
     if(!DriverStation.isDisabled()){
@@ -269,6 +278,7 @@ public class RobotContainer {
     }
     m_vision.limelightPeriodic();
     m_questNav.periodicUpdate();
+    
     
     gameField.setRobotPose(poseEstimator.getEstimatedPosition());
     
