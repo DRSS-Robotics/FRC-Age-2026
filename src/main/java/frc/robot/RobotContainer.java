@@ -64,7 +64,7 @@ public class RobotContainer {
         // SwerveDrivePoseEstimator();
 
         public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
-        private final ShooterSubsystem m_shooter = new ShooterSubsystem(17, 19, 2,
+        private final ShooterSubsystem m_shooter = new ShooterSubsystem(21, 22, 2,
                         SuperstructureConstants.kTransferMotorId,
                         NetworkTableInstance.getDefault().getTable("Turret"));
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();

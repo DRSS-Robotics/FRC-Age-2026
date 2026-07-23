@@ -8,10 +8,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
+import java.nio.channels.Pipe;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.spark.config.EncoderConfig;
+
 import edu.wpi.first.wpilibj.Encoder;
 
 
@@ -27,6 +31,7 @@ public class TurretControl extends SubsystemBase {
    // m_turretCANcoder = new CANcoder(turretCANcoderID);
     //Don't know if the values are right
     m_turretEncoder = new Encoder(0, 1, false);
+    m_turretEncoder.setDistancePerPulse((2*Math.PI * 0.25) / 8192); 
 
     turretMotorConfigs = new Slot0Configs();
     //Placeholder PID values

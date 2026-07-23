@@ -46,13 +46,13 @@ public final class Constants {
     public static final double kMaxIntakeDPS2 = 10800;
     public static final double kMaxIntakeDPS3 = 21600;
     public static final int kStorageMotorId = 16;
-    public static final int kSoupMotorId = 18;
+    public static final int kSoupMotorId = 14;
     public static final double kMaxStorageDPS = 14400;
     public static final double kMaxStorageDPS2 = 28800;
     public static final double kDefaultSoupSpeedDPS = 4500;
     public static final double kMaxSoupDPS2 = 19601 * 4;
     public static final double kMaxSoupDPS3 = 19600 * 4;
-    public static final int kTransferMotorId = 14;
+    public static final int kTransferMotorId = 18;
     public static final double kDefaultIntakeSpeed = 6000;
     public static final double kDefaultTransferSpeed = 6001;
     public static final double kMaxTransferDPS2 = 48000;
@@ -113,7 +113,7 @@ public final class Constants {
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
 
     //idk what the ids are, these are placeholder values
-    public static final int kTurretMotorId = 20;
+    public static final int kTurretMotorId = 19;
     public static final int kTurretEncoderId = 22;
   }
 
