@@ -21,14 +21,14 @@ public final class Constants {
     public static final int kIntakeMotorId = 15;
     public static final double kMaxIntakeDPS2 = 10800;
     public static final double kMaxIntakeDPS3 = 21600;
-    public static final int kStorageMotorId = 16;
-    public static final int kSoupMotorId = 18;
+    public static final int kStorageMotorId = 14;
+    public static final int kSoupMotorId = 16;
     public static final double kMaxStorageDPS = 14400;
     public static final double kMaxStorageDPS2 = 28800;
     public static final double kDefaultSoupSpeedDPS = 4500;
     public static final double kMaxSoupDPS2 = 19601 * 4;
     public static final double kMaxSoupDPS3 = 19600 * 4;
-    public static final int kTransferMotorId = 14;
+    public static final int kTransferMotorId = 18;
     public static final double kDefaultIntakeSpeed = 6000;
     public static final double kDefaultTransferSpeed = 6001;
     public static final double kMaxTransferDPS2 = 48000;
@@ -70,6 +70,8 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
+    public static final int kShooterMotorLeftId = 21;
+    public static final int kShooterMotorRightId = 22;
     public static final double kShooterManualDriveDPSScale = 1;
     public static final double kShooterAngleTolerance = 1;
     public static final double kShooterMaxManualSpeedDPS = 9000;
@@ -84,9 +86,12 @@ public final class Constants {
     // DPS is degrees per second
     public static final double kMaxTestLaunchMotorTargetDPS = 540;
 
+    public static final int kYawMotorId = 19;
     public static final double kMaxTestYawMotorErrorPercentage = 0.3;
     public static final double kMaxTestYawMotorTimeToReachPosition = 4.;
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
+
+    public static final int kShooterHoodId = 20;
   }
 
   public static double kGravIN;
