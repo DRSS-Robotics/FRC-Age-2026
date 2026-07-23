@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class DriveTransferCommand extends Command {
+public class SoupKickback extends Command {
 
   private SuperstructureSubsystem m_intake;
   private Supplier<Double> guh;
@@ -17,15 +17,14 @@ public class DriveTransferCommand extends Command {
    * Toggles the intake on/off, based on its current state and the default
    * intake speed in {@link SuperstructureConstants#kDefaultIntakeSpeed}
    */
-  public DriveTransferCommand(SuperstructureSubsystem transferSubsystem, Supplier<Double> transferSpeedSupplier) {
+  public SoupKickback(SuperstructureSubsystem transferSubsystem) {
     m_intake = transferSubsystem;
-    guh = transferSpeedSupplier;
   }
 
   @Override
   public void execute() {
-   m_intake.runSoupMotor(guh.get() * SuperstructureConstants.kDefaultSoupSpeedDPS);
-    m_intake.runTransferMotor(guh.get() * SuperstructureConstants.kDefaultTransferSpeed);
+   m_intake.runSoupMotor(-SuperstructureConstants.kDefaultSoupSpeedDPS);
+    m_intake.runTransferMotor(-SuperstructureConstants.kDefaultTransferSpeed);
   }
 
   @Override

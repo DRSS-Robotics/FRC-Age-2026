@@ -26,6 +26,7 @@ public class TranslocatorAutoCommand extends Command{
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    m_transfer.runTransferMotor(0.75 * SuperstructureConstants.kDefaultTransferSpeed);
     m_transfer.runSoupMotor(1 * SuperstructureConstants.kDefaultSoupSpeedDPS);
   }
   
@@ -38,6 +39,7 @@ public class TranslocatorAutoCommand extends Command{
   @Override
   public void end(boolean interrupted) 
   {
+    m_transfer.runTransferMotor(0);
     m_transfer.runSoupMotor(0);
     
   }

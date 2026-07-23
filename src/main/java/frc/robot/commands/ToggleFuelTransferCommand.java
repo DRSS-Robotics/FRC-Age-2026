@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.SuperstructureSubsystem;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
@@ -12,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class ToggleFuelTransferCommand extends Command {
 
   private SuperstructureSubsystem m_intake;
-  private ShooterSubsystem m_shooter;
 
 
 
@@ -20,9 +18,8 @@ public class ToggleFuelTransferCommand extends Command {
    * Toggles the transfer motor on/off, based on its current state and the default
    * speed in {@link SuperstructureConstants#kDefaultSoupSpeedDPS}
    */
-  public ToggleFuelTransferCommand(SuperstructureSubsystem intakeSubsystem, ShooterSubsystem shooter) {
+  public ToggleFuelTransferCommand(SuperstructureSubsystem intakeSubsystem) {
     m_intake = intakeSubsystem;
-    m_shooter = shooter;
     addRequirements(intakeSubsystem);
   }
   
@@ -32,10 +29,10 @@ public class ToggleFuelTransferCommand extends Command {
   public void initialize() {
     if (m_intake.getSoupSpeed().isEquivalent(DegreesPerSecond.of(0))) {
         m_intake.runSoupMotor(SuperstructureConstants.kDefaultSoupSpeedDPS);
-        m_shooter.runTransferMotor(SuperstructureConstants.kDefaultTransferSpeed);
+        m_intake.runTransferMotor(SuperstructureConstants.kDefaultTransferSpeed);
       } else {
         m_intake.runSoupMotor(0);
-        m_shooter.runTransferMotor(0);
+        m_intake.runTransferMotor(0);
     }
   }
 

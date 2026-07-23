@@ -45,8 +45,8 @@ public final class Constants {
     public static final int kIntakeMotorId = 15;
     public static final double kMaxIntakeDPS2 = 10800;
     public static final double kMaxIntakeDPS3 = 21600;
-    public static final int kStorageMotorId = 16;
-    public static final int kSoupMotorId = 14;
+    public static final int kStorageMotorId = 14;
+    public static final int kSoupMotorId = 16;
     public static final double kMaxStorageDPS = 14400;
     public static final double kMaxStorageDPS2 = 28800;
     public static final double kDefaultSoupSpeedDPS = 4500;
@@ -74,7 +74,7 @@ public final class Constants {
      * Target setpoint (in motor degrees) for the Fuel storage wall in its OPEN
      * state
      */
-    public static final double kStorageOpenRotations = 31 * 360; // temp, converting rottions to fdegrees
+    public static final double kStorageOpenRotations = 28 * 360; // temp, converting rottions to fdegrees
 
     public static final double kMaxTestIntakeSpeedErrorPercentage = 3.;
     public static final double kMaxTestIntakeTimeToSpinUp = 0.25;
@@ -94,6 +94,8 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
+    public static final int kShooterMotorLeftId = 21;
+    public static final int kShooterMotorRightId = 22;
     public static final double kShooterManualDriveDPSScale = 1;
     public static final double kShooterAngleTolerance = 1;
     public static final double kShooterMaxManualSpeedDPS = 9000;
@@ -108,13 +110,12 @@ public final class Constants {
     // DPS is degrees per second
     public static final double kMaxTestLaunchMotorTargetDPS = 540;
 
+    public static final int kYawMotorId = 19;
     public static final double kMaxTestYawMotorErrorPercentage = 0.3;
     public static final double kMaxTestYawMotorTimeToReachPosition = 4.;
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
 
-    //idk what the ids are, these are placeholder values
-    public static final int kTurretMotorId = 19;
-    public static final int kTurretEncoderId = 22;
+    public static final int kShooterHoodId = 20;
   }
 
   public static double kGravIN;

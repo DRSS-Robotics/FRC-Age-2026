@@ -26,7 +26,8 @@ public class IntakeAutoCommand extends Command{
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_intake.runIntake(0.5 * SuperstructureConstants.kDefaultIntakeSpeed);
+    //Removed 0.5* because we don't want it at 50% speed, might not be powerful enough to intake fuel -Micah, Logan, William, Felix
+    m_intake.runIntake(SuperstructureConstants.kDefaultIntakeSpeed);
   }
   
   // Called every time the scheduler runs while the command is scheduled.
