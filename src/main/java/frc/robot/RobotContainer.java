@@ -153,12 +153,23 @@ public class RobotContainer {
   private void configureBindings() {
 
         //attached to driver control as we have no spots left on operator
-   m_driverController.leftTrigger(0.05).whileTrue(
-        new DriveShooterHood(m_shooter, () -> DegreesPerSecond
-                .of(ShooterConstants.kHoodMaxManualSpeedDPS * (binDouble(
+//    m_driverController.leftTrigger(0.05).whileTrue(
+//         new DriveShooterHood(m_shooter, () -> DegreesPerSecond
+//                 .of(ShooterConstants.kHoodMaxManualSpeedDPS * (binDouble(
+//                 Math.pow(m_driverController.getLeftTriggerAxis(),
+//                     0.75), 12)
+//                     ))));
+
+ m_driverController.leftTrigger(0.05).whileTrue(
+        new DriveYawMotor(m_shooter, () -> DegreesPerSecond
+                .of(ShooterConstants.kTurretMaxManualSpeedDPS * (binDouble(
                 Math.pow(m_driverController.getLeftTriggerAxis(),
                     0.75), 12)
                     ))));
+
+
+
+
 
     m_operatorController.rightTrigger(0.05).whileTrue(
         new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
