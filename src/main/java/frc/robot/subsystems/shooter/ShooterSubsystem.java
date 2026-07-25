@@ -14,40 +14,52 @@ import frc.robot.TestableSubsystem;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem {
 
   private TalonFX m_launchMotorL;
   private TalonFX m_launchMotorR;
   private Slot0Configs launchMotorConfigs;
+  private MotorOutputConfigs directionalConfigs = new MotorOutputConfigs();
   private VelocityVoltage launchRequestL;
   private VelocityVoltage launchRequestR;
   private AngularVelocity launchMotorSetpoint = DegreesPerSecond.of(0);
-
+  
   private final TrapezoidProfile launchTrapezoidProfile = new TrapezoidProfile(
-      new TrapezoidProfile.Constraints(ShooterConstants.kMaxShooterDPS2,
-          ShooterConstants.kMaxShooterDPS3));
+    new TrapezoidProfile.Constraints(ShooterConstants.kMaxShooterDPS2,
+    ShooterConstants.kMaxShooterDPS3));
+    
+    private TrapezoidProfile.State launchVelocityGoal = new TrapezoidProfile.State();
+    private TrapezoidProfile.State launchVelocitySetpoint = new TrapezoidProfile.State();
+    
+    private TalonFX m_yawMotor;
+    private Slot0Configs yawMotorPositionConfigs;
+    private Slot1Configs yawMotorVelocityConfigs;
+    private PositionVoltage yawPositionRequest;
+    private VelocityVoltage yawVelocityRequest;
+    private Angle yawTargetPosition;
+    
+    private TalonFX m_hoodMotor;
+    private Slot0Configs hoodMotorVelocityConfigs;
+  private PositionVoltage hoodPositionRequest;
+  private VelocityVoltage hoodVelocityRequest;
+  private AngularVelocity hoodMotorSetpoint = DegreesPerSecond.of(0);
+  private TrapezoidProfile.State hoodVelocityGoal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State hoodVelocitySetpoint = new TrapezoidProfile.State();
 
-  private TrapezoidProfile.State launchVelocityGoal = new TrapezoidProfile.State();
-  private TrapezoidProfile.State launchVelocitySetpoint = new TrapezoidProfile.State();
-
-  private TalonFX m_yawMotor;
-  private Slot0Configs yawMotorPositionConfigs;
-  private Slot1Configs yawMotorVelocityConfigs;
-  private PositionVoltage yawPositionRequest;
-  private VelocityVoltage yawVelocityRequest;
-  private Angle yawTargetPosition;
 
   private DoublePublisher turretPositionPublisher;
   private DoublePublisher turretSpeedPublisher;
 
-  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId, NetworkTable table) {
+  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId, int hoodMotorId, NetworkTable table) {
 
     m_launchMotorL = new TalonFX(launchMotorIdL);
     launchMotorConfigs = new Slot0Configs();
@@ -57,12 +69,32 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     launchMotorConfigs.kP = 0.04;
     launchMotorConfigs.kI = 0;
     launchMotorConfigs.kD = 0;
-    m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
-    launchRequestL = new VelocityVoltage(0).withSlot(0);
 
+    //invert the left motor to match the right motor's direction
+    directionalConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
+    m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
+    m_launchMotorL.getConfigurator().apply(directionalConfigs);
+    launchRequestL = new VelocityVoltage(0).withSlot(0);
+    
     m_launchMotorR = new TalonFX(launchMotorIdR);
+    directionalConfigs.Inverted = InvertedValue.Clockwise_Positive;
     m_launchMotorR.getConfigurator().apply(launchMotorConfigs);
+    m_launchMotorR.getConfigurator().apply(directionalConfigs);
     launchRequestR = new VelocityVoltage(0).withSlot(0);
+
+    m_hoodMotor = new TalonFX(hoodMotorId);
+    
+    hoodMotorVelocityConfigs = new Slot0Configs();
+    //placeholder ids again 
+    hoodMotorVelocityConfigs.kS = 0.2;
+    hoodMotorVelocityConfigs.kV = 0;
+    hoodMotorVelocityConfigs.kP = 1.0;
+    hoodMotorVelocityConfigs.kI = 0;
+    hoodMotorVelocityConfigs.kD = 0;
+    m_hoodMotor.getConfigurator().apply(hoodMotorVelocityConfigs);
+    directionalConfigs.Inverted = InvertedValue.Clockwise_Positive;
+    m_hoodMotor.getConfigurator().apply(directionalConfigs);
+    hoodVelocityRequest = new VelocityVoltage(0).withSlot(0);
 
     m_yawMotor = new TalonFX(yawMotorId);
     yawMotorPositionConfigs = new Slot0Configs();
@@ -130,8 +162,28 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   public void runLaunchMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
     launchVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
+  }
+  
+  //hood control code
+  public AngularVelocity getHoodMotorSpeed() {
+    return m_hoodMotor.getVelocity(true).getValue();
+  }
 
-
+  public double getHoodEncoderPosition(){
+    return m_hoodMotor.getPosition().getValueAsDouble();
+  }
+  
+  // public AngularVelocity getHoodMotorSetpoint() {
+  //   return hoodMotorSetPoint;
+  // }
+  
+  // public void runHoodMotors(double degreesPerSecond) {
+  //   runHoodMotors(DegreesPerSecond.of(degreesPerSecond));
+  // }
+  
+  public void runHoodMotors(AngularVelocity speed) {
+    hoodMotorSetpoint = speed;
+    hoodVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
   }
 
   @Override
@@ -143,11 +195,14 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
     launchVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, launchVelocitySetpoint,
         launchVelocityGoal);
-
+    hoodVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, hoodVelocitySetpoint,
+        hoodVelocityGoal);
 
 
     m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
     m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
+
+    m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));  
 
     // turretPositionPublisher.set(getYawEncoder().in(Degrees));
     turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));

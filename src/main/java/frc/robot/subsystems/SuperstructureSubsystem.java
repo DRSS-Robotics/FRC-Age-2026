@@ -21,10 +21,12 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import java.util.Optional;
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 public class SuperstructureSubsystem extends SubsystemBase implements TestableSubsystem {
 
@@ -80,6 +82,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
     private TalonFX m_transferMotor;
     private SlotConfigs transferMotorConfigs;
+    private MotorOutputConfigs directionalConfigs = new MotorOutputConfigs();
     private VelocityVoltage transferMotorRequest;
     private AngularVelocity transferMotorSetSpeed = DegreesPerSecond.of(0);
 
@@ -112,6 +115,8 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
 
         transferMotorConfigs = Utils.configureTalonGains(m_soupMotor, 0.05, 0.65, 0.03, 0, 0);
         transferMotorRequest = new VelocityVoltage(0).withSlot(0);
+        directionalConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
+        m_transferMotor.getConfigurator().apply(directionalConfigs);
 
         intakeSpeedPublisher = table.getDoubleTopic("intakeSpeed").publish();
         soupSpeedPublisher = table.getDoubleTopic("soupSpeed").publish();

@@ -45,10 +45,11 @@ public class TurretControl extends SubsystemBase {
 
     public void runTurretMotor(double speed, double position) {
         if(m_turretEncoder.getDistance() < position){
-          m_turretMotor.set(speed);
+          m_turretMotor.setPosition(speed);
         }
         else{
           m_turretMotor.set(0);
+          System.out.println(m_turretMotor.getPosition());
         }
     }
   /**

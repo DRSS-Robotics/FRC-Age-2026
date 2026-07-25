@@ -100,6 +100,7 @@ public final class Constants {
     public static final double kShooterAngleTolerance = 1;
     public static final double kShooterMaxManualSpeedDPS = 9000;
     public static final double kTurretMaxManualSpeedDPS = 105;
+    public static final double kHoodMaxManualSpeedDPS = 10; //-3.6
 
     public static final double kMaxShooterDPS2 = 36000; // accel
     public static final double kMaxShooterDPS3 = 72000; // jerk
@@ -115,7 +116,7 @@ public final class Constants {
     public static final double kMaxTestYawMotorTimeToReachPosition = 4.;
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
 
-    public static final int kShooterHoodId = 20;
+    public static final int kHoodMotorId = 20;
   }
 
   public static double kGravIN;
