@@ -1,8 +1,6 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
-import frc.robot.LimelightHelpers.LimelightResults;
-import frc.robot.commands.WallInterpCommand;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleIntakeCommandReverse;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
@@ -68,10 +66,6 @@ public class RobotContainer {
   private final double slowSpeedMulti = 0.25;
 
 
-  // this is all stuff for cameras that is temporary code in main
-  private final HttpCamera limelight;
-
-
   private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
                                                                                                 // desired
   // top
@@ -92,9 +86,6 @@ public class RobotContainer {
 
   private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
       SuperstructureConstants.kIntakeMotorId,
-      SuperstructureConstants.kStorageMotorId,
-      SuperstructureConstants.kSoupMotorId,
-      SuperstructureConstants.kTransferMotorId,
       NetworkTableInstance.getDefault().getTable("Superstructure"));
 
   private final SendableChooser<Command> autoChooser;
@@ -103,10 +94,9 @@ public class RobotContainer {
   public RobotContainer() {
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
-    // //we have no hang for buckeye
+    // // //we have no hang for buckeye
 
     NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
-    NamedCommands.registerCommand("RaiseIntakeHalfway", new WallInterpCommand(m_superstructure, () -> 0.5, true));
 
     // Changed from default auto name- Micah plp
     autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
@@ -115,10 +105,6 @@ public class RobotContainer {
 
     // Recently added- Micah plp
     SmartDashboard.putData("Auto Mode", autoChooser);
-
-    // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
-    limelight = new HttpCamera("limelight", "http://limelight.local:5800");
-    limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -141,12 +127,8 @@ public class RobotContainer {
 //                     0.75), 12)
 //                     ))));
 
-    m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-
-    m_operatorController.povUp().whileTrue(new WallInterpCommand(m_superstructure, () -> 0., false));
-    m_operatorController.povLeft().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
-    m_operatorController.povRight().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
-    m_operatorController.povDown().whileTrue(new WallInterpCommand(m_superstructure, () -> 1., false));
+    m_driverController.a().onTrue(new ToggleIntakeCommand(m_superstructure));
+     m_driverController.b().onTrue(new ToggleIntakeCommandReverse(m_superstructure));
 
     drivetrain.setDefaultCommand(
         drivetrain.applyRequest(() -> drive

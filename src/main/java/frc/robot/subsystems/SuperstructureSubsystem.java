@@ -31,10 +31,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 public class SuperstructureSubsystem extends SubsystemBase implements TestableSubsystem {
 
     private DoublePublisher intakeSpeedPublisher;
-    private DoublePublisher soupSpeedPublisher;
-    private DoublePublisher transferSpeedPublisher;
-    private DoublePublisher storagePositionPublisher;
-    private BooleanPublisher storageIsOpenPublisher;
 
     private TalonFX m_intakeMotor;
     private SlotConfigs intakeMotorConfigs;
@@ -66,16 +62,8 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     private VelocityVoltage soupMotorRequest;
     private AngularVelocity soupMotorSetSpeed = DegreesPerSecond.of(0);
 
-    private final TrapezoidProfile soupTrapezoidProfile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxSoupDPS2,
-                    SuperstructureConstants.kMaxSoupDPS3));
-
     private TrapezoidProfile.State soupVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State soupVelocitySetpoint = new TrapezoidProfile.State();
-
-    private final TrapezoidProfile transferTrapezoidProfile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(SuperstructureConstants.kMaxTransferDPS2,
-                    SuperstructureConstants.kMaxTransferDPS3));
 
     private TrapezoidProfile.State transferVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State transferVelocitySetpoint = new TrapezoidProfile.State();
@@ -96,12 +84,9 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
      * Subsystem that encompasses both the over-the-bumper intake as well as Fuel
      * storage.
      */
-    public SuperstructureSubsystem(int intakeMotorId, int wallMotorId, int soupMotorId, int transferMotorId,
+    public SuperstructureSubsystem(int intakeMotorId,
             NetworkTable table) {
         m_intakeMotor = new TalonFX(intakeMotorId);
-        m_storageMotor = new TalonFX(wallMotorId);
-        m_soupMotor = new TalonFX(soupMotorId);
-        m_transferMotor = new TalonFX(transferMotorId);
 
         // TODO: use actual PID values instead of placeholder
         intakeMotorConfigs = Utils.configureTalonGains(m_intakeMotor, 0, 1.5, 0.05, 0, 0);
@@ -119,10 +104,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         m_transferMotor.getConfigurator().apply(directionalConfigs);
 
         intakeSpeedPublisher = table.getDoubleTopic("intakeSpeed").publish();
-        soupSpeedPublisher = table.getDoubleTopic("soupSpeed").publish();
-        transferSpeedPublisher = table.getDoubleTopic("transferSpeed").publish();
-        storagePositionPublisher = table.getDoubleTopic("storagePosition").publish();
-        storageIsOpenPublisher = table.getBooleanTopic("storageIsOpen").publish();
 
 
         storageWallTrapezoidSetpoint = new TrapezoidProfile.State(getStoragePosition().in(Degrees), 0);
@@ -132,12 +113,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     @Override
     public void periodic() {
         intakeSpeedPublisher.set(getIntakeSpeed().in(DegreesPerSecond));
-        soupSpeedPublisher.set(getSoupSpeed().in(DegreesPerSecond));
-        storagePositionPublisher.set(getStoragePosition().in(Degrees));
-        storageIsOpenPublisher.set(getStorageState() == StorageWallState.kIsOpen);
-
-        transferVelocitySetpoint = transferTrapezoidProfile.calculate(kDT, transferVelocitySetpoint,
-                transferVelocityGoal);
 
         m_transferMotor.setControl(
                 transferMotorRequest.withVelocity(
@@ -151,17 +126,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
         m_intakeMotor.setControl(
                 intakeMotorRequest.withVelocity(
                         DegreesPerSecond.of(intakeVelocitySetpoint.position)));
-
-
-
-        soupVelocitySetpoint = soupTrapezoidProfile.calculate(kDT, soupVelocitySetpoint,
-                soupVelocityGoal);
-
-        m_soupMotor.setControl(
-                soupMotorRequest.withVelocity(
-                        DegreesPerSecond.of(soupVelocitySetpoint.position)));
-
-
 
         storageWallTrapezoidSetpoint = storageWallTrapezoidProfile.calculate(kDT, storageWallTrapezoidSetpoint,
                 storageWallPositionGoal);
@@ -332,90 +296,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements TestableSu
     @Override
     public TestableCommand getTestCommand() {
         return new SequencedTest(this,
-
-        new TestBase(this) {
-                    // here begins the wall test
-                    private double startTime;
-                    private Angle maxAllowedError;
-                    private String output;
-
-                    @Override
-                    public void onInitialize() {
-                        startTime = Timer.getFPGATimestamp();
-                        maxAllowedError = SuperstructureConstants.kTestWallTargetAngle
-                                .times(SuperstructureConstants.kMaxTestWallErrorPercentage / 100);
-                    }
-
-                    @Override
-                    public Optional<String> getLoggableResult(TestResult result) {
-                        return Optional.of(output);
-                    }
-
-                    @Override
-                    public TestResult getCurrentResult() {
-                        Angle currentWallAngle = m_storageMotor.getPosition().getValue();
-                        if (Timer.getFPGATimestamp()
-                                - startTime >= SuperstructureConstants.kMaxTestWallTimeToReachHeight) {
-                            output = "The wall took too long to reach the desired position. ";
-                            return TestResult.KNOWN_FAILURE;
-                        }
-                        if (currentWallAngle.isNear(SuperstructureConstants.kTestWallTargetAngle, maxAllowedError)) {
-                            return TestResult.SUCCESS;
-                        }
-                        return TestResult.IN_PROGRESS;
-
-                    }
-                },
-
-                // transfer test
-                new TestBase(this) {
-
-                    private double startTime;
-                    private double maxAllowedError;
-                    private boolean transferMotorSpeedReached;
-                    private double timeAtStartOfVelocityTest;
-                    private String output = "";
-                    private AngularVelocity targetSoupSpeed = DegreesPerSecond
-                            .of(SuperstructureConstants.kTestSoupTargetDPS);
-
-                    @Override
-                    public void onInitialize() {
-                        runSoupMotor(targetSoupSpeed);
-                        startTime = Timer.getFPGATimestamp();
-                        maxAllowedError = SuperstructureConstants.kMaxTestSoupSpeedErrorPercentage / 100;
-                    }
-
-                    @Override
-                    public Optional<String> getLoggableResult(TestResult result) {
-                        return Optional.of(output);
-                    }
-
-                    @Override
-                    public TestResult getCurrentResult() {
-                        if (!transferMotorSpeedReached) {
-                            if (Timer.getFPGATimestamp()
-                                    - startTime >= SuperstructureConstants.kMaxTestSoupTimeToSpinUp) {
-                                output = "The transfer took too long to spin up.";
-                                return TestResult.KNOWN_FAILURE;
-                            }
-
-                            timeAtStartOfVelocityTest = Timer.getFPGATimestamp();
-                            transferMotorSpeedReached = getIntakeSpeed().isNear(soupMotorSetSpeed, maxAllowedError);
-                        } else {
-                            if (!getIntakeSpeed().isNear(soupMotorSetSpeed, maxAllowedError)) {
-                                output = "Soup did not maintain speed.";
-                                return TestResult.KNOWN_FAILURE;
-                            }
-                            if (Timer.getFPGATimestamp()
-                                    - timeAtStartOfVelocityTest >= SuperstructureConstants.kMinTestSoupTimeToMaintainSpeed) {
-
-                                return TestResult.SUCCESS;
-                            }
-                        }
-
-                        return TestResult.IN_PROGRESS;
-                    }
-                },
 
                 // intake test
                 new TestBase(this) {
