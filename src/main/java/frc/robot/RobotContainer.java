@@ -2,31 +2,13 @@ package frc.robot;
 
 import frc.robot.Constants.*;
 import frc.robot.LimelightHelpers.LimelightResults;
-import frc.robot.commands.DriveYawMotor;
-import frc.robot.commands.RotateYawMotor;
-import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.WallInterpCommand;
-import frc.robot.commands.SoupKickback;
-import frc.robot.commands.SetWallPosition;
-import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleIntakeCommandReverse;
-import frc.robot.commands.ToggleLaunchMotor;
-import frc.robot.commands.ToggleLaunchMotor;
-import frc.robot.commands.ToggleWallCommand;
-import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
-import frc.robot.commands.AutoCommands.AutoShootMidDistance;
-import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.DriveIntakeCommand;
-import frc.robot.commands.DriveLaunchMotor;
-import frc.robot.commands.DriveShooterHood;
-import frc.robot.commands.DriveTransferCommand;
-import frc.robot.commands.RotateToHub;
 import frc.robot.subsystems.SuperstructureSubsystem;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.shooter.TurretControl;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -73,10 +55,6 @@ public class RobotContainer {
   // SwerveDrivePoseEstimator();
 
   public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
-  private final ShooterSubsystem m_shooter = new ShooterSubsystem(
-        ShooterConstants.kShooterMotorLeftId,
-        ShooterConstants.kShooterMotorRightId, ShooterConstants.kYawMotorId, ShooterConstants.kHoodMotorId,
-      NetworkTableInstance.getDefault().getTable("Turret"));
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
@@ -123,15 +101,11 @@ public class RobotContainer {
   private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
 
   public RobotContainer() {
-
-    NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
     // //we have no hang for buckeye
 
     NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
-    NamedCommands.registerCommand("OutIntake", new ExpandStorageAutoCommand(m_superstructure));
-    NamedCommands.registerCommand("Transfer", new TranslocatorAutoCommand(m_superstructure));
     NamedCommands.registerCommand("RaiseIntakeHalfway", new WallInterpCommand(m_superstructure, () -> 0.5, true));
 
     // Changed from default auto name- Micah plp
@@ -167,37 +141,7 @@ public class RobotContainer {
 //                     0.75), 12)
 //                     ))));
 
-
-
-
-
-    m_operatorController.rightTrigger(0.05).whileTrue(
-        new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
-            .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
-                Math.pow(m_operatorController.getRightTriggerAxis(),
-                    0.75),
-                12) + 0.225))));
-
-    // back wall position
-    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
-        () -> false));
-    // mid position
-    m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
-        () -> false));
-    // close position
-    m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.315),
-        () -> false));
-
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-    m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
-
-    m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
-    m_operatorController.leftTrigger(0.05)
-        .whileTrue(new DriveTransferCommand(m_superstructure,
-            m_operatorController::getLeftTriggerAxis));
 
     m_operatorController.povUp().whileTrue(new WallInterpCommand(m_superstructure, () -> 0., false));
     m_operatorController.povLeft().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
