@@ -59,6 +59,8 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private TrapezoidProfile.State hoodVelocityGoal = new TrapezoidProfile.State();
   private TrapezoidProfile.State hoodVelocitySetpoint = new TrapezoidProfile.State();
 
+  private TurretControl m_turretControl;
+
 
   private DoublePublisher turretPositionPublisher;
   private DoublePublisher turretSpeedPublisher;
@@ -120,6 +122,9 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
     yawPositionRequest = new PositionVoltage(0).withSlot(0);
     yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
+
+
+    m_turretControl = new TurretControl(ShooterConstants.kYawMotorId, ShooterConstants.kHoodMotorId);
 
     turretPositionPublisher = table.getDoubleTopic("turretPosition").publish();
     turretSpeedPublisher = table.getDoubleTopic("turretFlywheelSpeed").publish();

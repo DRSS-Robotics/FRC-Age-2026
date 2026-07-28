@@ -32,6 +32,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -46,6 +48,7 @@ import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -54,6 +57,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -71,8 +75,6 @@ public class RobotContainer {
   // TODO: actually initialize a SwerveDrivePoseEstimator
   // public SwerveDrivePoseEstimator m_poseEstimator = new
   // SwerveDrivePoseEstimator();
-
-  public final Pose3d hubPose = new Pose3d(0, 0, 0, Rotation3d.kZero);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem(
         ShooterConstants.kShooterMotorLeftId,
         ShooterConstants.kShooterMotorRightId, ShooterConstants.kYawMotorId, ShooterConstants.kHoodMotorId,

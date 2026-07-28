@@ -5,6 +5,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ShooterConstants;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 
@@ -16,6 +17,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.config.EncoderConfig;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Encoder;
 
 
@@ -25,6 +27,7 @@ public class TurretControl extends SubsystemBase {
   private VelocityVoltage turretMotorRequest;
  // private CANcoder m_turretCANcoder;
   private Encoder m_turretEncoder;
+  public final Translation2d turretOffset = new Translation2d(ShooterConstants.kShooterForwardOffset,ShooterConstants.kShooterSideOffset);
 
   public TurretControl(int turretMotorID, int turretCANcoderID) {
     m_turretMotor = new TalonFX(turretMotorID);
@@ -52,6 +55,10 @@ public class TurretControl extends SubsystemBase {
           System.out.println(m_turretMotor.getPosition());
         }
     }
+
+  public double getEncoderTicks(){
+    return m_turretEncoder.get();
+  }
   /**
    * Example command factory method.
    *

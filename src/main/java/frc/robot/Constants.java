@@ -2,10 +2,15 @@ package frc.robot;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -102,6 +107,11 @@ public final class Constants {
     public static final double kTurretMaxManualSpeedDPS = 0;
     public static final double kHoodMaxManualSpeedDPS = 10; //-3.6
 
+    public static final Distance kShooterHeightOffset = Inches.of(12);
+    public static final Distance kShooterSideOffset = Inches.of(0);
+    public static final Distance kShooterForwardOffset = Inches.of(12);
+    public static final Angle kShooterYawOffset = Degrees.of(180);
+
     public static final double kMaxShooterDPS2 = 36000; // accel
     public static final double kMaxShooterDPS3 = 72000; // jerk
 
@@ -115,9 +125,19 @@ public final class Constants {
     public static final double kMaxTestYawMotorErrorPercentage = 0.3;
     public static final double kMaxTestYawMotorTimeToReachPosition = 4.;
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
+    public static final Pose2d kShooterOffset = new Pose2d(0,0,new Rotation2d());
 
     public static final int kHoodMotorId = 20;
   }
+
+
+  public static Distance kFieldLengthMeters = Inches.of(651.22);
+  // if Blue alliance, use shorter distance, otherwise use longer
+  public static Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
+                                    kFieldLengthMeters.minus(Inches.of(182.11)) : 
+                                    Inches.of(182.11);
+  public static Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
+
 
   public static double kGravIN;
 }
