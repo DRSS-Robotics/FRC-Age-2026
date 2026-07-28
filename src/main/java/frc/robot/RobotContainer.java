@@ -160,12 +160,12 @@ public class RobotContainer {
 //                     0.75), 12)
 //                     ))));
 
- m_driverController.leftTrigger(0.05).whileTrue(
-        new DriveYawMotor(m_shooter, () -> DegreesPerSecond
-                .of(ShooterConstants.kTurretMaxManualSpeedDPS * (binDouble(
-                Math.pow(m_driverController.getLeftTriggerAxis(),
-                    0.75), 12)
-                    ))));
+//  m_driverController.leftTrigger(0.05).whileTrue(
+//         new DriveYawMotor(m_shooter, () -> DegreesPerSecond
+//                 .of(ShooterConstants.kTurretMaxManualSpeedDPS * (binDouble(
+//                 Math.pow(m_driverController.getLeftTriggerAxis(),
+//                     0.75), 12)
+//                     ))));
 
 
 
