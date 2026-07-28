@@ -207,8 +207,8 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
         launchVelocityGoal);
     hoodVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, hoodVelocitySetpoint,
         hoodVelocityGoal);
-    yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, yawVelocitySetpoint,
-        yawVelocityGoal);
+   // yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, yawVelocitySetpoint,
+   //     yawVelocityGoal);
 
 
     m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
@@ -216,7 +216,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
     m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));  
 
-    m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
+    //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
 
     // turretPositionPublisher.set(getYawEncoder().in(Degrees));
     turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
