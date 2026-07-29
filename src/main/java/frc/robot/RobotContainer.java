@@ -25,6 +25,7 @@ import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.Turret.DriveTurretToDashboard;
 import frc.robot.subsystems.shooter.Turret.DriveYawMotor;
+import frc.robot.subsystems.shooter.Turret.RotateToTag;
 // import frc.robot.subsystems.shooter.Turret.RotateToHub;
 // import frc.robot.subsystems.shooter.Turret.RotateYawMotor;
 import frc.robot.subsystems.shooter.Turret.TurretSubsystem;
@@ -173,6 +174,8 @@ public class RobotContainer {
                     m_turret,
                     () -> -m_operatorController.getRightX()));
 
+    m_driverController.a().whileTrue(new RotateToTag(m_turret));
+
     m_operatorController.rightTrigger(0.05).whileTrue(
         new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
             .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
@@ -219,7 +222,8 @@ public class RobotContainer {
     RobotModeTriggers.disabled().whileTrue(
         drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-    m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        //commeted out for now for turret testing 
+   // m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
     m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
         .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
             -m_driverController.getLeftX()))));

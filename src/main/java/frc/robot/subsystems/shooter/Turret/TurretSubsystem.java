@@ -51,6 +51,8 @@ public class TurretSubsystem extends SubsystemBase {
     public TurretSubsystem(int turretMotorID) {
         m_turretMotor = new TalonFX(turretMotorID);
 
+        m_turretMotor.getConfigurator().apply(new TalonFXConfiguration());
+
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
         talonConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -62,7 +64,6 @@ public class TurretSubsystem extends SubsystemBase {
 
         talonConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         talonConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = motorLimitThreshold;
-
 
         talonConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         talonConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -motorLimitThreshold;
@@ -77,6 +78,8 @@ public class TurretSubsystem extends SubsystemBase {
         talonConfigs.MotorOutput.NeutralMode = com.ctre.phoenix6.signals.NeutralModeValue.Brake;
         talonConfigs.MotorOutput.DutyCycleNeutralDeadband = 0.01;
 
+        talonConfigs.Feedback.FeedbackSensorSource = com.ctre.phoenix6.signals.FeedbackSensorSourceValue.RotorSensor;
+
         talonConfigs.Slot0.kP = 0.4;
         talonConfigs.Slot0.kI = 0.0;
         talonConfigs.Slot0.kD = 0.01;
@@ -84,53 +87,23 @@ public class TurretSubsystem extends SubsystemBase {
         talonConfigs.Slot0.kS = 0.3;
 
         m_turretMotor.getConfigurator().apply(talonConfigs);
-        // turretMotorConfigs = new Slot0Configs();
-
-        // need to tune these
-        // turretMotorConfigs.kV = 0.012;
-        // turretMotorConfigs.kP = 0.1;
-        // turretMotorConfigs.kI = 0;
-        // turretMotorConfigs.kD = 0;
-
-        // // SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs()
-        // // .SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // // .SoftwareLimitSwitch.ForwardSoftLimitThreshold = MAX_ROTATION;
-        // // .SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        // // .SoftwareLimitSwitch.ReverseSoftLimitThreshold = MIN_ROTATION;
-
-        // m_turretMotor.getConfigurator().apply(turretMotorConfigs);
 
         m_bootTimer.start();
-
-        // sets initial mechanism/motor position to match the roboRIO duty cycle
-        // absolute encoder
-        // m_turretMotor.setPosition(0.0);
-
-        // If your encoder is 1:1 with the turret column, and you know your gear ratio:
-        // double absolutePosition = m_turretEncoder.get();
-        // // Convert absolute column position to motor rotations based on your gear
-        // ratio:
-        // double motorRotations = absolutePosition * ShooterConstants.kTurretGearRatio;
-        // m_turretMotor.setPosition(motorRotations);
-
     }
 
     // Angular velocity limit can be passed or factored via request's velocity
     // feedforward
 
     public void setTurretPosition(double targetColumnRotation, double columnVelocityFeedforward) {
-        // Enforce mechanical soft limits on the incoming request
-        double clampedColumnRotation = Math.max(MIN_ROTATION, Math.min(MAX_ROTATION, targetColumnRotation));
+        double clampedColumnRotation = Math.max(-0.48, Math.min(0.48, targetColumnRotation));
 
-        // Convert the mechanism target units to the motor units expected by TalonFX
-        // (Rotations)
         double motorTargetRotation = clampedColumnRotation * ShooterConstants.kTurretGearRatio;
         double motorVelocityFeedforward = columnVelocityFeedforward * ShooterConstants.kTurretGearRatio;
 
-        // Command position control loop
         m_turretMotor.setControl(m_positionControl
                 .withPosition(motorTargetRotation)
                 .withVelocity(motorVelocityFeedforward));
+
     }
 
     public void setTurretVelocity(double turretVelocityDegreesPerSecond) {
@@ -157,7 +130,6 @@ public class TurretSubsystem extends SubsystemBase {
 
         // i dont even know anymore bro, mind kaboom bro
         if (!m_positionSeeded && m_bootTimer.hasElapsed(1.0) && m_turretEncoder.isConnected()) {
-
 
             m_dynamicEncoderOffset = m_turretEncoder.get();
 

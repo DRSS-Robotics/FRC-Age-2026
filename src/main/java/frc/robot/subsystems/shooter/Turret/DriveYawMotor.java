@@ -35,10 +35,10 @@ public class DriveYawMotor extends Command {
   @Override
   public void execute() {
     //debug print
-    double rawJoystickValue = speed.getAsDouble();
+    // double rawJoystickValue = speed.getAsDouble();
     
-    // Temporary debug print to your RioLog / Visual Studio terminal
-    System.out.println("DEBUG: Operator Stick Value is: " + rawJoystickValue);
+    // // Temporary debug print to your RioLog / Visual Studio terminal
+    // System.out.println("DEBUG: Operator Stick Value is: " + rawJoystickValue);
 
    // double input = MathUtil.applyDeadband(rawJoystickValue, JOYSTICK_DEADBAND);
 
