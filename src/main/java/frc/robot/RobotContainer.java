@@ -23,6 +23,7 @@ import frc.robot.commands.DriveShooterHood;
 import frc.robot.commands.DriveTransferCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.Turret.DriveTurretToDashboard;
 import frc.robot.subsystems.shooter.Turret.DriveYawMotor;
 // import frc.robot.subsystems.shooter.Turret.RotateToHub;
 // import frc.robot.subsystems.shooter.Turret.RotateYawMotor;
@@ -165,18 +166,12 @@ public class RobotContainer {
 //                     0.75), 12)
 //                     ))));
 
- m_driverController.leftTrigger(0.05).whileTrue(
-        new DriveYawMotor(m_turret, () -> DegreesPerSecond
-                .of(ShooterConstants.kTurretMaxManualSpeedDPS * (binDouble(
-                Math.pow(m_driverController.getLeftTriggerAxis(),
-                    0.75), 12)
-                    ))));
 
-  // m_driverController.x().whileTrue(new DriveYawMotor(m_turret,
-  //       () -> DegreesPerSecond.of(ShooterConstants.kTurretMaxManualSpeedDPS * 0.355),
-  //       () -> false));
-
-
+//puts turret on right joystick
+    m_turret.setDefaultCommand(
+                new DriveYawMotor(
+                    m_turret,
+                    () -> -m_operatorController.getRightX()));
 
     m_operatorController.rightTrigger(0.05).whileTrue(
         new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
@@ -242,19 +237,18 @@ public class RobotContainer {
 
     m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-    //commented out for now to test the hood
-//     m_driverController.leftTrigger().whileTrue(Commands.run(() ->
+    m_driverController.leftTrigger().whileTrue(Commands.run(() ->
 
-//     {
-//       speedMultiplier = 1 / speedModifier;
-//       drive
-//           .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-//           .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-//     })).onFalse(Commands.run(() -> {
-//       speedMultiplier = 1;
-//       drive.withDeadband(MaxSpeed * 0.1)
-//           .withRotationalDeadband(MaxAngularRate * 0.1);
-//     }));
+    {
+      speedMultiplier = 1 / speedModifier;
+      drive
+          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+    })).onFalse(Commands.run(() -> {
+      speedMultiplier = 1;
+      drive.withDeadband(MaxSpeed * 0.1)
+          .withRotationalDeadband(MaxAngularRate * 0.1);
+    }));
 
     m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
       speedMultiplier = minSpeedMulti

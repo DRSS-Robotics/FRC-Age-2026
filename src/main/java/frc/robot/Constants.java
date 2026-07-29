@@ -104,7 +104,7 @@ public final class Constants {
     public static final double kShooterManualDriveDPSScale = 1;
     public static final double kShooterAngleTolerance = 1;
     public static final double kShooterMaxManualSpeedDPS = 9000;
-    public static final double kTurretMaxManualSpeedDPS = 300;
+    public static final double kTurretMaxManualSpeedDPS = 600; 
     public static final double kHoodMaxManualSpeedDPS = 10; //-3.6
 
     public static final Distance kShooterHeightOffset = Inches.of(12);
@@ -126,6 +126,11 @@ public final class Constants {
     public static final double kMaxTestYawMotorTimeToReachPosition = 4.;
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
     public static final Pose2d kShooterOffset = new Pose2d(0,0,new Rotation2d());
+    public static final double kTurretGearRatio = 250.0 / 36.0;
+    public static final double kTurretEncoderOffset = 0.902099609375; 
+    public static final double kMaxForwardRotation = 1.3;  // Maximum Left limit
+    public static final double kMaxReverseRotation = -1.3; // Maximum Right limit
+
 
     public static final int kHoodMotorId = 20;
   }

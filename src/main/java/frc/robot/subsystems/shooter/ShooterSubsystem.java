@@ -41,16 +41,16 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     private TrapezoidProfile.State launchVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State launchVelocitySetpoint = new TrapezoidProfile.State();
     
-    private TalonFX m_yawMotor;
-    private Slot0Configs yawMotorPositionConfigs;
-    private Slot1Configs yawMotorVelocityConfigs;
-    private PositionVoltage yawPositionRequest;
-    private VelocityVoltage yawVelocityRequest;
-    private Angle yawTargetPosition;
+    //private TalonFX m_yawMotor;
+    // private Slot0Configs yawMotorPositionConfigs;
+    // private Slot1Configs yawMotorVelocityConfigs;
+    // private PositionVoltage yawPositionRequest;
+    // private VelocityVoltage yawVelocityRequest;
+    // private Angle yawTargetPosition;
 
-    private AngularVelocity yawMotorSetpoint = DegreesPerSecond.of(0);
-    private TrapezoidProfile.State yawVelocityGoal = new TrapezoidProfile.State();
-    private TrapezoidProfile.State yawVelocitySetpoint = new TrapezoidProfile.State();
+    // private AngularVelocity yawMotorSetpoint = DegreesPerSecond.of(0);
+    // private TrapezoidProfile.State yawVelocityGoal = new TrapezoidProfile.State();
+    // private TrapezoidProfile.State yawVelocitySetpoint = new TrapezoidProfile.State();
     
     private TalonFX m_hoodMotor;
     private Slot0Configs hoodMotorVelocityConfigs;
@@ -104,25 +104,25 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     hoodVelocityRequest = new VelocityVoltage(0).withSlot(0);
 
     // m_yawMotor = new TalonFX(yawMotorId);
-    yawMotorPositionConfigs = new Slot0Configs();
-    // Placeholder PID values
-    yawMotorPositionConfigs.kV = 0;
-    yawMotorPositionConfigs.kP = 1.0;
-    yawMotorPositionConfigs.kI = 0;
-    yawMotorPositionConfigs.kD = 0;
-    m_yawMotor.getConfigurator().apply(yawMotorPositionConfigs);
+    // yawMotorPositionConfigs = new Slot0Configs();
+    // // Placeholder PID values
+    // yawMotorPositionConfigs.kV = 0;
+    // yawMotorPositionConfigs.kP = 1.0;
+    // yawMotorPositionConfigs.kI = 0;
+    // yawMotorPositionConfigs.kD = 0;
+    // m_yawMotor.getConfigurator().apply(yawMotorPositionConfigs);
 
-    yawMotorVelocityConfigs = new Slot1Configs();
-    // Placeholder PID values
-    yawMotorVelocityConfigs.kS = 0.2;
-    yawMotorVelocityConfigs.kV = 0;
-    yawMotorVelocityConfigs.kP = 0.1;
-    yawMotorVelocityConfigs.kI = 0;
-    yawMotorVelocityConfigs.kD = 0;
-    m_yawMotor.getConfigurator().apply(yawMotorVelocityConfigs);
+    // yawMotorVelocityConfigs = new Slot1Configs();
+    // // Placeholder PID values
+    // yawMotorVelocityConfigs.kS = 0.2;
+    // yawMotorVelocityConfigs.kV = 0;
+    // yawMotorVelocityConfigs.kP = 0.1;
+    // yawMotorVelocityConfigs.kI = 0;
+    // yawMotorVelocityConfigs.kD = 0;
+    // m_yawMotor.getConfigurator().apply(yawMotorVelocityConfigs);
 
-    yawPositionRequest = new PositionVoltage(0).withSlot(0);
-    yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
+    // yawPositionRequest = new PositionVoltage(0).withSlot(0);
+    // yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
 
 
     // m_turretControl = new TurretControl(ShooterConstants.kYawMotorId, ShooterConstants.kHoodMotorId);
@@ -132,31 +132,31 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   }
 
   // in degrees
-  public void setYawMotorPosition(double speed) {
-    setYawMotorPosition(Degrees.of(speed));
-  }
+  // public void setYawMotorPosition(double speed) {
+  //   setYawMotorPosition(Degrees.of(speed));
+  // }
 
-  public void setYawMotorPosition(Angle pos) {
-    double correctedAngle = pos.in(Degrees) % 360;
-    // m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
-  }
+  // public void setYawMotorPosition(Angle pos) {
+  //   double correctedAngle = pos.in(Degrees) % 360;
+  //   // m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
+  // }
 
-  // in degrees per second
+  // // in degrees per second
   public void driveYawMotor(double degreesPerSecond) {
     // driveYawMotor(DegreesPerSecond.of(degreesPerSecond));
   }
 
-  public void driveYawMotor(AngularVelocity speed) {
-    // m_yawMotor.setControl(yawVelocityRequest.withVelocity(speed));
-  }
+  // public void driveYawMotor(AngularVelocity speed) {
+  //   // m_yawMotor.setControl(yawVelocityRequest.withVelocity(speed));
+  // }
 
-  public Angle getYawEncoder() {
-    return m_yawMotor.getPosition(true).getValue();
-  }
+  // public Angle getYawEncoder() {
+  //   return m_yawMotor.getPosition(true).getValue();
+  // }
 
-  public Angle getYawSetpoint() {
-    return yawTargetPosition;
-  }
+  // public Angle getYawSetpoint() {
+  //   return yawTargetPosition;
+  // }
 
   public AngularVelocity getLaunchMotorSpeed() {
     return m_launchMotorL.getVelocity(true).getValue();
@@ -197,24 +197,24 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     hoodVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
   }
 
-     public void runYawMotor(AngularVelocity speed) {
-    yawMotorSetpoint = speed;
-    yawVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
-  }
+  //    public void runYawMotor(AngularVelocity speed) {
+  //   yawMotorSetpoint = speed;
+  //   yawVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
+  // }
 
   @Override
   public void periodic() {
-    if (getYawEncoder().isNear(Degrees.of(0), Degrees.of(5)) ||
-        getYawEncoder().isNear(Degrees.of(360), Degrees.of(5))) {
-      driveYawMotor(0);
-    }
+    // if (getYawEncoder().isNear(Degrees.of(0), Degrees.of(5)) ||
+    //     getYawEncoder().isNear(Degrees.of(360), Degrees.of(5))) {
+    //   driveYawMotor(0);
+    // }
 
     launchVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, launchVelocitySetpoint,
         launchVelocityGoal);
     hoodVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, hoodVelocitySetpoint,
         hoodVelocityGoal);
-    yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.2, yawVelocitySetpoint,
-        yawVelocityGoal);
+    // yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.2, yawVelocitySetpoint,
+    //     yawVelocityGoal);
 
 
     m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
@@ -222,10 +222,10 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
     m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));  
 
-    m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
+    //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
 
-    // turretPositionPublisher.set(getYawEncoder().in(Degrees));
-    turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
+    //turretPositionPublisher.set(getYawEncoder().in(Degrees));
+   // turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
 
   }
 
@@ -253,17 +253,17 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
           @Override
           public TestResult getCurrentResult() {
-            Angle currentYawMotorAngle = m_yawMotor.getPosition().getValue();
+           // Angle currentYawMotorAngle = m_yawMotor.getPosition().getValue();
             if (Timer.getFPGATimestamp()
                 - startTime >= ShooterConstants.kMaxTestYawMotorTimeToReachPosition) {
               output = "The yaw motor took too long to get to the desired position.";
               return TestResult.KNOWN_FAILURE;
 
             }
-            if (currentYawMotorAngle.isNear(ShooterConstants.kTestYawMotorTargetPosition, maxAllowedError)) {
-              output = "The yaw motor succesfully moved to the desired position in the specified amount of time. ";
-              return TestResult.SUCCESS;
-            }
+            // if (currentYawMotorAngle.isNear(ShooterConstants.kTestYawMotorTargetPosition, maxAllowedError)) {
+            //   output = "The yaw motor succesfully moved to the desired position in the specified amount of time. ";
+            //   return TestResult.SUCCESS;
+            // }
             return TestResult.IN_PROGRESS;
           }
         },
