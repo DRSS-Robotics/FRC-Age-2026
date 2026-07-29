@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SuperstructureConstants;
+// import frc.robot.subsystems.shooter.Turret.TurretControl;
 import frc.robot.TestableSubsystem;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -59,13 +60,13 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private TrapezoidProfile.State hoodVelocityGoal = new TrapezoidProfile.State();
   private TrapezoidProfile.State hoodVelocitySetpoint = new TrapezoidProfile.State();
 
-  private TurretControl m_turretControl;
+  // private TurretControl m_turretControl;
 
 
   private DoublePublisher turretPositionPublisher;
   private DoublePublisher turretSpeedPublisher;
 
-  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId, int hoodMotorId, NetworkTable table) {
+  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int hoodMotorId, NetworkTable table) {
 
     m_launchMotorL = new TalonFX(launchMotorIdL);
     launchMotorConfigs = new Slot0Configs();
@@ -102,7 +103,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     m_hoodMotor.getConfigurator().apply(directionalConfigs);
     hoodVelocityRequest = new VelocityVoltage(0).withSlot(0);
 
-    m_yawMotor = new TalonFX(yawMotorId);
+    // m_yawMotor = new TalonFX(yawMotorId);
     yawMotorPositionConfigs = new Slot0Configs();
     // Placeholder PID values
     yawMotorPositionConfigs.kV = 0;
@@ -115,7 +116,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     // Placeholder PID values
     yawMotorVelocityConfigs.kS = 0.2;
     yawMotorVelocityConfigs.kV = 0;
-    yawMotorVelocityConfigs.kP = 1.0;
+    yawMotorVelocityConfigs.kP = 0.1;
     yawMotorVelocityConfigs.kI = 0;
     yawMotorVelocityConfigs.kD = 0;
     m_yawMotor.getConfigurator().apply(yawMotorVelocityConfigs);
@@ -124,7 +125,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
 
 
-    m_turretControl = new TurretControl(ShooterConstants.kYawMotorId, ShooterConstants.kHoodMotorId);
+    // m_turretControl = new TurretControl(ShooterConstants.kYawMotorId, ShooterConstants.kHoodMotorId);
 
     turretPositionPublisher = table.getDoubleTopic("turretPosition").publish();
     turretSpeedPublisher = table.getDoubleTopic("turretFlywheelSpeed").publish();
@@ -212,7 +213,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
         launchVelocityGoal);
     hoodVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, hoodVelocitySetpoint,
         hoodVelocityGoal);
-    yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, yawVelocitySetpoint,
+    yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.2, yawVelocitySetpoint,
         yawVelocityGoal);
 
 

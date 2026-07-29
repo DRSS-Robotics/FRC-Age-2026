@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.subsystems.shooter.Turret;
 
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
@@ -15,13 +15,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveYawMotor extends Command {
 
-  private final ShooterSubsystem m_subsystem;
+  private final TurretSubsystem m_turretSubsystem;
   private Supplier<AngularVelocity> speed;
 
-  public DriveYawMotor(ShooterSubsystem shooter, Supplier<AngularVelocity> speedSupplier) {
-    m_subsystem = shooter;
+  public DriveYawMotor(TurretSubsystem turret, Supplier<AngularVelocity> speedSupplier) {
+    m_turretSubsystem = turret;
     speed = speedSupplier;
-    addRequirements(shooter);
+    addRequirements(turret);
   }
 
   @Override
@@ -30,13 +30,12 @@ public class DriveYawMotor extends Command {
 
   @Override
   public void execute() {
-    m_subsystem.runYawMotor(DegreesPerSecond.of(500));
-    System.out.println(m_subsystem.getYawEncoder());
+    m_turretSubsystem.setTurretPower(0.1);
   }
 
   @Override
   public void end(boolean interrupted) {
-    m_subsystem.runYawMotor(DegreesPerSecond.of(0));
+    m_turretSubsystem.setTurretPower(0);
   }
 
   @Override

@@ -2,8 +2,6 @@ package frc.robot;
 
 import frc.robot.Constants.*;
 import frc.robot.LimelightHelpers.LimelightResults;
-import frc.robot.commands.DriveYawMotor;
-import frc.robot.commands.RotateYawMotor;
 import frc.robot.commands.SetWallPosition;
 import frc.robot.commands.WallInterpCommand;
 import frc.robot.commands.SoupKickback;
@@ -23,10 +21,13 @@ import frc.robot.commands.DriveIntakeCommand;
 import frc.robot.commands.DriveLaunchMotor;
 import frc.robot.commands.DriveShooterHood;
 import frc.robot.commands.DriveTransferCommand;
-import frc.robot.commands.RotateToHub;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.shooter.TurretControl;
+import frc.robot.subsystems.shooter.Turret.DriveYawMotor;
+// import frc.robot.subsystems.shooter.Turret.RotateToHub;
+// import frc.robot.subsystems.shooter.Turret.RotateYawMotor;
+import frc.robot.subsystems.shooter.Turret.TurretSubsystem;
+// import frc.robot.subsystems.shooter.Turret.TurretControl;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -77,8 +78,10 @@ public class RobotContainer {
   // SwerveDrivePoseEstimator();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem(
         ShooterConstants.kShooterMotorLeftId,
-        ShooterConstants.kShooterMotorRightId, ShooterConstants.kYawMotorId, ShooterConstants.kHoodMotorId,
+        ShooterConstants.kShooterMotorRightId, ShooterConstants.kHoodMotorId,
       NetworkTableInstance.getDefault().getTable("Turret"));
+      //adding in the turret subsystem
+  private final TurretSubsystem m_turret = new TurretSubsystem(ShooterConstants.kYawMotorId);
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
@@ -163,13 +166,15 @@ public class RobotContainer {
 //                     ))));
 
  m_driverController.leftTrigger(0.05).whileTrue(
-        new DriveYawMotor(m_shooter, () -> DegreesPerSecond
+        new DriveYawMotor(m_turret, () -> DegreesPerSecond
                 .of(ShooterConstants.kTurretMaxManualSpeedDPS * (binDouble(
                 Math.pow(m_driverController.getLeftTriggerAxis(),
                     0.75), 12)
                     ))));
 
-
+  // m_driverController.x().whileTrue(new DriveYawMotor(m_turret,
+  //       () -> DegreesPerSecond.of(ShooterConstants.kTurretMaxManualSpeedDPS * 0.355),
+  //       () -> false));
 
 
 
