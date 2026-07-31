@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "start_1"
+            "pathName": "Start"
           }
         },
         {
@@ -15,36 +15,43 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Shoot"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 6.0
+                  "pathName": "action"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Transfer"
+                  "name": "OutIntake"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "RaiseIntakeHalfway"
+                  "name": "Intake"
                 }
               }
             ]
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "End"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "john"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
           }
         }
       ]

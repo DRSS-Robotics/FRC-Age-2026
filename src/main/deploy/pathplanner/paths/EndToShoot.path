@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.534450784593438,
-        "y": 0.6644793152639101
+        "x": 5.915164051355206,
+        "y": 0.7550499286733237
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.776562054208274,
-        "y": 0.5739087018544944
+        "x": 4.737746077032809,
+        "y": 0.315135520684737
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Newtral_to_hub"
     },
     {
       "anchor": {
-        "x": 5.475249643366619,
-        "y": 0.6644793152639101
+        "x": 2.9263338088445074,
+        "y": 2.17830242510699
       },
       "prevControl": {
-        "x": 4.828316690442225,
-        "y": 0.5350927246790309
+        "x": 2.5122967189728955,
+        "y": 0.7032952924393738
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Newtral_Auto_Start"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.41364605543710325,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -41,8 +46,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 1.0,
-    "rotation": -1.1233027140755862
+    "velocity": 0,
+    "rotation": -137.12109639666144
   },
   "reversed": false,
   "folder": "Auto_Newtral",

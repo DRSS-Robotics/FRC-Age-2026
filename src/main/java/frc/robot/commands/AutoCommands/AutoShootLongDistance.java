@@ -9,7 +9,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class AutoShootMidDistance extends Command{
+public class AutoShootLongDistance extends Command{
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ShooterSubsystem m_shooter;
 
@@ -19,7 +19,7 @@ public class AutoShootMidDistance extends Command{
    * @param subsystem The subsystem used by this command.
     * @return
       */
-     public AutoShootMidDistance(ShooterSubsystem shooter_Subsystem) { 
+     public AutoShootLongDistance(ShooterSubsystem shooter_Subsystem) { 
     m_shooter = shooter_Subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -27,7 +27,7 @@ public class AutoShootMidDistance extends Command{
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_shooter.runLaunchMotors(0.750 * ShooterConstants.kShooterMaxManualSpeedDPS);
+    m_shooter.runLaunchMotors(0.900 * ShooterConstants.kShooterMaxManualSpeedDPS);
     
   }
   

@@ -14,7 +14,9 @@ import frc.robot.commands.ToggleLaunchMotor;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
+import frc.robot.commands.AutoCommands.AutoShootLongDistance;
 import frc.robot.commands.AutoCommands.AutoShootMidDistance;
+import frc.robot.commands.AutoCommands.AutoShootShortDistance;
 import frc.robot.commands.AutoCommands.TranslocatorAutoCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.DriveIntakeCommand;
@@ -92,7 +94,7 @@ public class RobotContainer {
   // angular velocity
 
   private double speedMultiplier = 1;
-  private final double speedModifier = 0.35;
+  private final double speedModifier = 0.5;
   private final double minSpeedMulti = 0.175;
   private final double slowSpeedMulti = 0.25;
 
@@ -131,6 +133,9 @@ public class RobotContainer {
 
   public RobotContainer() {
 
+    NamedCommands.registerCommand("LongShoot", new AutoShootLongDistance(m_shooter));
+    NamedCommands.registerCommand("MidShoot", new AutoShootMidDistance(m_shooter));
+    NamedCommands.registerCommand("ShortShoot", new AutoShootShortDistance(m_shooter));
     NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
@@ -185,15 +190,15 @@ public class RobotContainer {
 
     // back wall position
     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.900),
         () -> false));
     // mid position
     m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.750),
         () -> false));
     // close position
     m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.315),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.600),
         () -> false));
 
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
