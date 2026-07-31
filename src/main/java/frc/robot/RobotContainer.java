@@ -190,15 +190,15 @@ public class RobotContainer {
 
     // back wall position
     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.900),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.600),
         () -> false));
     // mid position
     m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.750),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.500),
         () -> false));
     // close position
     m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.600),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.400),
         () -> false));
 
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
