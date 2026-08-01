@@ -136,7 +136,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("LongShoot", new AutoShootLongDistance(m_shooter));
     NamedCommands.registerCommand("MidShoot", new AutoShootMidDistance(m_shooter));
     NamedCommands.registerCommand("ShortShoot", new AutoShootShortDistance(m_shooter));
-    NamedCommands.registerCommand("Shoot", new AutoShootMidDistance(m_shooter));
+    NamedCommands.registerCommand("Shoot", new AutoShootShortDistance(m_shooter));
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
     // //we have no hang for buckeye
@@ -190,15 +190,15 @@ public class RobotContainer {
 
     // back wall position
     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.600),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.550),
         () -> false));
     // mid position
     m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.500),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.475),
         () -> false));
     // close position
     m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.400),
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
         () -> false));
 
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));

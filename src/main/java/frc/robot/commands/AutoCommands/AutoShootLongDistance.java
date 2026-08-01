@@ -27,7 +27,7 @@ public class AutoShootLongDistance extends Command{
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_shooter.runLaunchMotors(0.600 * ShooterConstants.kShooterMaxManualSpeedDPS);
+    m_shooter.runLaunchMotors(0.550 * ShooterConstants.kShooterMaxManualSpeedDPS);
     
   }
   
