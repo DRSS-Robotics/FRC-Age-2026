@@ -27,8 +27,8 @@ import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.Turret.DriveTurretToDashboard;
 import frc.robot.subsystems.shooter.Turret.DriveYawMotor;
-import frc.robot.subsystems.shooter.Turret.RotateToTag;
-// import frc.robot.subsystems.shooter.Turret.RotateToHub;
+// import frc.robot.subsystems.shooter.Turret.RotateToTag;
+import frc.robot.commands.RotateToHub;
 // import frc.robot.subsystems.shooter.Turret.RotateYawMotor;
 import frc.robot.subsystems.shooter.Turret.TurretSubsystem;
 // import frc.robot.subsystems.shooter.Turret.TurretControl;
@@ -131,6 +131,9 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
 
+
+  private final RotateToHub comm;
+
   public RobotContainer() {
 
     NamedCommands.registerCommand("LongShoot", new AutoShootLongDistance(m_shooter));
@@ -139,6 +142,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Shoot", new AutoShootShortDistance(m_shooter));
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
+  
     // //we have no hang for buckeye
 
     NamedCommands.registerCommand("Intake", new IntakeAutoCommand(m_superstructure));
@@ -157,6 +161,9 @@ public class RobotContainer {
     // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
     limelight = new HttpCamera("limelight", "http://limelight.local:5800");
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+    comm = new RotateToHub(m_turret, new Pose2d(0,0,new Rotation2d(0)));
+    comm.execute();
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -179,7 +186,7 @@ public class RobotContainer {
                     m_turret,
                     () -> -m_operatorController.getRightX()));
 
-    m_driverController.a().whileTrue(new RotateToTag(m_turret));
+    // m_driverController.a().whileTrue(new RotateToTag(m_turret));
 
     m_operatorController.rightTrigger(0.05).whileTrue(
         new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond

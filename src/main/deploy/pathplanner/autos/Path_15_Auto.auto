@@ -25,12 +25,6 @@
                 "data": {
                   "name": "OutIntake"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
               }
             ]
           }
@@ -73,13 +67,25 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Shoot"
+                  "name": "ShortShoot"
                 }
               },
               {
                 "type": "wait",
                 "data": {
                   "waitTime": 10.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Transfer"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RaiseIntakeHalfway"
                 }
               }
             ]

@@ -12,7 +12,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
@@ -36,15 +38,17 @@ public class TurretSubsystem extends SubsystemBase {
     // SuperstructureConstants.kMaxIntakeDPS3));
 
     // private Encoder m_turretEncoder;
-    private final DutyCycleEncoder m_turretEncoder = new DutyCycleEncoder(0); // through bore encoder code, need to get
+    private final DutyCycleEncoder m_turretEncoder = new DutyCycleEncoder(0); // through bore absolute encoder code, need to get
                                                                               // channel number
+    private final Encoder m_turretRelativeEncoder = new Encoder(1,2);
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0.0);
 
     private static final double MIN_ROTATION = ShooterConstants.kMaxReverseRotation;
     private static final double MAX_ROTATION = ShooterConstants.kMaxForwardRotation;
     private final PositionVoltage m_positionControl = new PositionVoltage(0);
+    public final Translation2d turretOffset = new Translation2d(ShooterConstants.kShooterForwardOffset,ShooterConstants.kShooterSideOffset);
 
-    private boolean m_positionSeeded = false;
+    private boolean positionSeeded = false;
     private final Timer m_bootTimer = new Timer();
     private double m_dynamicEncoderOffset = 0.0;
 
@@ -89,12 +93,15 @@ public class TurretSubsystem extends SubsystemBase {
         m_turretMotor.getConfigurator().apply(talonConfigs);
 
         m_bootTimer.start();
+
     }
 
     // Angular velocity limit can be passed or factored via request's velocity
     // feedforward
 
     public void setTurretPosition(double targetColumnRotation, double columnVelocityFeedforward) {
+        Angle turretRotation = Degrees.of((m_turretRelativeEncoder.get() / 8192.0) * 360).plus(ShooterConstants.kShooterYawOffset);
+        // turretRotation
         double clampedColumnRotation = Math.max(-0.48, Math.min(0.48, targetColumnRotation));
 
         double motorTargetRotation = clampedColumnRotation * ShooterConstants.kTurretGearRatio;
@@ -115,46 +122,70 @@ public class TurretSubsystem extends SubsystemBase {
 
     }
 
-    public double getTurretAngle() {
+    // public double getTurretAngle() {
+    public Angle getTurretAngle() {
+
+        // Angle turretRotation = Degrees.of((m_turretRelativeEncoder.get() / 8192.0) * 360);
+        Angle turretRotation = Degrees.of(0);
 
         double rawAbsolute = m_turretEncoder.get();
         double unmappedAngle = rawAbsolute - m_dynamicEncoderOffset;
 
         double boundedAngle = MathUtil.inputModulus(unmappedAngle, -0.5, 0.5);
 
+        // return MathUtil.inputModulus(unmappedAngle, -0.5, 0.5);
+        return turretRotation;
+        
+    }
+
+    public double getAbsoluteTurretAngle() {
+        double rawAbsolute = m_turretEncoder.get();
+        double unmappedAngle = rawAbsolute - m_dynamicEncoderOffset;
+
+        double boundedAngle = MathUtil.inputModulus(unmappedAngle, -0.5, 0.5);
+
         return MathUtil.inputModulus(unmappedAngle, -0.5, 0.5);
+        
     }
 
     @Override
     public void periodic() {
 
         // i dont even know anymore bro, mind kaboom bro
-        if (!m_positionSeeded && m_bootTimer.hasElapsed(1.0) && m_turretEncoder.isConnected()) {
+
+        if (!positionSeeded && m_bootTimer.hasElapsed(1.0) && m_turretEncoder.isConnected()) {
 
             m_dynamicEncoderOffset = m_turretEncoder.get();
 
-            double absolutePosition = getTurretAngle();
+            double absolutePosition = getAbsoluteTurretAngle();
 
             double motorRotations = absolutePosition * ShooterConstants.kTurretGearRatio;
             m_turretMotor.setPosition(motorRotations);
 
-            m_positionSeeded = true;
+            positionSeeded = true;
             m_bootTimer.stop();
 
             System.out.println("Turret calibrated! Captured center offset at: " + m_dynamicEncoderOffset);
         }
 
         // Stream data to shuffleboard
-        SmartDashboard.putNumber("Turret Absolute Angle", getTurretAngle());
+        SmartDashboard.putNumber("Turret Absolute Angle", getAbsoluteTurretAngle());
         SmartDashboard.putNumber("Turret Motor Position", m_turretMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Turret Motor Velocity (RPS)", m_turretMotor.getVelocity().getValueAsDouble());
 
         if (!SmartDashboard.containsKey("Turret Dashboard Target (Rotations)")) {
             SmartDashboard.putNumber("Turret Dashboard Target (Rotations)", 0.0);
         }
+
+        // System.out.println(mapUnclamped(getTurretAngle(), -0.48, 0.48, 0, 180));
+
     }
 
     public double getDashboardTargetRotations() {
         return SmartDashboard.getNumber("Turret Dashboard Target (Rotations)", 0.0);
     }
+    public static double mapUnclamped(double val, double inMin, double inMax, double outMin, double outMax){
+      return outMin + (val - inMin) * (outMax - outMin) / (inMax - inMin);
+    }
+
 }
