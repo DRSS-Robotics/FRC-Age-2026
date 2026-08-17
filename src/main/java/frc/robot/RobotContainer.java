@@ -58,14 +58,17 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -130,7 +133,14 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser;
   private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
+  private final StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+    .getTable("SmartDashboard")
+    .getSubTable("posejohn")
+    .getStructTopic("Value", Pose2d.struct)
+    .publish();
 
+  // private final Pose2d initialPose = new Pose2d(17,8,new Rotation2d(Math.PI/4));
+  private final Pose2d initialPose = new Pose2d(17,8,new Rotation2d(0));
 
   private final RotateToHub comm;
 
@@ -158,11 +168,14 @@ public class RobotContainer {
     // Recently added- Micah plp
     SmartDashboard.putData("Auto Mode", autoChooser);
 
+    publisher.set(initialPose);
+    
+
     // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
     limelight = new HttpCamera("limelight", "http://limelight.local:5800");
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-    comm = new RotateToHub(m_turret, new Pose2d(0,0,new Rotation2d(0)));
+    comm = new RotateToHub(m_turret, initialPose);
     comm.execute();
 
     configureBindings();

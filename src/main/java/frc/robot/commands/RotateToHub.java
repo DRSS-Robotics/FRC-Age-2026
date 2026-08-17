@@ -65,14 +65,14 @@ public class RotateToHub extends Command {
   @Override
   public void execute() {
     // Get rotation of turret relative to robot, must be rotated 180deg to be accurate
-    Angle relativeTurretRotation = (Degrees.of(
-        mapUnclamped(m_turretSubsystem.getTurretAngle().in(Degrees),-90,90,0,180)))
-        .plus(ShooterConstants.kShooterYawOffset);
+    Angle relativeTurretRotation = m_turretSubsystem.getTurretAngle().plus(ShooterConstants.kShooterYawOffset);
 
     // get field pose of turret with the rotation of the robot 
     // Pose2d robotPose = poseEstimator.getEstimatedPosition();
     Pose2d robotPose = mainPose;
 
+    // add the turret relative pose to the robot pose, where the turret pose is rotated by robot rotation
+    // the rotation of turret pose is the relative plus robot rotation
     Pose2d turretPose = new Pose2d(robotPose.getTranslation().plus((m_turretSubsystem.turretOffset).rotateBy(robotPose.getRotation())), 
                                           new Rotation2d(relativeTurretRotation.plus(Degrees.of(robotPose.getRotation().getDegrees()))));
 
@@ -85,10 +85,11 @@ public class RotateToHub extends Command {
     );
 
     Translation2d distanceFromHub = Constants.kHubPoseCenter.getTranslation().minus(turretPose.getTranslation());
-    Angle hubAzimuth = Radians.of(Math.atan2(distanceFromHub.getY(),distanceFromHub.getX())).plus(hubOffsetAngle(turretPose));    
+    Angle hubAzimuth = Radians.of(Math.atan(distanceFromHub.getY() / distanceFromHub.getX())).plus(hubOffsetAngle(turretPose));    
 
 
-    Angle rotationNeeded = hubAzimuth.minus(Degrees.of(turretPose.getRotation().getDegrees()));
+    Angle rotationNeeded = hubAzimuth.minus(Degrees.of(turretPose.getRotation().getDegrees())
+                                            .minus(ShooterConstants.kShooterYawOffset));
     // //Gets the secant of distToRobot/txnc to find the offset angle to the hub
     // double targetAngle = Math.toDegrees(1/Math.cos(targetOffsetDistance/targetOffsetHorizontal));
     // //Determine how many ticks are needed to turn to the target angle
@@ -97,8 +98,11 @@ public class RotateToHub extends Command {
     SmartDashboard.putNumber("Hub Angle Needed", rotationNeeded.in(Degrees));
     SmartDashboard.putNumber("rotatorrrr", turretPose.getRotation().getDegrees());
     SmartDashboard.putNumber("Hub Azimuth", hubAzimuth.in(Degrees));
-    SmartDashboard.putNumber("actual angel thus can be wrong", Math.atan2(distanceFromHub.getY(),distanceFromHub.getX()));
+    SmartDashboard.putNumber("actual angel thus can be wrong", Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
     double speed = 0.3;
+
+    boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 90;
+    SmartDashboard.putBoolean("Can Rotate to autoaim", canRotate);
 
     System.out.println(rotationNeeded.in(Degrees));
     publisher.set(distanceFromHub);
@@ -124,11 +128,11 @@ public class RotateToHub extends Command {
 
     if(posX && posY){
       return Radians.of(Math.PI / 2);
-    } else if(!posX && posY){
+    } else if(posX && !posY){
       return Radians.of(Math.PI);
     } else if(!posX && !posY){
       return Radians.of(3 * Math.PI / 2);
-    } else if(posX && !posY){
+    } else if(!posX && posY){
       return Radians.of(0);
     }
 
