@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.cscore.HttpCamera;
@@ -51,7 +52,7 @@ public class Vision extends SubsystemBase {
         /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
         /* yaw offset */ VisionConstants.kLimelightYawOffset.in(Degrees));
     
-    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, 0);
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, 2);
     MT1Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag1", Pose2d.struct).publish();
     MT2Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag2", Pose2d.struct).publish();
 
@@ -68,7 +69,9 @@ public class Vision extends SubsystemBase {
 
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+        // pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+        -pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+
     LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
         .getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
@@ -87,6 +90,10 @@ public class Vision extends SubsystemBase {
       // so I commented it out for now, but that was when pose wasn't working
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    }
+    else{
+      MT1Publisher.set(new Pose2d(0,0,new Rotation2d(0)));
+      MT2Publisher.set(new Pose2d(0,0,new Rotation2d(0)));
     }
 
   }

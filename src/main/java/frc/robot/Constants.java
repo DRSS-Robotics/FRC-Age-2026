@@ -79,7 +79,7 @@ public final class Constants {
     public static final String kLimelightName = "limelight";
     public static final String kLimelightStreamURL = "http://limelight.local:5800";
 
-    public static final Distance kLimelightHeightOffset = Inches.of(11);
+    public static final Distance kLimelightHeightOffset = Inches.of(5);
     public static final Distance kLimelightSideOffset = Inches.of(0);
     public static final Distance kLimelightForwardOffset = Inches.of(-13);
     public static final Angle kLimelightYawOffset = Degrees.of(180);
