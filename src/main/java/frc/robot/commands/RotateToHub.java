@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.Radians;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -98,11 +99,15 @@ public class RotateToHub extends Command {
     );
 
     Translation2d distanceFromHub = Constants.kHubPoseCenter.getTranslation().minus(turretPose.getTranslation());
-    Angle hubAzimuth = Radians.of(Math.atan(distanceFromHub.getY() / distanceFromHub.getX())).plus(hubOffsetAngle(turretPose));    
+    // Angle hubAzimuth = Degrees.of(MathUtil.inputModulus(
+    //                               Radians.of(Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX())))
+    //                               .plus(hubOffsetAngle(turretPose)).in(Degrees), -180, 180));
+
+    Angle hubAzimuth = hubOffsetAngle(turretPose);
 
 
-    Angle rotationNeeded = hubAzimuth.plus(Degrees.of(turretPose.getRotation().getDegrees())
-                                            .minus(ShooterConstants.kShooterYawOffset));
+    Angle rotationNeeded = hubAzimuth.plus(Degrees.of(turretPose.getRotation().getDegrees()));
+
     // //Gets the secant of distToRobot/txnc to find the offset angle to the hub
     // double targetAngle = Math.toDegrees(1/Math.cos(targetOffsetDistance/targetOffsetHorizontal));
     // //Determine how many ticks are needed to turn to the target angle
@@ -122,6 +127,9 @@ public class RotateToHub extends Command {
     PosePublisher.set(turretPose);
     //Sets the motor position to the target angle
     // m_turretControl.runTurretMotor(speed, targetTicks);
+
+    SmartDashboard.putBoolean("Over/X", distanceFromHub.getX() > 0);
+    SmartDashboard.putBoolean("Over/Y", distanceFromHub.getY() > 0);
   }
 
   @Override
@@ -133,24 +141,38 @@ public class RotateToHub extends Command {
     return outMin + ((val - inMin) * (outMax - outMin)) / (inMax - inMin);
   }
 
-
+  // This function gives the angle needed to rotate from the top axis (X+ axis, or forward in most cases)
+  // to the hub, given the turret's pose on the field
   public Angle hubOffsetAngle(Pose2d turretPose){
     Translation2d distanceFromHub = Constants.kHubPoseCenter.getTranslation().minus(turretPose.getTranslation());
     
+    // getting variables for which quadrant the turret is in relative to the hub
     boolean posX = (distanceFromHub.getX() > 0);
     boolean posY = (distanceFromHub.getY() > 0);
 
+    double angleOffset = 0;
+    double angle = Math.atan(distanceFromHub.getY() / distanceFromHub.getX());
+
+    // Coordinate angle offset jank: because atan only returns values from -pi/2 to pi/2,
+    // we need to offset the angle based on which quadrant the turret is in relative to the hub
+    // Also, if the angle returned from atan is not meant to add onto the corected axis, we need to subtract it from pi/2
+    // which is why this is handled in a function. Janky solution, but best I could think of
     if(posX && posY){
-      return Radians.of(Math.PI / 2);
+      angleOffset = 0;
+      angle = Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
     } else if(posX && !posY){
-      return Radians.of(Math.PI);
+      angleOffset = 3 * Math.PI / 2;
+      angle = Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
     } else if(!posX && !posY){
-      return Radians.of(3 * Math.PI / 2);
+      angleOffset = Math.PI;
+      angle = Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
     } else if(!posX && posY){
-      return Radians.of(0);
+      angleOffset = Math.PI / 2;
+      angle = Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
     }
 
-    return null;
+    // the angleModulus is to make sure the angle is between -pi and pi
+    return Radians.of(MathUtil.angleModulus(angle + angleOffset));
   }
 
 

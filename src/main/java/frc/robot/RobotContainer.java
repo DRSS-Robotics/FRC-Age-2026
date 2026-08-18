@@ -139,8 +139,10 @@ public class RobotContainer {
     .getStructTopic("Value", Pose2d.struct)
     .publish();
 
-  private final Pose2d initialPose = new Pose2d(0,8,new Rotation2d(Math.PI/4));
-  // private final Pose2d initialPose = new Pose2d(17,8,new Rotation2d(0));
+  // private final Pose2d initialPose = new Pose2d(0,8,new Rotation2d(Math.PI/4));
+  // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/3));
+  private final Pose2d initialPose = new Pose2d(17.5,0.5,new Rotation2d(0));
+
 
   private final RotateToHub comm;
 
@@ -169,7 +171,6 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
 
     publisher.set(initialPose);
-    
 
     // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
     limelight = new HttpCamera("limelight", "http://limelight.local:5800");
