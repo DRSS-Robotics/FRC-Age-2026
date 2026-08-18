@@ -46,6 +46,12 @@ public class RotateToHub extends Command {
     .getStructTopic("Value", Translation2d.struct)
     .publish();
 
+  StructPublisher<Pose2d> PosePublisher = NetworkTableInstance.getDefault()
+    .getTable("SmartDashboard")
+    .getSubTable("turretPose")
+    .getStructTopic("Value", Pose2d.struct)
+    .publish();
+
   public RotateToHub(TurretSubsystem turret, PoseEstimator poseEstimator) {
     m_turretSubsystem = turret;
     this.poseEstimator = poseEstimator;
@@ -68,13 +74,20 @@ public class RotateToHub extends Command {
     Angle relativeTurretRotation = m_turretSubsystem.getTurretAngle().plus(ShooterConstants.kShooterYawOffset);
 
     // get field pose of turret with the rotation of the robot 
+    // TODO: actually add in realistic pose, instead of static positions
     // Pose2d robotPose = poseEstimator.getEstimatedPosition();
     Pose2d robotPose = mainPose;
-
-    // add the turret relative pose to the robot pose, where the turret pose is rotated by robot rotation
+    
+    // This is NOT actually the absolute rotation of the turret, it is the rotation from the rotation's pole to 
+    // face the center of the turret, so calculations can be held here
+    Rotation2d absoluteTurretCenterRotation = robotPose.getRotation().plus(new Rotation2d(ShooterConstants.kShooterYawOffset));
+    
+    // add the turret relative pose to the robot pose, where the turret pose is rotated by robot rotation with turret yaw offset
     // the rotation of turret pose is the relative plus robot rotation
-    Pose2d turretPose = new Pose2d(robotPose.getTranslation().plus((m_turretSubsystem.turretOffset).rotateBy(robotPose.getRotation())), 
-                                          new Rotation2d(relativeTurretRotation.plus(Degrees.of(robotPose.getRotation().getDegrees()))));
+    Pose2d turretPose = new Pose2d(robotPose.getTranslation().plus((m_turretSubsystem.turretOffset)
+                                  .rotateBy(absoluteTurretCenterRotation)), 
+                                  new Rotation2d(relativeTurretRotation.plus(
+                                  Degrees.of(robotPose.getRotation().getDegrees()))));
 
     // fill this out with a reference to rad per second, whether from pigeon or pose
     double omegaRadiansPerSecond = 0;
@@ -88,7 +101,7 @@ public class RotateToHub extends Command {
     Angle hubAzimuth = Radians.of(Math.atan(distanceFromHub.getY() / distanceFromHub.getX())).plus(hubOffsetAngle(turretPose));    
 
 
-    Angle rotationNeeded = hubAzimuth.minus(Degrees.of(turretPose.getRotation().getDegrees())
+    Angle rotationNeeded = hubAzimuth.plus(Degrees.of(turretPose.getRotation().getDegrees())
                                             .minus(ShooterConstants.kShooterYawOffset));
     // //Gets the secant of distToRobot/txnc to find the offset angle to the hub
     // double targetAngle = Math.toDegrees(1/Math.cos(targetOffsetDistance/targetOffsetHorizontal));
@@ -103,9 +116,10 @@ public class RotateToHub extends Command {
 
     boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 90;
     SmartDashboard.putBoolean("Can Rotate to autoaim", canRotate);
+    SmartDashboard.putNumber("relative turret rotation", relativeTurretRotation.in(Degrees));
 
-    System.out.println(rotationNeeded.in(Degrees));
     publisher.set(distanceFromHub);
+    PosePublisher.set(turretPose);
     //Sets the motor position to the target angle
     // m_turretControl.runTurretMotor(speed, targetTicks);
   }

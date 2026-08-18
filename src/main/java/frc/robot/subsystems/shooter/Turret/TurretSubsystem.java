@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
@@ -53,6 +54,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double m_dynamicEncoderOffset = 0.0;
 
     public TurretSubsystem(int turretMotorID) {
+
         m_turretMotor = new TalonFX(turretMotorID);
 
         m_turretMotor.getConfigurator().apply(new TalonFXConfiguration());
