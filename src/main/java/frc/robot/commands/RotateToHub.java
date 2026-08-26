@@ -106,7 +106,7 @@ public class RotateToHub extends Command {
     Angle hubAzimuth = hubOffsetAngle(turretPose);
 
 
-    Angle rotationNeeded = hubAzimuth.plus(Degrees.of(turretPose.getRotation().getDegrees()));
+    Angle rotationNeeded = normalizeAngle(hubAzimuth.plus(Degrees.of(turretPose.getRotation().getDegrees())));
 
     // //Gets the secant of distToRobot/txnc to find the offset angle to the hub
     // double targetAngle = Math.toDegrees(1/Math.cos(targetOffsetDistance/targetOffsetHorizontal));
@@ -172,7 +172,15 @@ public class RotateToHub extends Command {
     }
 
     // the angleModulus is to make sure the angle is between -pi and pi
-    return Radians.of(MathUtil.angleModulus(angle + angleOffset));
+    return normalizeAngle(angle + angleOffset);
+  }
+
+  public Angle normalizeAngle(double angle){
+    return Radians.of(MathUtil.angleModulus(angle));
+  }
+
+  public Angle normalizeAngle(Angle angle){
+    return Radians.of(MathUtil.angleModulus(angle.in(Radians)));
   }
 
 
