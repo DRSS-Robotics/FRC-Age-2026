@@ -105,8 +105,15 @@ public class RotateToHub extends Command {
 
     Angle hubAzimuth = hubOffsetAngle(turretPose);
 
-
-    Angle rotationNeeded = normalizeAngle(hubAzimuth.plus(Degrees.of(turretPose.getRotation().getDegrees())));
+    // The system setup to find the angle input needed for turret rotation to face the hub is a bit strange
+    // It will take the turret's initial offset (typically 180 deg) and subtract the turret's absolute rotation.
+    // This might seem arbitrary, but it's done because the rotation needed is a difference in angles
+    Angle rotationNeededFromCenter = normalizeAngle(hubAzimuth.plus(ShooterConstants.kShooterYawOffset)
+                                                    .minus(Degrees.of(robotPose.getRotation().getDegrees())));
+    
+    Angle rotationNeeded = normalizeAngle(hubAzimuth.plus(ShooterConstants.kShooterYawOffset)
+                                                    .minus(Degrees.of(robotPose.getRotation().getDegrees())
+                                                    .plus(m_turretSubsystem.getTurretAngle())));
 
     // //Gets the secant of distToRobot/txnc to find the offset angle to the hub
     // double targetAngle = Math.toDegrees(1/Math.cos(targetOffsetDistance/targetOffsetHorizontal));
@@ -121,7 +128,7 @@ public class RotateToHub extends Command {
 
     boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 90;
     SmartDashboard.putBoolean("Can Rotate to autoaim", canRotate);
-    SmartDashboard.putNumber("relative turret rotation", relativeTurretRotation.in(Degrees));
+    SmartDashboard.putNumber("fromcenter", rotationNeededFromCenter.in(Degrees));
 
     publisher.set(distanceFromHub);
     PosePublisher.set(turretPose);

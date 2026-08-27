@@ -42,6 +42,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final DutyCycleEncoder m_turretEncoder = new DutyCycleEncoder(0); // through bore absolute encoder code, need to get
                                                                               // channel number
     private final Encoder m_turretRelativeEncoder = new Encoder(1,2);
+    private final VoltageOut
+
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0.0);
 
     private static final double MIN_ROTATION = ShooterConstants.kMaxReverseRotation;
@@ -96,10 +98,30 @@ public class TurretSubsystem extends SubsystemBase {
 
         m_bootTimer.start();
 
+
+
+
     }
 
     // Angular velocity limit can be passed or factored via request's velocity
     // feedforward
+    // MAX's FUNCTION
+
+    // public void setTurretPosition(double targetColumnRotation, double columnVelocityFeedforward) {
+    //     Angle turretRotation = Degrees.of((m_turretRelativeEncoder.get() / 8192.0) * 360).plus(ShooterConstants.kShooterYawOffset);
+    //     // turretRotation
+    //     double clampedColumnRotation = Math.max(-0.48, Math.min(0.48, targetColumnRotation));
+
+    //     double motorTargetRotation = clampedColumnRotation * ShooterConstants.kTurretGearRatio;
+    //     double motorVelocityFeedforward = columnVelocityFeedforward * ShooterConstants.kTurretGearRatio;
+
+    //     m_turretMotor.setControl(m_positionControl
+    //             .withPosition(motorTargetRotation)
+    //             .withVelocity(motorVelocityFeedforward));
+
+    // }
+
+    // FELIX's FUNCTION
 
     public void setTurretPosition(double targetColumnRotation, double columnVelocityFeedforward) {
         Angle turretRotation = Degrees.of((m_turretRelativeEncoder.get() / 8192.0) * 360).plus(ShooterConstants.kShooterYawOffset);
@@ -128,7 +150,7 @@ public class TurretSubsystem extends SubsystemBase {
     public Angle getTurretAngle() {
 
         // Angle turretRotation = Degrees.of((m_turretRelativeEncoder.get() / 8192.0) * 360);
-        Angle turretRotation = Degrees.of(0);
+        Angle turretRotation = Degrees.of(70);
 
         double rawAbsolute = m_turretEncoder.get();
         double unmappedAngle = rawAbsolute - m_dynamicEncoderOffset;

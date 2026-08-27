@@ -139,9 +139,9 @@ public class RobotContainer {
     .getStructTopic("Value", Pose2d.struct)
     .publish();
 
-  // private final Pose2d initialPose = new Pose2d(0,8,new Rotation2d(Math.PI/4));
-  // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/3));
-  private final Pose2d initialPose = new Pose2d(17.5,0.5,new Rotation2d(0));
+  private final Pose2d initialPose = new Pose2d(6,2,new Rotation2d(Math.PI/6));
+  // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/8));
+  // private final Pose2d initialPose = new Pose2d(17.5,0.5,new Rotation2d(0));
 
 
   private final RotateToHub comm;
