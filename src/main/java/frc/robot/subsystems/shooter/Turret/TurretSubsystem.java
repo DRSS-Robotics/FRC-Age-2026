@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
@@ -41,8 +42,32 @@ public class TurretSubsystem extends SubsystemBase {
     // private Encoder m_turretEncoder;
     private final DutyCycleEncoder m_turretEncoder = new DutyCycleEncoder(0); // through bore absolute encoder code, need to get
                                                                               // channel number
+    
+
+
+
+
+
+
+
+
+
+
     private final Encoder m_turretRelativeEncoder = new Encoder(1,2);
-    private final VoltageOut
+
+    // Creating new Voltage that will be supplied to turret for positional control
+    // Using Voltage because it supplies constant power, and does not decline in performance when battery is lower
+    private final VoltageOut turretVoltage = new VoltageOut(0);
+
+    // TODO: TUNE VALUES
+    private final PIDController turretPID = new PIDController(0,0,0);
+
+
+
+
+
+
+    
 
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0.0);
 
