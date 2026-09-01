@@ -199,4 +199,11 @@ public class RotateToHub extends Command {
   public InterruptionBehavior getInterruptionBehavior() {
     return InterruptionBehavior.kCancelIncoming;
   }
+
+  // Override to return true so it runs when the robot is disabled, on during testing
+  // TODO: Remove when testing is done
+  @Override
+  public boolean runsWhenDisabled() {
+    return true;
+  }
 }

@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -60,11 +61,11 @@ public class TurretSubsystem extends SubsystemBase {
     private final VoltageOut turretVoltage = new VoltageOut(0);
 
     // TODO: TUNE VALUES
-    private final PIDController turretPID = new PIDController(0,0,0);
+    private final PIDController turretPID;
+    private final SimpleMotorFeedforward turretFeedforward;
 
-
-
-
+    private boolean automatedControl = true;
+    private Angle desiredPosition = Degrees.of(20);
 
 
     
@@ -88,7 +89,8 @@ public class TurretSubsystem extends SubsystemBase {
 
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
-        talonConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        // Change motor to CounterClockwise so positive voltage does in positive encoder reading
+        talonConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         // talonConfigs.MotorOutput.Inverted =
         // com.ctre.phoenix6.signals.InvertedValue.Clockwise_Positive;
@@ -123,7 +125,9 @@ public class TurretSubsystem extends SubsystemBase {
 
         m_bootTimer.start();
 
-
+        m_turretRelativeEncoder.reset();
+        turretPID = new PIDController(0.25,0,0.03);
+        turretFeedforward = new SimpleMotorFeedforward(0.6, 0.25);
 
 
     }
@@ -147,19 +151,12 @@ public class TurretSubsystem extends SubsystemBase {
     // }
 
     // FELIX's FUNCTION
-
-    public void setTurretPosition(double targetColumnRotation, double columnVelocityFeedforward) {
-        Angle turretRotation = Degrees.of((m_turretRelativeEncoder.get() / 8192.0) * 360).plus(ShooterConstants.kShooterYawOffset);
-        // turretRotation
-        double clampedColumnRotation = Math.max(-0.48, Math.min(0.48, targetColumnRotation));
-
-        double motorTargetRotation = clampedColumnRotation * ShooterConstants.kTurretGearRatio;
-        double motorVelocityFeedforward = columnVelocityFeedforward * ShooterConstants.kTurretGearRatio;
-
-        m_turretMotor.setControl(m_positionControl
-                .withPosition(motorTargetRotation)
-                .withVelocity(motorVelocityFeedforward));
-
+    // Takes the desired turret position in degrees and sets the variable to that, saving it for later
+    public void setTurretPosition(double desiredPosition) {
+        this.desiredPosition = Degrees.of(desiredPosition);
+    }
+    public void setTurretPosition(Angle desiredPosition) {
+        this.desiredPosition = desiredPosition;
     }
 
     public void setTurretVelocity(double turretVelocityDegreesPerSecond) {
@@ -167,24 +164,20 @@ public class TurretSubsystem extends SubsystemBase {
         double columnRotationsPerSecond = turretVelocityDegreesPerSecond / 360.0;
         double motorRotationsPerSecond = columnRotationsPerSecond * ShooterConstants.kTurretGearRatio;
 
-        m_turretMotor.setControl(m_velocityControl.withVelocity(motorRotationsPerSecond));
+        // m_turretMotor.setControl(m_velocityControl.withVelocity(motorRotationsPerSecond));
 
     }
 
-    // public double getTurretAngle() {
+    // Returns relative encoder's turret angle
     public Angle getTurretAngle() {
+        // Take the encoder ticks and divide by 2048, which is the amount of ticks in a full rotation
+        // Then multiply by the inverse of the gear ratio to get the rotation stage of the turret
+        // Multiply by 360 to convert to degrees
+        Angle turretRotation = Degrees.of(((m_turretRelativeEncoder.get() / 2048.0) * 1.0 / ShooterConstants.kTurretGearRatio) * 360);
 
-        // Angle turretRotation = Degrees.of((m_turretRelativeEncoder.get() / 8192.0) * 360);
-        Angle turretRotation = Degrees.of(70);
+        SmartDashboard.putNumber("Turret Relative Ticks", m_turretRelativeEncoder.get());
 
-        double rawAbsolute = m_turretEncoder.get();
-        double unmappedAngle = rawAbsolute - m_dynamicEncoderOffset;
-
-        double boundedAngle = MathUtil.inputModulus(unmappedAngle, -0.5, 0.5);
-
-        // return MathUtil.inputModulus(unmappedAngle, -0.5, 0.5);
         return turretRotation;
-        
     }
 
     public double getAbsoluteTurretAngle() {
@@ -197,28 +190,48 @@ public class TurretSubsystem extends SubsystemBase {
         
     }
 
+    public void enableAutomatedControl() {
+        automatedControl = true;
+    }
+    public void disableAutomatedControl() {
+        automatedControl = false;
+    }
+    
+
     @Override
     public void periodic() {
 
         // i dont even know anymore bro, mind kaboom bro
 
         if (!positionSeeded && m_bootTimer.hasElapsed(1.0) && m_turretEncoder.isConnected()) {
+            if(automatedControl) {
+                // Take the saved desired position and calculate the voltage needed to reach the position
+                double calculatedVoltage = MathUtil.clamp(turretPID.calculate(getTurretAngle().in(Degrees), desiredPosition.in(Degrees)),-1,1);
+                SmartDashboard.putNumber("Turret PID Voltage", calculatedVoltage);
+                // turretFeedforward.calculate(calculatedVoltage)
+                SmartDashboard.putNumber("Turret feedforward", turretFeedforward.calculate(calculatedVoltage));
+                m_turretMotor.setControl(turretVoltage.withOutput(turretFeedforward.calculate(calculatedVoltage)));
+                
+            }
+            else{
 
-            m_dynamicEncoderOffset = m_turretEncoder.get();
+                m_dynamicEncoderOffset = m_turretEncoder.get();
 
-            double absolutePosition = getAbsoluteTurretAngle();
+                double absolutePosition = getAbsoluteTurretAngle();
 
-            double motorRotations = absolutePosition * ShooterConstants.kTurretGearRatio;
-            m_turretMotor.setPosition(motorRotations);
+                double motorRotations = absolutePosition * ShooterConstants.kTurretGearRatio;
+                // m_turretMotor.setPosition(motorRotations);
 
-            positionSeeded = true;
-            m_bootTimer.stop();
+                positionSeeded = true;
+                m_bootTimer.stop();
 
-            System.out.println("Turret calibrated! Captured center offset at: " + m_dynamicEncoderOffset);
+                System.out.println("Turret calibrated! Captured center offset at: " + m_dynamicEncoderOffset);
+            }
         }
 
         // Stream data to shuffleboard
         SmartDashboard.putNumber("Turret Absolute Angle", getAbsoluteTurretAngle());
+        SmartDashboard.putNumber("Turret Relative Angle", getTurretAngle().in(Degrees));
         SmartDashboard.putNumber("Turret Motor Position", m_turretMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Turret Motor Velocity (RPS)", m_turretMotor.getVelocity().getValueAsDouble());
 

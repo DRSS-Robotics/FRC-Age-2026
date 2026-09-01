@@ -139,7 +139,7 @@ public class RobotContainer {
     .getStructTopic("Value", Pose2d.struct)
     .publish();
 
-  private final Pose2d initialPose = new Pose2d(6,2,new Rotation2d(Math.PI/6));
+  private final Pose2d initialPose = new Pose2d(0,0,new Rotation2d(Math.PI/2));
   // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/8));
   // private final Pose2d initialPose = new Pose2d(17.5,0.5,new Rotation2d(0));
 
@@ -177,7 +177,7 @@ public class RobotContainer {
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     comm = new RotateToHub(m_turret, initialPose);
-    comm.execute();
+    CommandScheduler.getInstance().schedule(comm);
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -195,10 +195,10 @@ public class RobotContainer {
 
 
 //puts turret on right joystick
-    m_turret.setDefaultCommand(
-                new DriveYawMotor(
-                    m_turret,
-                    () -> -m_operatorController.getRightX()));
+    // m_turret.setDefaultCommand(
+    //             new DriveYawMotor(
+    //                 m_turret,
+    //                 () -> -m_operatorController.getRightX()));
 
     // m_driverController.a().whileTrue(new RotateToTag(m_turret));
 
