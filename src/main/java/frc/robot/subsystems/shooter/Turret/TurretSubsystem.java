@@ -152,11 +152,11 @@ public class TurretSubsystem extends SubsystemBase {
 
     // FELIX's FUNCTION
     // Takes the desired turret position in degrees and sets the variable to that, saving it for later
-    public void setTurretPosition(double desiredPosition) {
-        this.desiredPosition = Degrees.of(desiredPosition);
+    public void setTurretPosition(double position) {
+        desiredPosition = Degrees.of(position);
     }
-    public void setTurretPosition(Angle desiredPosition) {
-        this.desiredPosition = desiredPosition;
+    public void setTurretPosition(Angle position) {
+        desiredPosition = position;
     }
 
     public void setTurretVelocity(double turretVelocityDegreesPerSecond) {

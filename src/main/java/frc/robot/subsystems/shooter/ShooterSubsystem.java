@@ -54,8 +54,12 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     
     private TalonFX m_hoodMotor;
     private Slot0Configs hoodMotorVelocityConfigs;
+    private Slot1Configs hoodMotorPositionConfigs;
   private PositionVoltage hoodPositionRequest;
   private VelocityVoltage hoodVelocityRequest;
+  private boolean hoodPositional = true;
+
+  private Angle hoodDesiredPosition = Degrees.of(0.0);
   private AngularVelocity hoodMotorSetpoint = DegreesPerSecond.of(0);
   private TrapezoidProfile.State hoodVelocityGoal = new TrapezoidProfile.State();
   private TrapezoidProfile.State hoodVelocitySetpoint = new TrapezoidProfile.State();
@@ -91,6 +95,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
     m_hoodMotor = new TalonFX(hoodMotorId);
     
+    hoodMotorPositionConfigs = new Slot1Configs();
     hoodMotorVelocityConfigs = new Slot0Configs();
     //placeholder ids again 
     hoodMotorVelocityConfigs.kS = 0.2;
@@ -101,7 +106,9 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     m_hoodMotor.getConfigurator().apply(hoodMotorVelocityConfigs);
     directionalConfigs.Inverted = InvertedValue.Clockwise_Positive;
     m_hoodMotor.getConfigurator().apply(directionalConfigs);
+    m_hoodMotor.getConfigurator().apply(hootMotorPositionConfigs);
     hoodVelocityRequest = new VelocityVoltage(0).withSlot(0);
+    hoodPositionRequest = new PositionVoltage(0).withSlot(1);
 
     // m_yawMotor = new TalonFX(yawMotorId);
     // yawMotorPositionConfigs = new Slot0Configs();
@@ -197,6 +204,10 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     hoodVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
   }
 
+  public void setHoodMotorPosition(Angle position){
+    hoodDesiredPosition = position;
+  }
+
   //    public void runYawMotor(AngularVelocity speed) {
   //   yawMotorSetpoint = speed;
   //   yawVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
@@ -220,7 +231,15 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
     m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
 
-    m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));  
+
+    // If the shooter hood is being controlled positionally, set the control to a position request
+    // Otherwise, use the velocity request with the Trapezoidal Profile
+    if(hoodPositional){
+      m_hoodMotor.setControl(hoodPositionRequest.withPosition(hoodDesiredPosition.in(Units.Rotations)));
+    }
+    else{
+      m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));
+    }
 
     //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
 
