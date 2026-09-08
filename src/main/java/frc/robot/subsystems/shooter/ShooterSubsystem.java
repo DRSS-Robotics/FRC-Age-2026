@@ -241,6 +241,8 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     else{
       m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));
     }
+    // bruh
+    System.out.println("yes");
 
     //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
 
