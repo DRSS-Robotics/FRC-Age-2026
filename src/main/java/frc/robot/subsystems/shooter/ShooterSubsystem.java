@@ -14,6 +14,7 @@ import frc.robot.TestableSubsystem;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -57,7 +58,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     private Slot1Configs hoodMotorPositionConfigs;
   private PositionVoltage hoodPositionRequest;
   private VelocityVoltage hoodVelocityRequest;
-  private boolean hoodPositional = true;
+  private boolean hoodPositional = false;
 
   private Angle hoodDesiredPosition = Degrees.of(0.0);
   private AngularVelocity hoodMotorSetpoint = DegreesPerSecond.of(0);
@@ -106,7 +107,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     m_hoodMotor.getConfigurator().apply(hoodMotorVelocityConfigs);
     directionalConfigs.Inverted = InvertedValue.Clockwise_Positive;
     m_hoodMotor.getConfigurator().apply(directionalConfigs);
-    m_hoodMotor.getConfigurator().apply(hootMotorPositionConfigs);
+    m_hoodMotor.getConfigurator().apply(hoodMotorPositionConfigs);
     hoodVelocityRequest = new VelocityVoltage(0).withSlot(0);
     hoodPositionRequest = new PositionVoltage(0).withSlot(1);
 
@@ -195,9 +196,9 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   //   return hoodMotorSetPoint;
   // }
   
-  // public void runHoodMotors(double degreesPerSecond) {
-  //   runHoodMotors(DegreesPerSecond.of(degreesPerSecond));
-  // }
+  public void runHoodMotors(double degreesPerSecond) {
+    runHoodMotors(DegreesPerSecond.of(degreesPerSecond));
+  }
   
   public void runHoodMotors(AngularVelocity speed) {
     hoodMotorSetpoint = speed;
@@ -235,7 +236,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     // If the shooter hood is being controlled positionally, set the control to a position request
     // Otherwise, use the velocity request with the Trapezoidal Profile
     if(hoodPositional){
-      m_hoodMotor.setControl(hoodPositionRequest.withPosition(hoodDesiredPosition.in(Units.Rotations)));
+      m_hoodMotor.setControl(hoodPositionRequest.withPosition(hoodDesiredPosition.in(Rotations)));
     }
     else{
       m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));

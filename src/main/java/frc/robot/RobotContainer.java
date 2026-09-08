@@ -209,6 +209,8 @@ public class RobotContainer {
                     0.75),
                 12) + 0.225))));
 
+    m_driverController.a().whileTrue(new DriveShooterHood(m_shooter, 1));
+
     // back wall position
     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
         () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.550),

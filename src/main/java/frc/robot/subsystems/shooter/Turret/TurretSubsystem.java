@@ -64,7 +64,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final PIDController turretPID;
     private final SimpleMotorFeedforward turretFeedforward;
 
-    private boolean automatedControl = true;
+    private boolean automatedControl = false;
     private Angle desiredPosition = Degrees.of(20);
 
 
@@ -126,8 +126,8 @@ public class TurretSubsystem extends SubsystemBase {
         m_bootTimer.start();
 
         m_turretRelativeEncoder.reset();
-        turretPID = new PIDController(0.25,0,0.03);
-        turretFeedforward = new SimpleMotorFeedforward(0.6, 0.25);
+        turretPID = new PIDController(0.25,0,0.04);
+        turretFeedforward = new SimpleMotorFeedforward(0.58, 0.3);
 
 
     }
@@ -207,10 +207,15 @@ public class TurretSubsystem extends SubsystemBase {
             if(automatedControl) {
                 // Take the saved desired position and calculate the voltage needed to reach the position
                 double calculatedVoltage = MathUtil.clamp(turretPID.calculate(getTurretAngle().in(Degrees), desiredPosition.in(Degrees)),-1,1);
+
                 SmartDashboard.putNumber("Turret PID Voltage", calculatedVoltage);
                 // turretFeedforward.calculate(calculatedVoltage)
                 SmartDashboard.putNumber("Turret feedforward", turretFeedforward.calculate(calculatedVoltage));
-                m_turretMotor.setControl(turretVoltage.withOutput(turretFeedforward.calculate(calculatedVoltage)));
+
+
+                // m_turretMotor.setControl(turretVoltage.withOutput(turretFeedforward.calculate(calculatedVoltage)));
+
+                m_turretMotor.setControl(turretVoltage.withOutput(turretFeedforward.calculate(1.0)));
                 
             }
             else{

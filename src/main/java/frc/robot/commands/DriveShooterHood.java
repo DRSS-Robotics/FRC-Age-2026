@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import java.util.function.Supplier;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ShooterConstants;
 
@@ -18,11 +19,11 @@ import frc.robot.Constants.ShooterConstants;
 public class DriveShooterHood extends Command {
 
   private ShooterSubsystem m_hoodMotor;
-  private Supplier<AngularVelocity> speed;
+  private double speed;
 
-  public DriveShooterHood(ShooterSubsystem hood, Supplier<AngularVelocity> speedSupplier) {
+  public DriveShooterHood(ShooterSubsystem hood, double speed) {
     m_hoodMotor = hood;
-    speed = speedSupplier;
+    this.speed = speed;
   }
 
   @Override
@@ -33,12 +34,17 @@ public class DriveShooterHood extends Command {
   public void execute() {
     //m_hoodMotor.runHoodMotors(speed.get());
     //System.out.println(speed.get());
+    SmartDashboard.putNumber("Hood Positon", m_hoodMotor.getHoodEncoderPosition());
+
     if (m_hoodMotor.getHoodEncoderPosition() < 0.9){
     m_hoodMotor.runHoodMotors(
         DegreesPerSecond.of(480));
         System.out.println(m_hoodMotor.getHoodEncoderPosition());
     } else{
-        m_hoodMotor.runHoodMotors(DegreesPerSecond.of(0));
+        // m_hoodMotor.runHoodMotors(DegreesPerSecond.of(0));
+        m_hoodMotor.runHoodMotors(
+        DegreesPerSecond.of(480));
+        System.out.println(m_hoodMotor.getHoodEncoderPosition());
     }
   }
 
