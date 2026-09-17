@@ -10,7 +10,8 @@ import frc.robot.commands.SoupKickback;
 import frc.robot.commands.ToggleIntakeCommand;
 import frc.robot.commands.ToggleIntakeCommandReverse;
 import frc.robot.commands.ToggleLaunchMotor;
-import frc.robot.commands.ToggleLaunchMotor;
+import frc.robot.commands.AutoPowerShoot;
+import frc.robot.commands.AutoPowerShoot;
 import frc.robot.commands.ToggleWallCommand;
 import frc.robot.commands.AutoCommands.ExpandStorageAutoCommand;
 import frc.robot.commands.AutoCommands.IntakeAutoCommand;
@@ -38,6 +39,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -51,7 +53,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -62,6 +63,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -146,6 +148,7 @@ public class RobotContainer {
 
   private final RotateToHub comm;
 
+
   public RobotContainer() {
 
     NamedCommands.registerCommand("LongShoot", new AutoShootLongDistance(m_shooter));
@@ -209,22 +212,32 @@ public class RobotContainer {
                     0.75),
                 12) + 0.225))));
 
-    m_driverController.a().whileTrue(new DriveShooterHood(m_shooter, 1));
+    // hood velocity control, currently proof of concept
+    // m_driverController.povDown().whileTrue(new DriveShooterHood(m_shooter, -1));
 
-    // back wall position
-    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.550),
-        () -> false));
-    // mid position
-    m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.475),
-        () -> false));
-    // close position
-    m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
-        () -> false));
+    // // back wall position
+    // m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.550),
+    //     () -> false));
+    // // mid position
+    // m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.475),
+    //     () -> false));
+    // // close position
+    // m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
+    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
+    //     () -> false));
 
-    m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    
+
+
+
+    // TODO: UNCOMMENT INTAKE BEFORE PUSHING
+    // m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+
+    m_operatorController.b().whileTrue(new AutoPowerShoot(m_shooter, () -> false));
+    
+
     m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
 
     m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));

@@ -28,21 +28,18 @@ public class DriveShooterHood extends Command {
 
   @Override
   public void initialize() {
+    System.out.println("started");
   }
 
   @Override
   public void execute() {
+    System.out.println("running: " + m_hoodMotor.getHoodEncoderPosition());
     //m_hoodMotor.runHoodMotors(speed.get());
     //System.out.println(speed.get());
     SmartDashboard.putNumber("Hood Positon", m_hoodMotor.getHoodEncoderPosition());
 
     if (m_hoodMotor.getHoodEncoderPosition() < 0.9){
     m_hoodMotor.runHoodMotors(
-        DegreesPerSecond.of(480));
-        System.out.println(m_hoodMotor.getHoodEncoderPosition());
-    } else{
-        // m_hoodMotor.runHoodMotors(DegreesPerSecond.of(0));
-        m_hoodMotor.runHoodMotors(
         DegreesPerSecond.of(480));
         System.out.println(m_hoodMotor.getHoodEncoderPosition());
     }

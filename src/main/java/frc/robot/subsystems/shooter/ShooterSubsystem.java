@@ -174,11 +174,11 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     return launchMotorSetpoint;
   }
 
-  public void runLaunchMotors(double degreesPerSecond) {
-    runLaunchMotors(DegreesPerSecond.of(degreesPerSecond));
+  public void runShooterMotors(double degreesPerSecond) {
+    runShooterMotors(DegreesPerSecond.of(degreesPerSecond));
   }
 
-  public void runLaunchMotors(AngularVelocity speed) {
+  public void runShooterMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
     launchVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
   }
@@ -241,8 +241,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     else{
       m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));
     }
-    // bruh
-    System.out.println("yes");
 
     //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
 

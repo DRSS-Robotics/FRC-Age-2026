@@ -10,19 +10,20 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ToggleLaunchMotor extends Command {
+public class AutoPowerShoot extends Command {
 
   private final ShooterSubsystem m_subsystem;
-  private Supplier<AngularVelocity> speed;
   private Supplier<Boolean> endOnTrue;
 
-  public ToggleLaunchMotor(ShooterSubsystem shooter, Supplier<AngularVelocity> speedSupplier,
-      Supplier<Boolean> endCommandWhenTrue) {
+  // Essentially works as a function: input distance from the hub, returns power that will shoot into the hub correctly
+  private InterpolatingDoubleTreeMap shooterSpeedMap = new InterpolatingDoubleTreeMap();
+
+  public AutoPowerShoot(ShooterSubsystem shooter, Supplier<Boolean> endCommandWhenTrue) {
     m_subsystem = shooter;
-    speed = speedSupplier;
     endOnTrue = endCommandWhenTrue;
     addRequirements(shooter);
   }
@@ -33,7 +34,8 @@ public class ToggleLaunchMotor extends Command {
 
   @Override
   public void execute() {
-    m_subsystem.runShooterMotors(speed.get());
+    AngularVelocity speed = DegreesPerSecond.of(3700);
+    m_subsystem.runShooterMotors(speed);
   }
 
   @Override
