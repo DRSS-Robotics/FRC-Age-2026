@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import static edu.wpi.first.units.Units.*;
@@ -23,7 +24,6 @@ public class Vision extends SubsystemBase {
 
   private HttpCamera limelight;
 
-  private SwerveDrivePoseEstimator poseEstimator;
   private CorePigeon2 pigeon;
   private CommandSwerveDrivetrain drivetrain;
   private StructPublisher<Pose2d> MT1Publisher;
@@ -31,8 +31,7 @@ public class Vision extends SubsystemBase {
   
 
   /** Creates a new Vision subsystem */
-  public Vision(SwerveDrivePoseEstimator poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
-    this.poseEstimator = poseEstimator;
+  public Vision(CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
     this.pigeon = pigeon;
     this.drivetrain = drivetrain;
 
@@ -52,7 +51,7 @@ public class Vision extends SubsystemBase {
         /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
         /* yaw offset */ VisionConstants.kLimelightYawOffset.in(Degrees));
     
-    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, 2);
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,2);
     MT1Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag1", Pose2d.struct).publish();
     MT2Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag2", Pose2d.struct).publish();
 
@@ -69,8 +68,7 @@ public class Vision extends SubsystemBase {
 
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        -pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
-        // -pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+        drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
     LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
         .getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);

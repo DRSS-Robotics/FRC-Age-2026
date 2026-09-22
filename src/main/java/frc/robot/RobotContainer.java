@@ -110,7 +110,6 @@ public class RobotContainer {
   // this is all stuff for cameras that is temporary code in main
   private final HttpCamera limelight;
 
-  private final SwerveDrivePoseEstimator poseEstimator;
   private final Vision m_vision;
 
 
@@ -188,16 +187,10 @@ public class RobotContainer {
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     // TODO: link initial pose to maybe a draggable object on a field? something like that
-    // rotations affect counterclockwise, like a standard graph
-    poseEstimator = new SwerveDrivePoseEstimator(
-            drivetrain.getKinematics(), 
-            drivetrain.getRotation3d().toRotation2d(),
-            getModulePositions(),
-            initialPose);
-    // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
 
 
-    m_vision = new Vision(poseEstimator, drivetrain.getPigeon2(), drivetrain);
+
+    m_vision = new Vision(drivetrain.getPigeon2(), drivetrain);
 
     gameField = new Field2d();
     SmartDashboard.putData("Field", gameField);
@@ -372,31 +365,22 @@ public class RobotContainer {
 
 
   // This is all code for the Vision subsystem, specifically updating the poseEstimator
-  private SwerveModulePosition[] getModulePositions() {
-    var modules = drivetrain.getModules();
-    SwerveModulePosition[] modpos = new SwerveModulePosition[4];
-    for(int x=0; x<4; x++){
-        modpos[x] = modules[x].getPosition(true);
-    }
-    return modpos;
+  public void questNavUpdate(Pose2d measuredPose, double timestamp){
+    // poseEstimator.addVisionMeasurement(measuredPose, timestamp);
   }
 
-  public void questNavUpdate(Pose2d measuredPose, double timestamp){
-    poseEstimator.addVisionMeasurement(measuredPose, timestamp);
-  }
-  // this function should be called periodically
+  // This function should be called periodically
   public void updateOdometry(){
-    if(!DriverStation.isDisabled()){
-        poseEstimator.update(drivetrain.getRotation3d().toRotation2d(), getModulePositions());
-    }
     VisionMeasurement mt2 = m_vision.limelightPeriodic();
     if(mt2.isValid){
-      poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+      drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds, VecBuilder.fill(0.4,0.4,999999));
     }
     // m_questNav.periodicUpdate();
     
     
-    gameField.setRobotPose(poseEstimator.getEstimatedPosition());
+    gameField.setRobotPose(drivetrain.getState().Pose);
+    SmartDashboard.putNumber("mainrot", drivetrain.getState().Pose.getRotation().getDegrees());
+    SmartDashboard.putNumber("rawh", drivetrain.getState().RawHeading.getDegrees());
     
   }
 
