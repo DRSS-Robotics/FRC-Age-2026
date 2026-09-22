@@ -25,6 +25,8 @@ import frc.robot.commands.DriveLaunchMotor;
 import frc.robot.commands.DriveShooterHood;
 import frc.robot.commands.DriveTransferCommand;
 import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.VisionMeasurement;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.Turret.DriveTurretToDashboard;
 import frc.robot.subsystems.shooter.Turret.DriveYawMotor;
@@ -54,12 +56,15 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -67,6 +72,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -82,9 +88,6 @@ import frc.robot.generated.TunerConstants;
 
 public class RobotContainer {
 
-  // TODO: actually initialize a SwerveDrivePoseEstimator
-  // public SwerveDrivePoseEstimator m_poseEstimator = new
-  // SwerveDrivePoseEstimator();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem(
         ShooterConstants.kShooterMotorLeftId,
         ShooterConstants.kShooterMotorRightId, ShooterConstants.kHoodMotorId,
@@ -106,6 +109,9 @@ public class RobotContainer {
 
   // this is all stuff for cameras that is temporary code in main
   private final HttpCamera limelight;
+
+  private final SwerveDrivePoseEstimator poseEstimator;
+  private final Vision m_vision;
 
 
   private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
@@ -148,6 +154,8 @@ public class RobotContainer {
 
   private final RotateToHub comm;
 
+  private final Field2d gameField;
+
 
   public RobotContainer() {
 
@@ -178,6 +186,21 @@ public class RobotContainer {
     // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
     limelight = new HttpCamera("limelight", "http://limelight.local:5800");
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+    // TODO: link initial pose to maybe a draggable object on a field? something like that
+    // rotations affect counterclockwise, like a standard graph
+    poseEstimator = new SwerveDrivePoseEstimator(
+            drivetrain.getKinematics(), 
+            drivetrain.getRotation3d().toRotation2d(),
+            getModulePositions(),
+            initialPose);
+    // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+
+
+    m_vision = new Vision(poseEstimator, drivetrain.getPigeon2(), drivetrain);
+
+    gameField = new Field2d();
+    SmartDashboard.putData("Field", gameField);
 
     comm = new RotateToHub(m_turret, initialPose);
     CommandScheduler.getInstance().schedule(comm);
@@ -233,7 +256,7 @@ public class RobotContainer {
 
 
     // TODO: UNCOMMENT INTAKE BEFORE PUSHING
-    // m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    m_operatorController.a().onTrue(new ToggleIntakeCommand(m_superstructure));
 
     m_operatorController.b().whileTrue(new AutoPowerShoot(m_shooter, () -> false));
     
@@ -338,18 +361,6 @@ public class RobotContainer {
     return Math.round(in * bins) / bins;
   }
 
-  // these should be moved to utils once we have utils class from superstrcuture
-  // !!
-  private static double powPreserveSign(double a, double b) {
-    return Math.pow(Math.abs(a), b) * Math.signum(a);
-  }
-
-  private static int signInclusive(double a) {
-    return (a >= 0.0) ? 1 : -1;
-    // new Trigger(m_exampleSubsystem::exampleCondition)
-    // .onTrue(new ExampleCommand(m_exampleSubsystem));
-  }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -359,15 +370,34 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-  // converts a m_driverController position into an angle that can be used by
-  // turret set
-  // position commands (straight forward on the joytick is 180 deg)
-  private static double convertPositionToTurretAngle(double x, double y) {
-    return (180 / Math.PI) * Math.atan(
-        y / x) + (90.0 * (signInclusive(x) + 2));
+
+  // This is all code for the Vision subsystem, specifically updating the poseEstimator
+  private SwerveModulePosition[] getModulePositions() {
+    var modules = drivetrain.getModules();
+    SwerveModulePosition[] modpos = new SwerveModulePosition[4];
+    for(int x=0; x<4; x++){
+        modpos[x] = modules[x].getPosition(true);
+    }
+    return modpos;
   }
-  // converts a m_driverController position into an angle that can be used by
-  // turret set
-  // position commands (straight forward on the joytick is 180 deg)
+
+  public void questNavUpdate(Pose2d measuredPose, double timestamp){
+    poseEstimator.addVisionMeasurement(measuredPose, timestamp);
+  }
+  // this function should be called periodically
+  public void updateOdometry(){
+    if(!DriverStation.isDisabled()){
+        poseEstimator.update(drivetrain.getRotation3d().toRotation2d(), getModulePositions());
+    }
+    VisionMeasurement mt2 = m_vision.limelightPeriodic();
+    if(mt2.isValid){
+      poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    }
+    // m_questNav.periodicUpdate();
+    
+    
+    gameField.setRobotPose(poseEstimator.getEstimatedPosition());
+    
+  }
 
 }

@@ -6,6 +6,10 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import static edu.wpi.first.units.Units.*;
@@ -22,6 +26,8 @@ public class Vision extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator;
   private CorePigeon2 pigeon;
   private CommandSwerveDrivetrain drivetrain;
+  private StructPublisher<Pose2d> MT1Publisher;
+  private StructPublisher<Pose2d> MT2Publisher;
   
 
   /** Creates a new Vision subsystem */
@@ -45,6 +51,10 @@ public class Vision extends SubsystemBase {
         /* roll offset */ 0,
         /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
         /* yaw offset */ VisionConstants.kLimelightYawOffset.in(Degrees));
+    
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, 2);
+    MT1Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag1", Pose2d.struct).publish();
+    MT2Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag2", Pose2d.struct).publish();
 
     
   }
@@ -55,25 +65,35 @@ public class Vision extends SubsystemBase {
     System.out.println("VISION: Set Limelight pipeline to " + index);
   }
 
-  public void limelightPeriodic(){
+  public VisionMeasurement limelightPeriodic(){
 
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+        -pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+        // -pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+
+    LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
+        .getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
         .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at
     // least 1 tag is detected
+
     if (Math.abs(pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
       // CHECK IF THIS IS ACTUALLY CHANGING ROBOT CONTAINER POSE ESTIMATOR
-      poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+      // poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+      MT1Publisher.set(mt1.pose);
+      MT2Publisher.set(mt2.pose);
       
       // when running this, which I assumed would adjust pose for PathPlanner,
       // it messed up the field oriented swerve drive, which I guess should've been expected
       // so I commented it out for now, but that was when pose wasn't working
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+
+      return new VisionMeasurement(mt2.pose, mt2.timestampSeconds, true);
     }
+    return new VisionMeasurement(null, 0, false);
 
   }
 

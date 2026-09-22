@@ -235,12 +235,12 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
     // If the shooter hood is being controlled positionally, set the control to a position request
     // Otherwise, use the velocity request with the Trapezoidal Profile
-    if(hoodPositional){
-      m_hoodMotor.setControl(hoodPositionRequest.withPosition(hoodDesiredPosition.in(Rotations)));
-    }
-    else{
-      m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));
-    }
+    // if(hoodPositional){
+    //   m_hoodMotor.setControl(hoodPositionRequest.withPosition(hoodDesiredPosition.in(Rotations)));
+    // }
+    // else{
+    //   m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));
+    // }
 
     //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
 

@@ -34,7 +34,7 @@ public class AutoPowerShoot extends Command {
 
   @Override
   public void execute() {
-    AngularVelocity speed = DegreesPerSecond.of(3850);
+    AngularVelocity speed = DegreesPerSecond.of(3185);
     m_subsystem.runShooterMotors(speed);
   }
 
