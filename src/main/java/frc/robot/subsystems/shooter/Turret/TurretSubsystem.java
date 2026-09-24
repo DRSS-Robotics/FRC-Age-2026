@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
@@ -29,6 +30,7 @@ import frc.robot.Constants.SuperstructureConstants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 public class TurretSubsystem extends SubsystemBase {
     private TalonFX m_turretMotor;
@@ -64,8 +66,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final PIDController turretPID;
     private final SimpleMotorFeedforward turretFeedforward;
 
-    private boolean automatedControl = false;
-    private Angle desiredPosition = Degrees.of(20);
+    private boolean automatedControl = true;
+    private Angle desiredPosition = Degrees.of(90);
 
 
     
@@ -80,6 +82,17 @@ public class TurretSubsystem extends SubsystemBase {
     private boolean positionSeeded = false;
     private final Timer m_bootTimer = new Timer();
     private double m_dynamicEncoderOffset = 0.0;
+
+    private TrapezoidProfile.State turretPositionGoal = new TrapezoidProfile.State();
+    private TrapezoidProfile.State turretTrapezoidSetpoint = new TrapezoidProfile.State();
+
+    private final TrapezoidProfile turretTrapezoidProfile = new TrapezoidProfile(
+            new TrapezoidProfile.Constraints(ShooterConstants.kTurretMaxManualSpeedDPS,
+                    ShooterConstants.kTurretMaxManualSpeedDPS*2));
+
+    private PositionVoltage turretMotorRequest;
+    private Angle turretSetpoint = Degrees.of(0);
+    private boolean reachedSetpoint = false;
 
     public TurretSubsystem(int turretMotorID) {
 
@@ -114,20 +127,30 @@ public class TurretSubsystem extends SubsystemBase {
         talonConfigs.MotorOutput.DutyCycleNeutralDeadband = 0.01;
 
         talonConfigs.Feedback.FeedbackSensorSource = com.ctre.phoenix6.signals.FeedbackSensorSourceValue.RotorSensor;
+        // Measured value to 0 the turret
+        talonConfigs.Feedback.FeedbackRotorOffset = ShooterConstants.kTurretEncoderOffset;
 
-        talonConfigs.Slot0.kP = 0.4;
+        talonConfigs.Slot0.kP = 0.1;
         talonConfigs.Slot0.kI = 0.0;
-        talonConfigs.Slot0.kD = 0.01;
-        talonConfigs.Slot0.kV = 1.0;
-        talonConfigs.Slot0.kS = 0.3;
+        talonConfigs.Slot0.kD = 0.005;
+        talonConfigs.Slot0.kS = 0.85;
+        talonConfigs.Slot0.kV = 0.3;
 
         m_turretMotor.getConfigurator().apply(talonConfigs);
+
 
         m_bootTimer.start();
 
         m_turretRelativeEncoder.reset();
-        turretPID = new PIDController(0.25,0,0.04);
-        turretFeedforward = new SimpleMotorFeedforward(0.58, 0.3);
+        turretPID = new PIDController(0.015,0.0,0.0);
+        turretFeedforward = new SimpleMotorFeedforward(0.7, 0.95);
+
+        turretTrapezoidSetpoint = new TrapezoidProfile.State(getTurretAngle().in(Degrees), 0);
+        turretPositionGoal = new TrapezoidProfile.State(getTurretAngle().in(Degrees), 0);
+        turretMotorRequest = new PositionVoltage(0).withSlot(0);
+
+        setTurretPosition(desiredPosition);
+
 
 
     }
@@ -157,6 +180,9 @@ public class TurretSubsystem extends SubsystemBase {
     }
     public void setTurretPosition(Angle position) {
         desiredPosition = position;
+        turretSetpoint = position;
+        turretPositionGoal = new TrapezoidProfile.State(position.in(Degrees), 0);
+
     }
 
     public void setTurretVelocity(double turretVelocityDegreesPerSecond) {
@@ -168,12 +194,27 @@ public class TurretSubsystem extends SubsystemBase {
 
     }
 
+    // // Returns relative encoder's turret angle
+    // public Angle getTurretAngle() {
+    //     // Take the encoder ticks and divide by 2048, which is the amount of ticks in a full rotation
+    //     // Then multiply by the inverse of the gear ratio to get the rotation stage of the turret
+    //     // Multiply by 360 to convert to degrees
+    //     Angle turretRotation = Degrees.of(((m_turretRelativeEncoder.get() / 2048.0) * 1.0 / ShooterConstants.kTurretGearRatio) * 360);
+
+    //     SmartDashboard.putNumber("Turret Relative Ticks", m_turretRelativeEncoder.get());
+
+    //     return turretRotation;
+    // }
+
     // Returns relative encoder's turret angle
     public Angle getTurretAngle() {
         // Take the encoder ticks and divide by 2048, which is the amount of ticks in a full rotation
         // Then multiply by the inverse of the gear ratio to get the rotation stage of the turret
         // Multiply by 360 to convert to degrees
-        Angle turretRotation = Degrees.of(((m_turretRelativeEncoder.get() / 2048.0) * 1.0 / ShooterConstants.kTurretGearRatio) * 360);
+        m_turretMotor.getPosition().getValue();
+        // Angle turretRotation = Degrees.of(((m_turretRelativeEncoder.get() / 2048.0) * 1.0 / ShooterConstants.kTurretGearRatio) * 360);
+
+        Angle turretRotation = Degrees.of((m_turretMotor.getPosition().getValue().in(Rotations) / ShooterConstants.kTurretGearRatio) * 360);
 
         SmartDashboard.putNumber("Turret Relative Ticks", m_turretRelativeEncoder.get());
 
@@ -202,20 +243,48 @@ public class TurretSubsystem extends SubsystemBase {
     public void periodic() {
 
         // i dont even know anymore bro, mind kaboom bro
-
+        
         if (!positionSeeded && m_bootTimer.hasElapsed(1.0) && m_turretEncoder.isConnected()) {
+            if(DriverStation.isEnabled()){
             if(automatedControl) {
-                // Take the saved desired position and calculate the voltage needed to reach the position
-                double calculatedVoltage = MathUtil.clamp(turretPID.calculate(getTurretAngle().in(Degrees), desiredPosition.in(Degrees)),-1,1);
+                if(!reachedSetpoint){
+                    
+                    if(Math.abs(desiredPosition.in(Degrees) - getTurretAngle().in(Degrees)) < 0.5){
+                        reachedSetpoint = true;
+                        m_turretMotor.setControl(turretVoltage.withOutput(0));
+                    }
+                    else{
+                        // Take the saved desired position and calculate the voltage needed to reach the position
+                        double calculatedVoltage = MathUtil.clamp(turretPID.calculate(getTurretAngle().in(Degrees), desiredPosition.in(Degrees)),-1,1);
 
-                SmartDashboard.putNumber("Turret PID Voltage", calculatedVoltage);
-                // turretFeedforward.calculate(calculatedVoltage)
-                SmartDashboard.putNumber("Turret feedforward", turretFeedforward.calculate(calculatedVoltage));
+                        
+                        
+                        m_turretMotor.setControl(turretVoltage.withOutput(turretFeedforward.calculate(calculatedVoltage)));
+                        SmartDashboard.putNumber("Turret PID Voltage", calculatedVoltage);
+                        // turretFeedforward.calculate(calculatedVoltage)
+                        SmartDashboard.putNumber("Turret feedforward", turretFeedforward.calculate(calculatedVoltage));
+                    }
+                }
+                else{
+                    m_turretMotor.setControl(turretVoltage.withOutput(0));
+                    if(Math.abs(getTurretAngle().in(Degrees) - desiredPosition.in(Degrees)) > 2){
+                        reachedSetpoint = false;
+                    }
+                    
+                }
 
+                    // m_turretMotor.setControl(turretVoltage.withOutput(turretFeedforward.calculate(1.0)));
 
-                // m_turretMotor.setControl(turretVoltage.withOutput(turretFeedforward.calculate(calculatedVoltage)));
+                    // m_turretMotor.setControl(turretVoltage.withOutput(0.58));
 
-                m_turretMotor.setControl(turretVoltage.withOutput(turretFeedforward.calculate(1.0)));
+                    // turretTrapezoidSetpoint = turretTrapezoidProfile.calculate(0.02, turretTrapezoidSetpoint,
+                    // turretPositionGoal);
+
+                    // m_turretMotor.setControl(turretMotorRequest.withPosition(Degrees.of(turretTrapezoidSetpoint.position)));
+                // }
+                // else{
+                //     m_turretMotor.setControl(turretVoltage.withOutput(0));
+                // }
                 
             }
             else{
@@ -232,6 +301,7 @@ public class TurretSubsystem extends SubsystemBase {
 
                 System.out.println("Turret calibrated! Captured center offset at: " + m_dynamicEncoderOffset);
             }
+        }
         }
 
         // Stream data to shuffleboard

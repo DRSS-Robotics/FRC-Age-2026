@@ -127,7 +127,7 @@ public final class Constants {
     public static final Angle kTestYawMotorTargetPosition = Degrees.of(0);
     public static final Pose2d kShooterOffset = new Pose2d(0,0,new Rotation2d());
     public static final double kTurretGearRatio = 250.0 / 36.0;
-    public static final double kTurretEncoderOffset = 0.902099609375; 
+    public static final double kTurretEncoderOffset = 0.334473; 
     public static final double kMaxForwardRotation = 1.3;  // Maximum Left limit
     public static final double kMaxReverseRotation = -1.3; // Maximum Right limit
 
