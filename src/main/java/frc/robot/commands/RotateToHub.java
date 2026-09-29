@@ -31,14 +31,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RotateToHub extends Command {
 
   private final TurretSubsystem m_turretSubsystem;
-  // Thorughbore encoder specs
-  private final double totalTicksPerRev = 8192;
-  // Calculates how many degrees are in 1 tick
-  private final double degreesPerTick = 360/totalTicksPerRev;
 
   private PoseEstimator poseEstimator;
 
   private Pose2d mainPose;
+
+  private Supplier<Pose2d> robotPoseSupplier;
 
 
   StructPublisher<Translation2d> publisher = NetworkTableInstance.getDefault()
@@ -53,9 +51,9 @@ public class RotateToHub extends Command {
     .getStructTopic("Value", Pose2d.struct)
     .publish();
 
-  public RotateToHub(TurretSubsystem turret, PoseEstimator poseEstimator) {
+  public RotateToHub(TurretSubsystem turret, Supplier<Pose2d> poseSupplier) {
     m_turretSubsystem = turret;
-    this.poseEstimator = poseEstimator;
+    robotPoseSupplier = poseSupplier;
 
     addRequirements(turret);
 
@@ -137,6 +135,8 @@ public class RotateToHub extends Command {
 
     SmartDashboard.putBoolean("Over/X", distanceFromHub.getX() > 0);
     SmartDashboard.putBoolean("Over/Y", distanceFromHub.getY() > 0);
+
+    turret.setTurretPosition(rotationNeededFromCenter);
   }
 
   @Override

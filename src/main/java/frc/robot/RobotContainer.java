@@ -206,7 +206,7 @@ public class RobotContainer {
     gameField = new Field2d();
     SmartDashboard.putData("Field", gameField);
 
-    comm = new RotateToHub(m_turret, initialPose);
+    comm = new RotateToHub(m_turret, initialPose, () -> {drivetrain.getState().Pose});
     CommandScheduler.getInstance().schedule(comm);
 
     configureBindings();

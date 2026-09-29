@@ -190,6 +190,12 @@ public class TurretSubsystem extends SubsystemBase {
 
         // i dont even know anymore bro, mind kaboom bro
         if(DriverStation.isEnabled()){
+            if(automatedControl){
+                m_turretMotor.setControl(positionRequest.withPosition(turretSetpoint.in(Rotations))); 
+            }
+            else{
+                m_turretMotor.setControl(positionRequest.withPosition(0));
+            }
             // if(automatedControl) {
             //     if(!reachedSetpoint){
             //         if(Math.abs(desiredPosition.in(Degrees) - getTurretAngle().in(Degrees)) < 0.5){
@@ -229,7 +235,7 @@ public class TurretSubsystem extends SubsystemBase {
                 
             //     System.out.println("Turret calibrated! Captured center offset at: " + m_dynamicEncoderOffset);
             // }
-            m_turretMotor.setControl(positionRequest.withPosition(turretSetpoint.in(Rotations))); 
+            
         }
 
 
