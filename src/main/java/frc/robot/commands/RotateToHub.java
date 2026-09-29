@@ -58,35 +58,17 @@ public class RotateToHub extends Command {
     addRequirements(turret);
 
   }
-
-  public RotateToHub(TurretSubsystem turret, Pose2d poser) {
-    m_turretSubsystem = turret;
-    mainPose = poser;
-
-    addRequirements(turret);
-
-  }
   
   @Override
   public void execute() {
-    // Get rotation of turret relative to robot, must be rotated 180deg to be accurate
-    Angle relativeTurretRotation = m_turretSubsystem.getTurretAngle().plus(ShooterConstants.kShooterYawOffset);
-
     // get field pose of turret with the rotation of the robot 
     // TODO: actually add in realistic pose, instead of static positions
     // Pose2d robotPose = poseEstimator.getEstimatedPosition();
-    Pose2d robotPose = mainPose;
-    
-    // This is NOT actually the absolute rotation of the turret, it is the rotation from the rotation's pole to 
-    // face the center of the turret, so calculations can be held here
-    Rotation2d absoluteTurretCenterRotation = robotPose.getRotation().plus(new Rotation2d(ShooterConstants.kShooterYawOffset));
+    Pose2d robotPose = robotPoseSupplier.get();
     
     // add the turret relative pose to the robot pose, where the turret pose is rotated by robot rotation with turret yaw offset
     // the rotation of turret pose is the relative plus robot rotation
-    Pose2d turretPose = new Pose2d(robotPose.getTranslation().plus((m_turretSubsystem.turretOffset)
-                                  .rotateBy(absoluteTurretCenterRotation)), 
-                                  new Rotation2d(relativeTurretRotation.plus(
-                                  Degrees.of(robotPose.getRotation().getDegrees()))));
+    Pose2d turretPose = m_turretSubsystem.turretPose;
 
     // fill this out with a reference to rad per second, whether from pigeon or pose
     double omegaRadiansPerSecond = 0;
@@ -136,7 +118,7 @@ public class RotateToHub extends Command {
     SmartDashboard.putBoolean("Over/X", distanceFromHub.getX() > 0);
     SmartDashboard.putBoolean("Over/Y", distanceFromHub.getY() > 0);
 
-    turret.setTurretPosition(rotationNeededFromCenter);
+    m_turretSubsystem.setTurretPosition(rotationNeededFromCenter);
   }
 
   @Override

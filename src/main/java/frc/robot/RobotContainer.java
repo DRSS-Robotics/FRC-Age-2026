@@ -67,6 +67,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -166,6 +167,8 @@ public class RobotContainer {
 
   private final Field2d gameField;
 
+  private Supplier<Pose2d> turretPoseSupplier = () -> m_turret.turretPose;
+
 
   public RobotContainer() {
 
@@ -198,15 +201,17 @@ public class RobotContainer {
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     // TODO: link initial pose to maybe a draggable object on a field? something like that
-
-
+    
 
     m_vision = new Vision(drivetrain.getPigeon2(), drivetrain);
 
     gameField = new Field2d();
     SmartDashboard.putData("Field", gameField);
+    Supplier<Pose2d> robotPoseSupplier = () -> drivetrain.getState().Pose;
 
-    comm = new RotateToHub(m_turret, initialPose, () -> {drivetrain.getState().Pose});
+    // comm = new RotateToHub(m_turret, initialPose);
+    comm = new RotateToHub(m_turret, robotPoseSupplier);
+
     CommandScheduler.getInstance().schedule(comm);
 
     configureBindings();
@@ -243,16 +248,16 @@ public class RobotContainer {
     // m_driverController.povDown().whileTrue(new DriveShooterHood(m_shooter, -1));
 
     // // back wall position
-    // m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.550),
-    //     () -> false));
-    // // mid position
-    // m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.475),
-    //     () -> false));
-    // // close position
+    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.530),
+        () -> false));
+    // mid position
+    m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.44),
+        () -> false));
+    // close position
     // m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
+    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.4),
     //     () -> false));
 
     
@@ -260,9 +265,9 @@ public class RobotContainer {
 
 
     // TODO: UNCOMMENT INTAKE BEFORE PUSHING
-    m_operatorController.a().onTrue(new ToggleIntakeCommand(m_superstructure));
+    m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
 
-    m_operatorController.b().whileTrue(new AutoPowerShoot(m_shooter, () -> false));
+    m_operatorController.a().whileTrue(new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
     
 
     m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
@@ -388,11 +393,9 @@ public class RobotContainer {
     }
     // m_questNav.periodicUpdate();
     
-    Pose2d currPose = new Pose2d(drivetrain.getState().Pose.getMeasureX(),drivetrain.getState().Pose.getMeasureY(),drivetrain.getState().Pose.getRotation());
-    PosePublisher1.set(drivetrain.getState().Pose);
-    PosePublisher2.set(currPose);
 
-    
+    m_turret.updateDistanceFromHub(drivetrain.getState().Pose);
+
 
     gameField.setRobotPose(drivetrain.getState().Pose);
     SmartDashboard.putNumber("mainrot", drivetrain.getState().Pose.getRotation().getDegrees());

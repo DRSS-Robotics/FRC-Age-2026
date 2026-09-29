@@ -51,7 +51,7 @@ public class Vision extends SubsystemBase {
         /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
         /* yaw offset */ VisionConstants.kLimelightYawOffset.in(Degrees));
     
-    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,2);
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,0);
     MT1Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag1", Pose2d.struct).publish();
     MT2Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag2", Pose2d.struct).publish();
 
@@ -68,7 +68,7 @@ public class Vision extends SubsystemBase {
 
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        drivetrain.getState().RawHeading.getDegrees(), 0, 0, 0, 0, 0);
 
     LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
         .getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
@@ -89,7 +89,7 @@ public class Vision extends SubsystemBase {
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
 
-      return new VisionMeasurement(mt2.pose, mt2.timestampSeconds, true);
+      return new VisionMeasurement(mt1.pose, mt1.timestampSeconds, true);
     }
     return new VisionMeasurement(null, 0, false);
 
