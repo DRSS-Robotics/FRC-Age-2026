@@ -111,6 +111,18 @@ public class RobotContainer {
 
   private final Vision m_vision;
 
+  StructPublisher<Pose2d> PosePublisher1 = NetworkTableInstance.getDefault()
+    .getTable("SmartDashboard")
+    .getSubTable("robotPoseOfficial")
+    .getStructTopic("Value", Pose2d.struct)
+    .publish();
+
+  StructPublisher<Pose2d> PosePublisher2 = NetworkTableInstance.getDefault()
+    .getTable("SmartDashboard")
+    .getSubTable("robotPoseTest")
+    .getStructTopic("Value", Pose2d.struct)
+    .publish();
+
 
   private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
                                                                                                 // desired
@@ -376,7 +388,12 @@ public class RobotContainer {
     }
     // m_questNav.periodicUpdate();
     
+    Pose2d currPose = new Pose2d(drivetrain.getState().Pose.getMeasureX(),drivetrain.getState().Pose.getMeasureY(),drivetrain.getState().Pose.getRotation());
+    PosePublisher1.set(drivetrain.getState().Pose);
+    PosePublisher2.set(currPose);
+
     
+
     gameField.setRobotPose(drivetrain.getState().Pose);
     SmartDashboard.putNumber("mainrot", drivetrain.getState().Pose.getRotation().getDegrees());
     SmartDashboard.putNumber("rawh", drivetrain.getState().RawHeading.getDegrees());
