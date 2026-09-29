@@ -64,7 +64,7 @@ public class TurretSubsystem extends SubsystemBase {
     // private final SimpleMotorFeedforward turretFeedforward;
 
     private boolean automatedControl = false;
-    private Angle desiredPosition = Degrees.of(45);
+    private Angle desiredPosition = Degrees.of(15);
 
 
     
@@ -103,7 +103,7 @@ public class TurretSubsystem extends SubsystemBase {
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
         // Change motor to CounterClockwise so positive voltage does in positive encoder reading
-        talonConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        talonConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         talonConfigs.Feedback.SensorToMechanismRatio = ShooterConstants.kTurretGearRatio;
 
         // talonConfigs.MotorOutput.Inverted =
@@ -131,16 +131,16 @@ public class TurretSubsystem extends SubsystemBase {
 
         talonConfigs.Feedback.FeedbackSensorSource = com.ctre.phoenix6.signals.FeedbackSensorSourceValue.RotorSensor;
 
-        talonConfigs.MotionMagic.MotionMagicCruiseVelocity = 0.5;
-        talonConfigs.MotionMagic.MotionMagicAcceleration = 1.0;
+        talonConfigs.MotionMagic.MotionMagicCruiseVelocity = 0.75;
+        talonConfigs.MotionMagic.MotionMagicAcceleration = 2.0;
 
         // Measured value to 0 the turret
-        // talonConfigs.Feedback.FeedbackRotorOffset = ShooterConstants.kTurretEncoderOffset;
+        talonConfigs.Feedback.FeedbackRotorOffset = ShooterConstants.kTurretEncoderOffset;
 
-        talonConfigs.Slot0.kP = 30.0;
+        talonConfigs.Slot0.kP = 36.0;
         talonConfigs.Slot0.kI = 0.0;
-        talonConfigs.Slot0.kD = 0.0;
-        talonConfigs.Slot0.kS = 0.0;
+        talonConfigs.Slot0.kD = 2.25;
+        talonConfigs.Slot0.kS = 0.7;
         talonConfigs.Slot0.kV = 0.0;
 
         m_turretMotor.getConfigurator().apply(talonConfigs);
