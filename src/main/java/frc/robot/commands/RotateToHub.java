@@ -95,40 +95,40 @@ public class RotateToHub extends Command {
                                                     .minus(Degrees.of(robotPose.getRotation().getDegrees())
                                                     .plus(m_turretSubsystem.getTurretAngle())));
 
-    Translation2d target = getTargetPosition();
-Translation2d robot = robotPose.getTranslation();
+    // Translation2d target = getTargetPosition();
+    // Translation2d robot = robotPose.getTranslation();
 
-double distance = target.getDistance(robot);
+    // double distance = target.getDistance(robot);
 
-// First estimate
-double flightTime = flightTimeMap.get(distance);
+    // // First estimate
+    // double flightTime = flightTimeMap.get(distance);
 
-Translation2d compensatedTarget = target.minus(
-    new Translation2d(
-        fieldVx * flightTime,
-        fieldVy * flightTime
-    )
-);
+    // Translation2d compensatedTarget = target.minus(
+    //     new Translation2d(
+    //         fieldVx * flightTime,
+    //         fieldVy * flightTime
+    //     )
+    // );
 
-// Recalculate effective shot distance
-double compensatedDistance =
-    compensatedTarget.getDistance(robot);
+    // // Recalculate effective shot distance
+    // double compensatedDistance =
+    //     compensatedTarget.getDistance(robot);
 
-// Better flight-time estimate
-flightTime = flightTimeMap.get(compensatedDistance);
+    // // Better flight-time estimate
+    // flightTime = flightTimeMap.get(compensatedDistance);
 
-// Final compensated target
-compensatedTarget = target.minus(
-    new Translation2d(
-        fieldVx * flightTime,
-        fieldVy * flightTime
-    )
-);
-double shooterVx =
-    fieldVx - omega * turretOffsetField.getY();
+    // // Final compensated target
+    // compensatedTarget = target.minus(
+    //     new Translation2d(
+    //         fieldVx * flightTime,
+    //         fieldVy * flightTime
+    //     )
+    // );
+    // double shooterVx =
+    //     fieldVx - omega * turretOffsetField.getY();
 
-double shooterVy =
-    fieldVy + omega * turretOffsetField.getX();
+    // double shooterVy =
+    //     fieldVy + omega * turretOffsetField.getX();
 
     // //Gets the secant of distToRobot/txnc to find the offset angle to the hub
     // double targetAngle = Math.toDegrees(1/Math.cos(targetOffsetDistance/targetOffsetHorizontal));

@@ -18,11 +18,13 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
@@ -32,11 +34,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SuperstructureConstants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -104,20 +108,20 @@ public class TurretSubsystem extends SubsystemBase {
 
         talonConfigs.MotorOutput.NeutralMode = com.ctre.phoenix6.signals.NeutralModeValue.Brake;
         // Voltage control less than this gets zeroed
-        talonConfigs.MotorOutput.DutyCycleNeutralDeadband = 0.1;
+        talonConfigs.MotorOutput.DutyCycleNeutralDeadband = 0.05;
 
         talonConfigs.Feedback.FeedbackSensorSource = com.ctre.phoenix6.signals.FeedbackSensorSourceValue.RotorSensor;
 
-        talonConfigs.MotionMagic.MotionMagicCruiseVelocity = 1.0;
-        talonConfigs.MotionMagic.MotionMagicAcceleration = 2.0;
+        talonConfigs.MotionMagic.MotionMagicCruiseVelocity = 1.5;
+        talonConfigs.MotionMagic.MotionMagicAcceleration = 3.0;
 
         // Measured value to 0 the turret
         // talonConfigs.Feedback.FeedbackRotorOffset = ShooterConstants.kTurretEncoderOffset;
 
-        talonConfigs.Slot0.kP = 33.0;
+        talonConfigs.Slot0.kP = 40.0;
         talonConfigs.Slot0.kI = 0.0;
-        talonConfigs.Slot0.kD = 3.0;
-        talonConfigs.Slot0.kS = 0.7;
+        talonConfigs.Slot0.kD = 2.0;
+        talonConfigs.Slot0.kS = 0.9;
         talonConfigs.Slot0.kV = 0.0;
 
         m_turretMotor.getConfigurator().apply(talonConfigs);
@@ -180,44 +184,49 @@ public class TurretSubsystem extends SubsystemBase {
 
     // For Shoot on the Move, will likely need to be iterated a few times because when changing the 
     // virtual target, the distance also changes. Therefore, the power changes and the turret angle changes.
-    private void calculateSOTM(ChassisSpeeds robotSpeed){
+    // public void calculateSOTM(ChassisSpeeds robotSpeed){
 
-        Translation2d targetPosition = virtualTurretTarget.getTranslation();
-        Translation2d robotPosition = robotPose.getTranslation();
+    //     Translation2d targetPosition = Constants.kHubPoseCenter.getTranslation();
 
-        Distance currDistance = Meters.of(targetPosition.getDistance(robotPosition));
+    //     // Get distance from the turret to the target
+    //     Distance currDistance = Meters.of(targetPosition.getDistance(turretPose.getTranslation()));
 
-        // Example for flight time
-        double flightTime = flightTimeMap.get(currDistance);
+    //     // Example for flight time
+    //     double flightTime = flightTimeMap.get(currDistance);
 
+    //     // Translation2d compensatedTarget = target.minus(
+    //     //     new Translation2d(
+    //     //         Meters.of(robotSpeed.vxMetersPerSecond * flightTime),
+    //     //         Meters.of(robotSpeed.vyMetersPerSecond * flightTime)
+    //     //     )
+    //     // );
 
-        Translation2d compensatedTarget = target.minus(
-            new Translation2d(
-                Meters.of(robotSpeed.vxMetersPerSecond * flightTime),
-                Meters.of(robotSpeed.vyMetersPerSecond * flightTime)
-            )
-        );
+    //     // Take the robot's velocity vector and multiply by flight time
+    //     // Then the rest is for turret rotation compensation
+    //     // Take the angular velocity of the robot and multiply by the turret's offsets from the center
+    //     Translation2d compensatedTarget = target.minus(
+    //         new Translation2d(
+    //             Meters.of(robotSpeed.vxMetersPerSecond * flightTime + robotSpeed.omegaRadiansPerSecond * turretOffset.getY()),
+    //             Meters.of(robotSpeed.vyMetersPerSecond * flightTime + robotSpeed.omegaRadiansPerSecond * turretOffset.getX())
+    //         )
+    //     );
 
-        // Recalculate effective shot distance
-        double compensatedDistance =
-            compensatedTarget.getDistance(robot);
+    //     // Next, do a second iteration
+    //     // We should do this because we originally got the distance between the target and the turret
+    //     // After finding the position of our virtual target, we need to recalculate the distance between them,
+    //     // Run time of flight estimates again with the new distance, and find the target again
 
-        // Better flight-time estimate
-        flightTime = flightTimeMap.get(compensatedDistance);
+    //     currDistance = Meters.of(compensatedTarget.getDistance(turretPose.getTranslation()));
 
-        // Final compensated target
-        compensatedTarget = target.minus(
-            new Translation2d(
-                fieldVx * flightTime,
-                fieldVy * flightTime
-            )
-        );
-        double shooterVx =
-            fieldVx - omega * turretOffsetField.getY();
+    //     flightTime = flightTimeMap.get(currDistance);
 
-        double shooterVy =
-            fieldVy + omega * turretOffsetField.getX();
-    }
+    //     compensatedTarget = compensatedTarget.minus(
+    //         new Translation2d(
+    //             Meters.of(robotSpeed.vxMetersPerSecond * flightTime + robotSpeed.omegaRadiansPerSecond * turretOffset.getY()),
+    //             Meters.of(robotSpeed.vyMetersPerSecond * flightTime + robotSpeed.omegaRadiansPerSecond * turretOffset.getX())
+    //         )
+    //     );
+    // }
 
     @Override
     public void periodic() {

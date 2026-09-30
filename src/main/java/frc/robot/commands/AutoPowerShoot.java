@@ -40,13 +40,14 @@ public class AutoPowerShoot extends Command {
     addRequirements(shooter);
 
     shooterSpeedMap.put(0.0, 3350.0);
-    shooterSpeedMap.put(96.0, 3350.0);
-    shooterSpeedMap.put(108.0, 3525.0);
+    shooterSpeedMap.put(96.0, 3400.0);
+    shooterSpeedMap.put(108.0, 3550.0);
     shooterSpeedMap.put(121.0, 3700.0);
-    shooterSpeedMap.put(128.0, 3825.0);
-    shooterSpeedMap.put(140.0, 3960.0);
-    shooterSpeedMap.put(150.0, 4075.0);
-    shooterSpeedMap.put(500.0, 4075.0);
+    shooterSpeedMap.put(128.0, 3800.0);
+    shooterSpeedMap.put(140.0, 3940.0);
+    shooterSpeedMap.put(150.0, 4050.0);
+    shooterSpeedMap.put(183.0, 4300.0);
+    shooterSpeedMap.put(500.0, 4300.0);
   }
 
   @Override
@@ -58,8 +59,10 @@ public class AutoPowerShoot extends Command {
     Distance distanceFromHub = Meters.of(Constants.kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
     AngularVelocity speed = DegreesPerSecond.of(shooterSpeedMap.get(distanceFromHub.in(Inches)));
     m_subsystem.runShooterMotors(speed);
+    // m_subsystem.runShooterMotors(4250);
     SmartDashboard.putNumber("Dist from Hub", distanceFromHub.in(Inches));
     SmartDashboard.putNumber("rotatorrrr", speed.in(DegreesPerSecond));
+    SmartDashboard.putNumber("speeds", shooterSpeedMap.get(distanceFromHub.in(Inches)));
   }
 
   @Override

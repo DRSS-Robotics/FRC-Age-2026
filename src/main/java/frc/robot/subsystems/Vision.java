@@ -5,11 +5,14 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
@@ -51,7 +54,7 @@ public class Vision extends SubsystemBase {
         /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
         /* yaw offset */ VisionConstants.kLimelightYawOffset.in(Degrees));
     
-    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,0);
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,4);
     MT1Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag1", Pose2d.struct).publish();
     MT2Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag2", Pose2d.struct).publish();
 
@@ -68,16 +71,18 @@ public class Vision extends SubsystemBase {
 
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        drivetrain.getState().RawHeading.getDegrees(), 0, 0, 0, 0, 0);
+        drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-    LimelightHelpers.PoseEstimate mt1 = LimelightHelpers
+    LimelightHelpers.PoseEstimate mt1 = (DriverStation.getAlliance().get() == Alliance.Red) ? LimelightHelpers
+        .getBotPoseEstimate_wpiRed(VisionConstants.kLimelightName) : LimelightHelpers
         .getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+    LimelightHelpers.PoseEstimate mt2 = (DriverStation.getAlliance().get() == Alliance.Red) ? LimelightHelpers
+        .getBotPoseEstimate_wpiRed_MegaTag2(VisionConstants.kLimelightName) : LimelightHelpers
         .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at
     // least 1 tag is detected
 
-    if (Math.abs(pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
+    if (Math.abs(pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 1) {
       // CHECK IF THIS IS ACTUALLY CHANGING ROBOT CONTAINER POSE ESTIMATOR
       // poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
       MT1Publisher.set(mt1.pose);
@@ -89,7 +94,7 @@ public class Vision extends SubsystemBase {
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
 
-      return new VisionMeasurement(mt1.pose, mt1.timestampSeconds, true);
+      return new VisionMeasurement(mt2.pose, mt2.timestampSeconds, true);
     }
     return new VisionMeasurement(null, 0, false);
 

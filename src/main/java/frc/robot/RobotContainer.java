@@ -63,6 +63,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -158,7 +159,7 @@ public class RobotContainer {
     .getStructTopic("Value", Pose2d.struct)
     .publish();
 
-  private final Pose2d initialPose = new Pose2d(0,0,new Rotation2d(Math.PI/2));
+  private final Pose2d initialPose = new Pose2d(2.0,2.0,new Rotation2d(Degrees.of(-0.9)));
   // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/8));
   // private final Pose2d initialPose = new Pose2d(17.5,0.5,new Rotation2d(0));
 
@@ -209,13 +210,17 @@ public class RobotContainer {
     SmartDashboard.putData("Field", gameField);
     Supplier<Pose2d> robotPoseSupplier = () -> drivetrain.getState().Pose;
 
-    // comm = new RotateToHub(m_turret, initialPose);
-    comm = new RotateToHub(m_turret, robotPoseSupplier);
+    
+    drivetrain.setStateStdDevs(VecBuilder.fill(0.3,0.3,0.1));
 
+    // comm = new RotateToHub(m_turret, initialPose);
+    
+    comm = new RotateToHub(m_turret, robotPoseSupplier);
     CommandScheduler.getInstance().schedule(comm);
 
     configureBindings();
     ElasticTelemetry.getInstance();
+
   }
 
   private void configureBindings() {
@@ -252,9 +257,9 @@ public class RobotContainer {
         () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.530),
         () -> false));
     // mid position
-    m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.44),
-        () -> false));
+    // m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.44),
+    //     () -> false));
     // close position
     // m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
     //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.4),
@@ -268,6 +273,8 @@ public class RobotContainer {
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
 
     m_operatorController.a().whileTrue(new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
+    m_operatorController.x().onTrue(Commands.runOnce(() -> {m_turret.disableAutomatedControl();}));
+
     
 
     m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
@@ -379,10 +386,14 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-
+  
   // This is all code for the Vision subsystem, specifically updating the poseEstimator
   public void questNavUpdate(Pose2d measuredPose, double timestamp){
     // poseEstimator.addVisionMeasurement(measuredPose, timestamp);
+  }
+  
+  private ChassisSpeeds getRobotSpeeds()  {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(drivetrain.getState().Speeds, drivetrain.getState().Pose.getRotation());
   }
 
   // This function should be called periodically
@@ -395,8 +406,8 @@ public class RobotContainer {
     
 
     m_turret.updateTurretPose(drivetrain.getState().Pose);
-    m_turret.calculateSOTM(getRobotSpeeds())
-
+    // m_turret.calculateSOTM(getRobotSpeeds());
+    PosePublisher1.set(drivetrain.getState().Pose);
 
     gameField.setRobotPose(drivetrain.getState().Pose);
     SmartDashboard.putNumber("mainrot", drivetrain.getState().Pose.getRotation().getDegrees());
@@ -404,8 +415,5 @@ public class RobotContainer {
     
   }
 
-  private ChassisSpeeds getRobotSpeeds()  {
-    return ChassisSpeeds.fromRobotRelativeSpeeds(drivetrain.getState().Speeds, drivetrain.getState().Pose.getRotation());
-  }
 
 }
