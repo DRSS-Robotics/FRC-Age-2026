@@ -42,51 +42,25 @@ import static edu.wpi.first.units.Units.Rotations;
 public class TurretSubsystem extends SubsystemBase {
     private TalonFX m_turretMotor;
     private Slot0Configs turretMotorConfigs;
-    // private VelocityVoltage turretMotorRequest;
-    // private AngularVelocity turretMotorSetSpeed = DegreesPerSecond.of(0);
-
-    // private final TrapezoidProfile turretTrapezoidProfile = new TrapezoidProfile(
-    // new TrapezoidProfile.Constraints(ShooterConstants.kTurretMaxManualSpeedDPS,
-    // SuperstructureConstants.kMaxIntakeDPS3));
-
-    // private Encoder m_turretEncoder;
-    private final DutyCycleEncoder m_turretEncoder = new DutyCycleEncoder(0); // through bore absolute encoder code, need to get
-                                                                              // channel number
-
-
-    private final Encoder m_turretRelativeEncoder = new Encoder(1,2);
-
-    // Creating new Voltage that will be supplied to turret for positional control
-    // Using Voltage because it supplies constant power, and does not decline in performance when battery is lower
-    private final VoltageOut turretVoltage = new VoltageOut(0);
-
-    // TODO: TUNE VALUES
-    // private final PIDController turretPID;
-    // private final SimpleMotorFeedforward turretFeedforward;
 
     private boolean automatedControl = true;
     private Angle desiredPosition = Degrees.of(-45);
-
-
-    
 
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0.0);
 
     private static final double MIN_ROTATION = ShooterConstants.kMaxReverseRotation;
     private static final double MAX_ROTATION = ShooterConstants.kMaxForwardRotation;
-    private final PositionVoltage m_positionControl = new PositionVoltage(0);
     public final Translation2d turretOffset = new Translation2d(ShooterConstants.kShooterForwardOffset,ShooterConstants.kShooterSideOffset);
 
-    private boolean positionSeeded = false;
-    private double m_dynamicEncoderOffset = 0.0;
-
-    private PositionVoltage turretMotorRequest = new PositionVoltage(0).withSlot(0);;
     private Angle turretSetpoint = Degrees.of(0);
-    private boolean reachedSetpoint = false;
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0);
 
     public Pose2d turretPose = new Pose2d();
 
+    public Pose2d virtualTurretTarget = Constants.kHubPoseCenter;
+
+
+    // SIM code
     private static final DCMotor MOTOR = DCMotor.getKrakenX60(1);
 
     private final DCMotorSim turretSim =
@@ -164,7 +138,6 @@ public class TurretSubsystem extends SubsystemBase {
     }
     public void setTurretPosition(Angle position) {
         double clamped = MathUtil.clamp(position.in(Degrees), -90, 90);
-        desiredPosition = Degrees.of(clamped);
         turretSetpoint = Degrees.of(clamped);
     }
 
@@ -179,7 +152,6 @@ public class TurretSubsystem extends SubsystemBase {
 
     // Returns relative encoder's turret angle
     public Angle getTurretAngle() {
-        // Need to do the unaryMinus to invert the read position. For some reason, the angle returned is always the wrong dir
         return m_turretMotor.getPosition().getValue();
     }
 
@@ -190,7 +162,7 @@ public class TurretSubsystem extends SubsystemBase {
         automatedControl = false;
     }
     
-    public void updateDistanceFromHub(Pose2d robotPose){
+    public void updateTurretPose(Pose2d robotPose){
         // Get rotation of turret relative to robot, must be rotated 180deg to be accurate
         Angle relativeTurretRotation = getTurretAngle().plus(ShooterConstants.kShooterYawOffset);
         
@@ -206,6 +178,47 @@ public class TurretSubsystem extends SubsystemBase {
                                     Degrees.of(robotPose.getRotation().getDegrees()))));
     }
 
+    // For Shoot on the Move, will likely need to be iterated a few times because when changing the 
+    // virtual target, the distance also changes. Therefore, the power changes and the turret angle changes.
+    private void calculateSOTM(ChassisSpeeds robotSpeed){
+
+        Translation2d targetPosition = virtualTurretTarget.getTranslation();
+        Translation2d robotPosition = robotPose.getTranslation();
+
+        Distance currDistance = Meters.of(targetPosition.getDistance(robotPosition));
+
+        // Example for flight time
+        double flightTime = flightTimeMap.get(currDistance);
+
+
+        Translation2d compensatedTarget = target.minus(
+            new Translation2d(
+                Meters.of(robotSpeed.vxMetersPerSecond * flightTime),
+                Meters.of(robotSpeed.vyMetersPerSecond * flightTime)
+            )
+        );
+
+        // Recalculate effective shot distance
+        double compensatedDistance =
+            compensatedTarget.getDistance(robot);
+
+        // Better flight-time estimate
+        flightTime = flightTimeMap.get(compensatedDistance);
+
+        // Final compensated target
+        compensatedTarget = target.minus(
+            new Translation2d(
+                fieldVx * flightTime,
+                fieldVy * flightTime
+            )
+        );
+        double shooterVx =
+            fieldVx - omega * turretOffsetField.getY();
+
+        double shooterVy =
+            fieldVy + omega * turretOffsetField.getX();
+    }
+
     @Override
     public void periodic() {
 
@@ -219,14 +232,9 @@ public class TurretSubsystem extends SubsystemBase {
         }
 
 
-        // Stream data to shuffleboard
+        // Stream data to SmartDashboard
         SmartDashboard.putNumber("Turret Relative Angle", getTurretAngle().in(Degrees));
         SmartDashboard.putNumber("Turret Commanded Rotation", turretSetpoint.in(Degrees));
-        SmartDashboard.putNumber("Turret Motor Velocity (RPS)", m_turretMotor.getVelocity().getValueAsDouble());
-
-        if (!SmartDashboard.containsKey("Turret Dashboard Target (Rotations)")) {
-            SmartDashboard.putNumber("Turret Dashboard Target (Rotations)", 0.0);
-        }
 
         SmartDashboard.putNumber(
             "DEBUG/Requested Degrees",

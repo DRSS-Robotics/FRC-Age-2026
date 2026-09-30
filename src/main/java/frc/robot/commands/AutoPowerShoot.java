@@ -55,10 +55,10 @@ public class AutoPowerShoot extends Command {
 
   @Override
   public void execute() {
-    Translation2d distanceFromHub = Constants.kHubPoseCenter.getTranslation().minus(turretPoseSupplier.get().getTranslation());
-    AngularVelocity speed = DegreesPerSecond.of(shooterSpeedMap.get(Meters.of(distanceFromHub.getNorm()).in(Inches)));
+    Distance distanceFromHub = Meters.of(Constants.kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
+    AngularVelocity speed = DegreesPerSecond.of(shooterSpeedMap.get(distanceFromHub.in(Inches)));
     m_subsystem.runShooterMotors(speed);
-    SmartDashboard.putNumber("Dist from Hub", Meters.of(distanceFromHub.getNorm()).in(Inches));
+    SmartDashboard.putNumber("Dist from Hub", distanceFromHub.in(Inches));
     SmartDashboard.putNumber("rotatorrrr", speed.in(DegreesPerSecond));
   }
 

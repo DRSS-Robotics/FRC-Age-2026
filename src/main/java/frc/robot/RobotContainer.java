@@ -394,13 +394,18 @@ public class RobotContainer {
     // m_questNav.periodicUpdate();
     
 
-    m_turret.updateDistanceFromHub(drivetrain.getState().Pose);
+    m_turret.updateTurretPose(drivetrain.getState().Pose);
+    m_turret.calculateSOTM(getRobotSpeeds())
 
 
     gameField.setRobotPose(drivetrain.getState().Pose);
     SmartDashboard.putNumber("mainrot", drivetrain.getState().Pose.getRotation().getDegrees());
     SmartDashboard.putNumber("rawh", drivetrain.getState().RawHeading.getDegrees());
     
+  }
+
+  private ChassisSpeeds getRobotSpeeds()  {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(drivetrain.getState().Speeds, drivetrain.getState().Pose.getRotation());
   }
 
 }
