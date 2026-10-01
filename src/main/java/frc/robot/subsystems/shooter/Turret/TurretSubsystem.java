@@ -116,7 +116,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         talonConfigs.MotorOutput.NeutralMode = com.ctre.phoenix6.signals.NeutralModeValue.Brake;
         // Voltage control less than this gets zeroed
-        talonConfigs.MotorOutput.DutyCycleNeutralDeadband = 0.05;
+        talonConfigs.MotorOutput.DutyCycleNeutralDeadband = 0.03;
 
         talonConfigs.Feedback.FeedbackSensorSource = com.ctre.phoenix6.signals.FeedbackSensorSourceValue.RotorSensor;
 

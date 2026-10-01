@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SuperstructureConstants;
@@ -15,15 +16,21 @@ import frc.robot.TestableSubsystem;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
-
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem {
 
@@ -71,35 +78,52 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   private DoublePublisher turretPositionPublisher;
   private DoublePublisher turretSpeedPublisher;
 
+  private final MotionMagicVelocityVoltage launchMotorRequest = new MotionMagicVelocityVoltage(0).withSlot(0);
+
   public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int hoodMotorId, NetworkTable table) {
-
+    
     m_launchMotorL = new TalonFX(launchMotorIdL);
-    launchMotorConfigs = new Slot0Configs();
-    // Placeholder PID values
-    launchMotorConfigs.kS = 0.2;
-    launchMotorConfigs.kV = 0.8;
-    launchMotorConfigs.kP = 0.04;
-    launchMotorConfigs.kI = 0;
-    launchMotorConfigs.kD = 0;
-
     //invert the left motor to match the right motor's direction
     directionalConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
-    m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
     m_launchMotorL.getConfigurator().apply(directionalConfigs);
     launchRequestL = new VelocityVoltage(0).withSlot(0);
     
     m_launchMotorR = new TalonFX(launchMotorIdR);
     directionalConfigs.Inverted = InvertedValue.Clockwise_Positive;
-    m_launchMotorR.getConfigurator().apply(launchMotorConfigs);
     m_launchMotorR.getConfigurator().apply(directionalConfigs);
     launchRequestR = new VelocityVoltage(0).withSlot(0);
+
+    var launchMotorConfigs = new TalonFXConfiguration();
+
+    launchMotorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    launchMotorConfigs.Feedback.SensorToMechanismRatio = 1.0;
+
+    // set slot 0 gains
+    var slot0Configs = launchMotorConfigs.Slot0;
+    slot0Configs.kS = 0.0;
+    slot0Configs.kV = 0.12;
+    slot0Configs.kP = 0.05;
+    slot0Configs.kI = 0.0;
+    slot0Configs.kD = 0.0;
+
+    // set Motion Magic Velocity settings
+    var motionMagicConfigs = launchMotorConfigs.MotionMagic;
+    motionMagicConfigs.MotionMagicAcceleration = 200; // Target acceleration of 400 rps/s (0.25 seconds to max)
+    motionMagicConfigs.MotionMagicJerk = 1000; // Target jerk of 4000 rps/s/s (0.1 seconds)
+
+    m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
+    m_launchMotorR.getConfigurator().apply(launchMotorConfigs);
+
+    // Set the right motor to just follow the left motor
+    m_launchMotorR.setControl(new Follower(ShooterConstants.kShooterMotorLeftId, MotorAlignmentValue.Opposed));
+
 
     m_hoodMotor = new TalonFX(hoodMotorId);
     
     hoodMotorPositionConfigs = new Slot1Configs();
     hoodMotorVelocityConfigs = new Slot0Configs();
     //placeholder ids again 
-    hoodMotorVelocityConfigs.kS = 0.2;
+    hoodMotorVelocityConfigs.kS = 0.4;
     hoodMotorVelocityConfigs.kV = 0;
     hoodMotorVelocityConfigs.kP = 1.0;
     hoodMotorVelocityConfigs.kI = 0;
@@ -180,7 +204,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
   public void runShooterMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
-    launchVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
   }
   
   //hood control code
@@ -221,16 +244,18 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     //   driveYawMotor(0);
     // }
 
-    launchVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, launchVelocitySetpoint,
-        launchVelocityGoal);
-    hoodVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, hoodVelocitySetpoint,
-        hoodVelocityGoal);
+    // launchVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, launchVelocitySetpoint,
+    //     launchVelocityGoal);
+    // hoodVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, hoodVelocitySetpoint,
+    //     hoodVelocityGoal);
     // yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.2, yawVelocitySetpoint,
     //     yawVelocityGoal);
 
 
-    m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
-    m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
+    m_launchMotorL.setControl(launchMotorRequest.withVelocity(launchMotorSetpoint.in(RotationsPerSecond)));
+    // m_launchMotorR.setControl(launchMotorRequest.withVelocity(launchMotorSetpoint.in(DegreesPerSecond)));
+    // m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
+    // m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
 
 
     // If the shooter hood is being controlled positionally, set the control to a position request
@@ -246,6 +271,9 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
     //turretPositionPublisher.set(getYawEncoder().in(Degrees));
    // turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
+    SmartDashboard.putNumber("Shooter/Commanded Shooter DPS", launchMotorSetpoint.in(DegreesPerSecond));
+    SmartDashboard.putNumber("Shooter/Shooter SpeedL (DPS) read", getLaunchMotorSpeed().in(DegreesPerSecond));
+    SmartDashboard.putNumber("Shooter/Shooter SpeedR (DPS) read", m_launchMotorR.getVelocity(true).getValue().in(DegreesPerSecond));
 
   }
 

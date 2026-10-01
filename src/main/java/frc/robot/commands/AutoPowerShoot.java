@@ -39,15 +39,16 @@ public class AutoPowerShoot extends Command {
     this.turretPoseSupplier = turretPoseSupplier;
     addRequirements(shooter);
 
-    shooterSpeedMap.put(0.0, 3350.0);
-    shooterSpeedMap.put(96.0, 3400.0);
-    shooterSpeedMap.put(108.0, 3550.0);
-    shooterSpeedMap.put(121.0, 3700.0);
-    shooterSpeedMap.put(128.0, 3800.0);
-    shooterSpeedMap.put(140.0, 3940.0);
-    shooterSpeedMap.put(150.0, 4050.0);
-    shooterSpeedMap.put(183.0, 4300.0);
-    shooterSpeedMap.put(500.0, 4300.0);
+    shooterSpeedMap.put(0.0, 18900.0);
+    shooterSpeedMap.put(96.0, 18900.0);
+    shooterSpeedMap.put(108.0, 20028.0);
+    shooterSpeedMap.put(121.0, 21015.7);
+    shooterSpeedMap.put(128.0, 21579.9);
+    shooterSpeedMap.put(140.0, 22341.5);
+    shooterSpeedMap.put(150.0, 23131.4);
+    shooterSpeedMap.put(169.0, 24823.9);
+    shooterSpeedMap.put(178.0, 25670.2);
+    shooterSpeedMap.put(5000.0, 25388.1);
   }
 
   @Override
@@ -58,6 +59,8 @@ public class AutoPowerShoot extends Command {
   public void execute() {
     Distance distanceFromHub = Meters.of(Constants.kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
     AngularVelocity speed = DegreesPerSecond.of(shooterSpeedMap.get(distanceFromHub.in(Inches)));
+    // m_subsystem.runShooterMotors(speed);
+    double scaleFactor = 5.6418;
     m_subsystem.runShooterMotors(speed);
     // m_subsystem.runShooterMotors(4250);
     SmartDashboard.putNumber("Dist from Hub", distanceFromHub.in(Inches));

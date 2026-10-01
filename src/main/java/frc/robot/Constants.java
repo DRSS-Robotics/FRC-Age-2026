@@ -30,9 +30,9 @@ public final class Constants {
     public static final String kLimelightName = "limelight";
     public static final String kLimelightStreamURL = "http://limelight.local:5800";
 
-    public static final Distance kLimelightHeightOffset = Inches.of(18);
+    public static final Distance kLimelightHeightOffset = Inches.of(11);
     public static final Distance kLimelightSideOffset = Inches.of(0);
-    public static final Distance kLimelightForwardOffset = Inches.of(-12);
+    public static final Distance kLimelightForwardOffset = Inches.of(-13);
     public static final Angle kLimelightYawOffset = Degrees.of(180);
     public static final Angle kLimelightPitchOffset = Degrees.of(0);
 
@@ -107,9 +107,9 @@ public final class Constants {
     public static final double kTurretMaxManualSpeedDPS = 600; 
     public static final double kHoodMaxManualSpeedDPS = 10; //-3.6
 
-    public static final Distance kShooterHeightOffset = Inches.of(12);
+    public static final Distance kShooterHeightOffset = Inches.of(18);
     public static final Distance kShooterSideOffset = Inches.of(0);
-    public static final Distance kShooterForwardOffset = Inches.of(12);
+    public static final Distance kShooterForwardOffset = Inches.of(8);
     public static final Angle kShooterYawOffset = Degrees.of(180);
 
     public static final double kMaxShooterDPS2 = 36000; // accel
