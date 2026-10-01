@@ -52,7 +52,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,1);
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -61,6 +63,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,4);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -74,12 +77,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,4);
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out
 
-    //Didn't change this, don't think it's the problem -Micah plp
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().cancel(m_autonomousCommand);
     }

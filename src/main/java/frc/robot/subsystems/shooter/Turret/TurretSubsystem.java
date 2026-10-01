@@ -63,6 +63,12 @@ public class TurretSubsystem extends SubsystemBase {
 
     public Pose2d virtualTurretTarget = Constants.kHubPoseCenter;
 
+    StructPublisher<Pose2d> turretPosePublisher = NetworkTableInstance.getDefault()
+    .getTable("SmartDashboard")
+    .getSubTable("Turret")
+    .getStructTopic("Turret Pose", Pose2d.struct)
+    .publish();
+
 
     // SIM code
     private static final DCMotor MOTOR = DCMotor.getKrakenX60(1);
@@ -180,6 +186,8 @@ public class TurretSubsystem extends SubsystemBase {
                                     .rotateBy(absoluteTurretCenterRotation)), 
                                     new Rotation2d(relativeTurretRotation.plus(
                                     Degrees.of(robotPose.getRotation().getDegrees()))));
+
+        turretPosePublisher.set(turretPose);
     }
 
     // For Shoot on the Move, will likely need to be iterated a few times because when changing the 
@@ -242,43 +250,8 @@ public class TurretSubsystem extends SubsystemBase {
 
 
         // Stream data to SmartDashboard
-        SmartDashboard.putNumber("Turret Relative Angle", getTurretAngle().in(Degrees));
-        SmartDashboard.putNumber("Turret Commanded Rotation", turretSetpoint.in(Degrees));
-
-        SmartDashboard.putNumber(
-            "DEBUG/Requested Degrees",
-            turretSetpoint.in(Degrees)
-        );
-
-        SmartDashboard.putNumber(
-            "DEBUG/Requested Rotations",
-            turretSetpoint.in(Rotations)
-        );
-
-        SmartDashboard.putNumber(
-            "DEBUG/Phoenix Position Degrees",
-            m_turretMotor.getPosition().getValue().in(Degrees)
-        );
-
-        SmartDashboard.putNumber(
-            "DEBUG/Phoenix Position Rotations",
-            m_turretMotor.getPosition().getValue().in(Rotations)
-        );
-
-        SmartDashboard.putNumber(
-            "DEBUG/Phoenix Closed Loop Reference",
-            m_turretMotor.getClosedLoopReference().getValueAsDouble()
-        );
-
-        SmartDashboard.putNumber(
-            "DEBUG/Physics Sim Degrees",
-            turretSim.getAngularPositionRotations() * 360.0
-        );
-
-        SmartDashboard.putNumber(
-            "DEBUG/Raw Rotor Rotations",
-            m_turretMotor.getRotorPosition().getValueAsDouble()
-        );
+        SmartDashboard.putNumber("Turret/Turret Relative Angle", getTurretAngle().in(Degrees));
+        SmartDashboard.putNumber("Turret/Turret Commanded Rotation", turretSetpoint.in(Degrees));
 
     }
 

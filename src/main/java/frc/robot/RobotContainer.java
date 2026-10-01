@@ -115,13 +115,7 @@ public class RobotContainer {
 
   StructPublisher<Pose2d> PosePublisher1 = NetworkTableInstance.getDefault()
     .getTable("SmartDashboard")
-    .getSubTable("robotPoseOfficial")
-    .getStructTopic("Value", Pose2d.struct)
-    .publish();
-
-  StructPublisher<Pose2d> PosePublisher2 = NetworkTableInstance.getDefault()
-    .getTable("SmartDashboard")
-    .getSubTable("robotPoseTest")
+    .getSubTable("Robot Pose")
     .getStructTopic("Value", Pose2d.struct)
     .publish();
 
@@ -189,8 +183,6 @@ public class RobotContainer {
 
     // Changed from default auto name- Micah plp
     autoChooser = AutoBuilder.buildAutoChooser("testAutoCommands");
-
-    SmartDashboard.putData("Driver", driverChooser);
 
     // Recently added- Micah plp
     SmartDashboard.putData("Auto Mode", autoChooser);
@@ -400,7 +392,7 @@ public class RobotContainer {
   public void updateOdometry(){
     VisionMeasurement mt2 = m_vision.limelightPeriodic();
     if(mt2.isValid){
-      drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds, VecBuilder.fill(0.4,0.4,999999));
+      drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds, mt2.visionStdevs);
     }
     // m_questNav.periodicUpdate();
     
@@ -410,8 +402,6 @@ public class RobotContainer {
     PosePublisher1.set(drivetrain.getState().Pose);
 
     gameField.setRobotPose(drivetrain.getState().Pose);
-    SmartDashboard.putNumber("mainrot", drivetrain.getState().Pose.getRotation().getDegrees());
-    SmartDashboard.putNumber("rawh", drivetrain.getState().RawHeading.getDegrees());
     
   }
 

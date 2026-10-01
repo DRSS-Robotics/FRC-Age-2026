@@ -61,8 +61,7 @@ public class AutoPowerShoot extends Command {
     m_subsystem.runShooterMotors(speed);
     // m_subsystem.runShooterMotors(4250);
     SmartDashboard.putNumber("Dist from Hub", distanceFromHub.in(Inches));
-    SmartDashboard.putNumber("rotatorrrr", speed.in(DegreesPerSecond));
-    SmartDashboard.putNumber("speeds", shooterSpeedMap.get(distanceFromHub.in(Inches)));
+    SmartDashboard.putNumber("Shooter/Shooter Speed (DPS)", speed.in(DegreesPerSecond));
   }
 
   @Override

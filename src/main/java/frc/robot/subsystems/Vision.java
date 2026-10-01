@@ -54,9 +54,9 @@ public class Vision extends SubsystemBase {
         /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
         /* yaw offset */ VisionConstants.kLimelightYawOffset.in(Degrees));
     
-    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,4);
-    MT1Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag1", Pose2d.struct).publish();
-    MT2Publisher = NetworkTableInstance.getDefault().getStructTopic("MegaTag2", Pose2d.struct).publish();
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,1);
+    MT1Publisher = NetworkTableInstance.getDefault().getStructTopic("Vision/MegaTag1", Pose2d.struct).publish();
+    MT2Publisher = NetworkTableInstance.getDefault().getStructTopic("Vision/MegaTag2", Pose2d.struct).publish();
 
     
   }
@@ -64,7 +64,6 @@ public class Vision extends SubsystemBase {
   /** Set the Limelight's pipeline */
   public void setLimelightPipeline(int index) {
     LimelightHelpers.setPipelineIndex(VisionConstants.kLimelightName, index);
-    System.out.println("VISION: Set Limelight pipeline to " + index);
   }
 
   public VisionMeasurement limelightPeriodic(){
@@ -80,13 +79,25 @@ public class Vision extends SubsystemBase {
         .getBotPoseEstimate_wpiRed_MegaTag2(VisionConstants.kLimelightName) : LimelightHelpers
         .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at
-    // least 1 tag is detected
+    // least 2 tags are detected
 
     if (Math.abs(pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 1) {
-      // CHECK IF THIS IS ACTUALLY CHANGING ROBOT CONTAINER POSE ESTIMATOR
-      // poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
       MT1Publisher.set(mt1.pose);
       MT2Publisher.set(mt2.pose);
+      Matrix<N3,N1> stdevs;
+      // These should be in meters
+      if(mt2.avgTagDist > 4){
+        stdevs = VecBuilder.fill(1.5,1.5,999999);
+      }
+      else if(mt2.avgTagDist > 2){
+        stdevs = VecBuilder.fill(1.0,1.0,999999);
+      }
+      else if(mt2.avgTagDist > 1){
+        stdevs = VecBuilder.fill(0.5,0.5,999999);
+      }
+      else{
+        stdevs = VecBuilder.fill(0.3,0.3,999999);
+      }
       
       // when running this, which I assumed would adjust pose for PathPlanner,
       // it messed up the field oriented swerve drive, which I guess should've been expected
@@ -94,9 +105,9 @@ public class Vision extends SubsystemBase {
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
 
-      return new VisionMeasurement(mt2.pose, mt2.timestampSeconds, true);
+      return new VisionMeasurement(mt2.pose, mt2.timestampSeconds, stdevs, true);
     }
-    return new VisionMeasurement(null, 0, false);
+    return new VisionMeasurement(null, 0, null, false);
 
   }
 

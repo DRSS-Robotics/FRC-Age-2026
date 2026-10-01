@@ -38,25 +38,11 @@ public class RotateToHub extends Command {
 
   private Supplier<Pose2d> robotPoseSupplier;
 
-
-  StructPublisher<Translation2d> publisher = NetworkTableInstance.getDefault()
-    .getTable("SmartDashboard")
-    .getSubTable("translationjohn")
-    .getStructTopic("Value", Translation2d.struct)
-    .publish();
-
-  StructPublisher<Pose2d> PosePublisher = NetworkTableInstance.getDefault()
-    .getTable("SmartDashboard")
-    .getSubTable("turretPose")
-    .getStructTopic("Value", Pose2d.struct)
-    .publish();
-
   public RotateToHub(TurretSubsystem turret, Supplier<Pose2d> poseSupplier) {
     m_turretSubsystem = turret;
     robotPoseSupplier = poseSupplier;
 
     addRequirements(turret);
-
   }
   
   @Override
@@ -87,10 +73,12 @@ public class RotateToHub extends Command {
 
     // The system setup to find the angle input needed for turret rotation to face the hub is a bit strange
     // It will take the turret's initial offset (typically 180 deg) and subtract the turret's absolute rotation.
-    // This might seem arbitrary, but it's done because the rotation needed is a difference in angles
+    // This is the most important value, because it tells exactly what angle the turret should go to.
     Angle rotationNeededFromCenter = normalizeAngle(hubAzimuth.plus(ShooterConstants.kShooterYawOffset)
                                                     .minus(Degrees.of(robotPose.getRotation().getDegrees())));
     
+    // This value is not really used in the code, but can be displayed to show the error of where
+    // it should be versus where it currently is
     Angle rotationNeeded = normalizeAngle(hubAzimuth.plus(ShooterConstants.kShooterYawOffset)
                                                     .minus(Degrees.of(robotPose.getRotation().getDegrees())
                                                     .plus(m_turretSubsystem.getTurretAngle())));
@@ -130,28 +118,10 @@ public class RotateToHub extends Command {
     // double shooterVy =
     //     fieldVy + omega * turretOffsetField.getX();
 
-    // //Gets the secant of distToRobot/txnc to find the offset angle to the hub
-    // double targetAngle = Math.toDegrees(1/Math.cos(targetOffsetDistance/targetOffsetHorizontal));
-    // //Determine how many ticks are needed to turn to the target angle
-    // double targetTicks = targetAngle * ticksPerDegree;
-    //speed that turret rotates
-    SmartDashboard.putNumber("Hub Angle Needed", rotationNeeded.in(Degrees));
-    SmartDashboard.putNumber("rotatorrrr", turretPose.getRotation().getDegrees());
-    SmartDashboard.putNumber("Hub Azimuth", hubAzimuth.in(Degrees));
-    SmartDashboard.putNumber("actual angel thus can be wrong", Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
-    double speed = 0.3;
+    SmartDashboard.putNumber("Turret/Delta Angle", rotationNeeded.in(Degrees));
 
-    boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 90;
-    SmartDashboard.putBoolean("Can Rotate to autoaim", canRotate);
-    SmartDashboard.putNumber("fromcenter", rotationNeededFromCenter.in(Degrees));
-
-    publisher.set(distanceFromHub);
-    PosePublisher.set(turretPose);
-    //Sets the motor position to the target angle
-    // m_turretControl.runTurretMotor(speed, targetTicks);
-
-    SmartDashboard.putBoolean("Over/X", distanceFromHub.getX() > 0);
-    SmartDashboard.putBoolean("Over/Y", distanceFromHub.getY() > 0);
+    boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 85;
+    SmartDashboard.putBoolean("Turret/Can Rotate to autoaim", canRotate);
 
     m_turretSubsystem.setTurretPosition(rotationNeededFromCenter);
   }
