@@ -147,11 +147,6 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser;
   private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
-  private final StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
-    .getTable("SmartDashboard")
-    .getSubTable("posejohn")
-    .getStructTopic("Value", Pose2d.struct)
-    .publish();
 
   private final Pose2d initialPose = new Pose2d(2.0,2.0,new Rotation2d(Degrees.of(-0.9)));
   // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/8));
@@ -186,8 +181,6 @@ public class RobotContainer {
 
     // Recently added- Micah plp
     SmartDashboard.putData("Auto Mode", autoChooser);
-
-    publisher.set(initialPose);
 
     // THIS IS ALL CODE FOR LIMELIGHT FEED- from PID tuning branch- Micah plp
     limelight = new HttpCamera("limelight", "http://limelight.local:5800");

@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.math.numbers.*;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
 
@@ -104,7 +107,7 @@ public class Vision extends SubsystemBase {
       // so I commented it out for now, but that was when pose wasn't working
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
-
+      SmartDashboard.putNumber("Vision/Avg Tag Dist", mt2.avgTagDist);
       return new VisionMeasurement(mt2.pose, mt2.timestampSeconds, stdevs, true);
     }
     return new VisionMeasurement(null, 0, null, false);

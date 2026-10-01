@@ -22,6 +22,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -118,16 +120,16 @@ public class TurretSubsystem extends SubsystemBase {
 
         talonConfigs.Feedback.FeedbackSensorSource = com.ctre.phoenix6.signals.FeedbackSensorSourceValue.RotorSensor;
 
-        talonConfigs.MotionMagic.MotionMagicCruiseVelocity = 1.5;
+        talonConfigs.MotionMagic.MotionMagicCruiseVelocity = 2.0;
         talonConfigs.MotionMagic.MotionMagicAcceleration = 3.0;
 
         // Measured value to 0 the turret
         // talonConfigs.Feedback.FeedbackRotorOffset = ShooterConstants.kTurretEncoderOffset;
 
-        talonConfigs.Slot0.kP = 40.0;
+        talonConfigs.Slot0.kP = 50.0;
         talonConfigs.Slot0.kI = 0.0;
-        talonConfigs.Slot0.kD = 2.0;
-        talonConfigs.Slot0.kS = 0.9;
+        talonConfigs.Slot0.kD = 1.5;
+        talonConfigs.Slot0.kS = 1.0;
         talonConfigs.Slot0.kV = 0.0;
 
         m_turretMotor.getConfigurator().apply(talonConfigs);
