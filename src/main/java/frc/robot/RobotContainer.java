@@ -218,15 +218,6 @@ public class RobotContainer {
 //                     0.75), 12)
 //                     ))));
 
-
-//puts turret on right joystick
-    // m_turret.setDefaultCommand(
-    //             new DriveYawMotor(
-    //                 m_turret,
-    //                 () -> -m_operatorController.getRightX()));
-
-    // m_driverController.a().whileTrue(new RotateToTag(m_turret));
-
     m_operatorController.rightTrigger(0.05).whileTrue(
         new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
             .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
@@ -344,18 +335,6 @@ public class RobotContainer {
           .withRotationalDeadband(MaxAngularRate * 0.1);
     }));
 
-    // drivetrain.registerTelemetry(logger::telemeterize);
-    /*
-     * m_driverController.rightStick().whileFalse(
-     * new DriveYawMotor(m_shooter, () -> DegreesPerSecond.of(
-     * ShooterConstants.kTurretMaxManualSpeedDPS
-     * powPreserveSign(-m_driverController.getRightX(), 2.))));
-     * 
-     * m_driverController.rightStick().whileTrue(
-     * new RotateYawMotor(m_shooter, () -> Degrees
-     * .of(convertPositionToTurretAngle(
-     * m_driverController.getRightX(), m_driverController.getRightY()))));
-     */
   }
 
   private static double binDouble(double in, double bins) {

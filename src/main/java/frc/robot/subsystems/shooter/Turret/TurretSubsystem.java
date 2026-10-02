@@ -192,6 +192,16 @@ public class TurretSubsystem extends SubsystemBase {
         turretPosePublisher.set(turretPose);
     }
 
+    private Angle ferryAngle(){
+        // It's easier to get the turretPose than the robotPose in this scope, but this is
+        // essentially just using the robot's rotation then negating it
+        Rotation2d botRotation = turretPose.getRotation().minus(
+                                new Rotation2d(getTurretAngle())).minus(
+                                new Rotation2d(ShooterConstants.kShooterYawOffset));
+        return Degrees.of(botRotation.unaryMinus().getDegrees());
+
+    }
+
     // For Shoot on the Move, will likely need to be iterated a few times because when changing the 
     // virtual target, the distance also changes. Therefore, the power changes and the turret angle changes.
     // public void calculateSOTM(ChassisSpeeds robotSpeed){
@@ -243,7 +253,13 @@ public class TurretSubsystem extends SubsystemBase {
 
         if(DriverStation.isEnabled()){
             if(automatedControl){
-                m_turretMotor.setControl(positionRequest.withPosition(turretSetpoint.in(Rotations))); 
+                // If the robot is past the hub by 0.3 meters, then make the turret face our alliance wall to ferry
+                if(Constants.kHubPoseCenter.getTranslation().minus(turretPose.getTranslation()).getX() < -0.3){
+                    m_turretMotor.setControl(positionRequest.withPosition(ferryAngle().in(Rotations)));
+                }
+                else{
+                    m_turretMotor.setControl(positionRequest.withPosition(turretSetpoint.in(Rotations)));
+                }
             }
             else{
                 m_turretMotor.setControl(positionRequest.withPosition(0));
