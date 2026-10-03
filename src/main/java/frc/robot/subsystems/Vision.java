@@ -75,12 +75,8 @@ public class Vision extends SubsystemBase {
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
         drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-    LimelightHelpers.PoseEstimate mt1 = (DriverStation.getAlliance().get() == Alliance.Red) ? LimelightHelpers
-        .getBotPoseEstimate_wpiRed(VisionConstants.kLimelightName) : LimelightHelpers
-        .getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
-    LimelightHelpers.PoseEstimate mt2 = (DriverStation.getAlliance().get() == Alliance.Red) ? LimelightHelpers
-        .getBotPoseEstimate_wpiRed_MegaTag2(VisionConstants.kLimelightName) : LimelightHelpers
-        .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
+    LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at
     // least 2 tags are detected
 
@@ -105,6 +101,7 @@ public class Vision extends SubsystemBase {
       // when running this, which I assumed would adjust pose for PathPlanner,
       // it messed up the field oriented swerve drive, which I guess should've been expected
       // so I commented it out for now, but that was when pose wasn't working
+
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
       SmartDashboard.putNumber("Vision/Avg Tag Dist", mt2.avgTagDist);

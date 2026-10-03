@@ -21,6 +21,8 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -39,11 +41,10 @@ public class AutoPowerShoot extends Command {
     m_subsystem = shooter;
     endOnTrue = endCommandWhenTrue;
     this.turretPoseSupplier = turretPoseSupplier;
-    addRequirements(shooter);
 
     shooterSpeedMap.put(0.0, 18900.0);
     shooterSpeedMap.put(96.0, 18900.0);
-    shooterSpeedMap.put(108.0, 20028.0);
+    shooterSpeedMap.put(108.0, 19000.0);
     shooterSpeedMap.put(121.0, 21015.7);
     shooterSpeedMap.put(128.0, 21579.9);
     shooterSpeedMap.put(140.0, 22341.5);
@@ -52,7 +53,11 @@ public class AutoPowerShoot extends Command {
     shooterSpeedMap.put(178.0, 25670.2);
     shooterSpeedMap.put(5000.0, 25388.1);
 
-    Distance distanceFromHub = Meters.of(Constants.kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
+    Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
+                                    Constants.kFieldLengthMeters.minus(Inches.of(182.11)) : 
+                                    Inches.of(182.11);
+    Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
+    Distance distanceFromHub = Meters.of(kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
     determinedSpeed = DegreesPerSecond.of(shooterSpeedMap.get(distanceFromHub.in(Inches)));
   }
 
@@ -76,7 +81,6 @@ public class AutoPowerShoot extends Command {
   @Override
   public void execute() {
     m_subsystem.runShooterMotors(determinedSpeed);
-    SmartDashboard.putNumber("Dist from Hub", distanceFromHub.in(Inches));
     SmartDashboard.putNumber("Shooter/Shooter Speed (DPS)", determinedSpeed.in(DegreesPerSecond));
   }
 

@@ -12,6 +12,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers.RawFiducial;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -25,6 +26,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -64,7 +68,11 @@ public class RotateToHub extends Command {
         ShooterConstants.kShooterForwardOffset.times(omegaRadiansPerSecond)
     );
 
-    Translation2d distanceFromHub = Constants.kHubPoseCenter.getTranslation().minus(turretPose.getTranslation());
+    Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
+                                    Constants.kFieldLengthMeters.minus(Inches.of(182.11)) : 
+                                    Inches.of(182.11);
+    Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
+    Translation2d distanceFromHub = kHubPoseCenter.getTranslation().minus(turretPose.getTranslation());
     // Angle hubAzimuth = Degrees.of(MathUtil.inputModulus(
     //                               Radians.of(Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX())))
     //                               .plus(hubOffsetAngle(turretPose)).in(Degrees), -180, 180));
@@ -85,12 +93,14 @@ public class RotateToHub extends Command {
 
     SmartDashboard.putNumber("Turret/Delta Angle", rotationNeeded.in(Degrees));
 
-    boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 85;
+    boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 88;
     SmartDashboard.putBoolean("Turret/Can Rotate to autoaim", canRotate);
 
     // If the robot is past the hub by 0.5 meters, turn the turret into ferrying mode.
     // Ferrying mode angle is retrieved by the negated robot angle
-    if(distanceFromHub.getX() < -0.5 && !DriverStation.isAutonomousEnabled()){
+    if(((distanceFromHub.getX() < -0.5 && DriverStation.getAlliance().get() == Alliance.Blue) ||
+        (distanceFromHub.getX() > 0.5 && DriverStation.getAlliance().get() == Alliance.Red))
+        && !DriverStation.isAutonomousEnabled()){
       m_turretSubsystem.setTurretPosition(robotPose.getRotation().unaryMinus().getDegrees());
     }
     else{

@@ -1,13 +1,22 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SuperstructureConstants;
 // import frc.robot.subsystems.shooter.Turret.TurretControl;
@@ -15,8 +24,12 @@ import frc.robot.TestableSubsystem;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -48,6 +61,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     
     private TrapezoidProfile.State launchVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State launchVelocitySetpoint = new TrapezoidProfile.State();
+    private final CommandXboxController m_operatorController = new CommandXboxController(1);
     
     //private TalonFX m_yawMotor;
     // private Slot0Configs yawMotorPositionConfigs;
@@ -250,7 +264,6 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     //     hoodVelocityGoal);
     // yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.2, yawVelocitySetpoint,
     //     yawVelocityGoal);
-
 
     m_launchMotorL.setControl(launchMotorRequest.withVelocity(launchMotorSetpoint.in(RotationsPerSecond)));
     // m_launchMotorR.setControl(launchMotorRequest.withVelocity(launchMotorSetpoint.in(DegreesPerSecond)));

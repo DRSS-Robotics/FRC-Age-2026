@@ -138,9 +138,13 @@ public final class Constants {
 
   public static Distance kFieldLengthMeters = Inches.of(651.22);
   // if Blue alliance, use shorter distance, otherwise use longer
-  public static Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
-                                    kFieldLengthMeters.minus(Inches.of(182.11)) : 
-                                    Inches.of(182.11);
+
+  // public static Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
+  //                                   kFieldLengthMeters.minus(Inches.of(182.11)) : 
+  //                                   Inches.of(182.11);
+
+  
+  public static Distance kHubXPos = kFieldLengthMeters.minus(Inches.of(182.11));
   public static Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
 
 

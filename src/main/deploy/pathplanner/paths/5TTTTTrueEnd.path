@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.9984736091298143,
-        "y": 1.013823109843081
+        "x": 4.031166666666667,
+        "y": 0.6244444444444435
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.2303699946341136,
-        "y": 1.1072258206712013
+        "x": 4.263063052170966,
+        "y": 0.7178471552725638
       },
       "isLocked": false,
       "linkedName": "PathFiveRoEnd"
@@ -48,7 +48,7 @@
   "folder": "Auto_5_Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -138.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

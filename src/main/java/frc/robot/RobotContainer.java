@@ -63,6 +63,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTable;
@@ -70,6 +71,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -89,83 +91,88 @@ import frc.robot.generated.TunerConstants;
 
 public class RobotContainer {
 
-  private final ShooterSubsystem m_shooter = new ShooterSubsystem(
-        ShooterConstants.kShooterMotorLeftId,
-        ShooterConstants.kShooterMotorRightId, ShooterConstants.kHoodMotorId,
-      NetworkTableInstance.getDefault().getTable("Turret"));
-      //adding in the turret subsystem
-  private final TurretSubsystem m_turret = new TurretSubsystem(ShooterConstants.kYawMotorId);
+  //adding in the turret subsystem
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-
+  
   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
   // second
   // max
   // angular velocity
-
+  
   private double speedMultiplier = 1;
   private final double speedModifier = 0.5;
   private final double minSpeedMulti = 0.175;
   private final double slowSpeedMulti = 0.25;
-
-
+  
+  
   // this is all stuff for cameras that is temporary code in main
   private final HttpCamera limelight;
-
+  
   private final Vision m_vision;
-
+  
   StructPublisher<Pose2d> PosePublisher1 = NetworkTableInstance.getDefault()
-    .getTable("SmartDashboard")
-    .getSubTable("Robot Pose")
-    .getStructTopic("Value", Pose2d.struct)
-    .publish();
-
-
+  .getTable("SmartDashboard")
+  .getSubTable("Robot Pose")
+  .getStructTopic("Value", Pose2d.struct)
+  .publish();
+  
+  
   private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
                                                                                                 // desired
   // top
   // speed
-
+  
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
-                                                               // motors
+  .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
+  .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
+  // motors
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private InterpolatingDoubleTreeMap shooterSpeedMap = new InterpolatingDoubleTreeMap();
+
 
   // private final Telemetry logger = new Telemetry(MaxSpeed);
-
+  
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_operatorController = new CommandXboxController(1);
-
-  private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
-      SuperstructureConstants.kIntakeMotorId,
-      SuperstructureConstants.kStorageMotorId,
-      SuperstructureConstants.kSoupMotorId,
-      SuperstructureConstants.kTransferMotorId,
-      NetworkTableInstance.getDefault().getTable("Superstructure"));
-
-  private final SendableChooser<Command> autoChooser;
-  private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
-
-  private final Pose2d initialPose = new Pose2d(2.0,2.0,new Rotation2d(Degrees.of(-0.9)));
-  // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/8));
-  // private final Pose2d initialPose = new Pose2d(17.5,0.5,new Rotation2d(0));
-
-
-  private final RotateToHub hubRotationCommand;
-
-  private final Field2d gameField;
-
-  private Supplier<Pose2d> turretPoseSupplier = () -> m_turret.turretPose;
-
-
-  public RobotContainer() {
-
-    NamedCommands.registerCommand("LongShoot", new AutoShootLongDistance(m_shooter));
-    NamedCommands.registerCommand("MidShoot", new AutoShootMidDistance(m_shooter));
-    NamedCommands.registerCommand("ShortShoot", new AutoShootShortDistance(m_shooter));
-    NamedCommands.registerCommand("AutoShootPower", new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
+      private final CommandXboxController m_operatorController = new CommandXboxController(1);
+      
+      private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
+        SuperstructureConstants.kIntakeMotorId,
+        SuperstructureConstants.kStorageMotorId,
+        SuperstructureConstants.kSoupMotorId,
+        SuperstructureConstants.kTransferMotorId,
+        NetworkTableInstance.getDefault().getTable("Superstructure"));
+        
+        private final SendableChooser<Command> autoChooser;
+        private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
+        
+        private Supplier<Pose2d> robotPoseSupplier = () -> drivetrain.getState().Pose;
+        private final TurretSubsystem m_turret = new TurretSubsystem(ShooterConstants.kYawMotorId, robotPoseSupplier);
+        private Supplier<Pose2d> turretPoseSupplier = () -> m_turret.turretPose;
+        
+        
+        private final Pose2d initialPose = new Pose2d(3.575,6.031,new Rotation2d(Degrees.of(180)));
+        // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/8));
+        // private final Pose2d initialPose = new Pose2d(17.5,0.5,new Rotation2d(0));
+        
+        
+        // private final RotateToHub hubRotationCommand;
+        
+        private final Field2d gameField;
+        private final ShooterSubsystem m_shooter = new ShooterSubsystem(
+              ShooterConstants.kShooterMotorLeftId,
+              ShooterConstants.kShooterMotorRightId, ShooterConstants.kHoodMotorId,
+            NetworkTableInstance.getDefault().getTable("Turret"));
+        
+        
+        
+        public RobotContainer() {
+          
+          NamedCommands.registerCommand("LongShoot", new AutoShootLongDistance(m_shooter));
+          NamedCommands.registerCommand("MidShoot", new AutoShootMidDistance(m_shooter));
+          NamedCommands.registerCommand("ShortShoot", new AutoShootShortDistance(m_shooter));
+          NamedCommands.registerCommand("AutoShootPower", new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
     NamedCommands.registerCommand("Shoot", new AutoShootShortDistance(m_shooter));
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
@@ -187,23 +194,34 @@ public class RobotContainer {
     limelight = new HttpCamera("limelight", "http://limelight.local:5800");
     limelight.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
+    
     // TODO: link initial pose to maybe a draggable object on a field? something like that
     
-
+    
     m_vision = new Vision(drivetrain.getPigeon2(), drivetrain);
 
     gameField = new Field2d();
     SmartDashboard.putData("Field", gameField);
-    Supplier<Pose2d> robotPoseSupplier = () -> drivetrain.getState().Pose;
-
     
     drivetrain.setStateStdDevs(VecBuilder.fill(0.3,0.3,0.1));
-    
-    hubRotationCommand = new RotateToHub(m_turret, robotPoseSupplier);
-    CommandScheduler.getInstance().schedule(hubRotationCommand);
+
+    // hubRotationCommand = new RotateToHub(m_turret, robotPoseSupplier);
+    // CommandScheduler.getInstance().schedule(hubRotationCommand);
+    // drivetrain.resetPose(initialPose);
 
     configureBindings();
     ElasticTelemetry.getInstance();
+
+    shooterSpeedMap.put(0.0, 18900.0);
+    shooterSpeedMap.put(96.0, 18900.0);
+    shooterSpeedMap.put(108.0, 19000.0);
+    shooterSpeedMap.put(121.0, 21015.7);
+    shooterSpeedMap.put(128.0, 21579.9);
+    shooterSpeedMap.put(140.0, 22341.5);
+    shooterSpeedMap.put(150.0, 23131.4);
+    shooterSpeedMap.put(169.0, 24823.9);
+    shooterSpeedMap.put(178.0, 25670.2);
+    shooterSpeedMap.put(5000.0, 25388.1);
   }
 
   private void configureBindings() {
@@ -220,16 +238,16 @@ public class RobotContainer {
 
     // // back wall position
     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(23131),
+        () -> DegreesPerSecond.of(19000),
         () -> false));
     // mid position
     // m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
     //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.44),
     //     () -> false));
     // close position
-    // m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.4),
-    //     () -> false));
+    m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
+        () -> DegreesPerSecond.of(25670),
+        () -> false));
 
     
 
@@ -237,7 +255,19 @@ public class RobotContainer {
 
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
 
-    m_operatorController.a().whileTrue(new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
+    // m_operatorController.a().whileTrue(new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
+    m_operatorController.leftBumper().whileTrue(Commands.runOnce(() ->{
+      Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
+                                      Constants.kFieldLengthMeters.minus(Inches.of(182.11)) : 
+                                      Inches.of(182.11);
+      Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
+      Distance distanceFromHub = Meters.of(kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
+      AngularVelocity determinedSpeed = DegreesPerSecond.of(shooterSpeedMap.get(distanceFromHub.in(Inches)));
+      m_shooter.runShooterMotors(determinedSpeed);
+    }));
+    m_operatorController.leftBumper().onFalse(Commands.runOnce(() -> {
+      m_shooter.runShooterMotors(0);
+    }));
     // Toggles Auto lock on hub, as a backup incase pose reading stops working
     m_operatorController.x().onTrue(Commands.runOnce(() -> {if(m_turret.automatedControl){m_turret.disableAutomatedControl();}else{m_turret.enableAutomatedControl();}}));
 
@@ -245,7 +275,6 @@ public class RobotContainer {
 
     m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
 
-    m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
     m_operatorController.leftTrigger(0.05)
         .whileTrue(new DriveTransferCommand(m_superstructure,
             m_operatorController::getLeftTriggerAxis));
@@ -360,6 +389,18 @@ public class RobotContainer {
     
 
     m_turret.updateTurretPose(drivetrain.getState().Pose);
+
+    // public static Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
+    //                                 kFieldLengthMeters.minus(Inches.of(182.11)) : 
+    //                                 Inches.of(182.11);
+    Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
+                                    Constants.kFieldLengthMeters.minus(Inches.of(182.11)) : 
+                                    Inches.of(182.11);
+    Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
+    Distance distanceFromHub = Meters.of(kHubPoseCenter.getTranslation().getDistance(m_turret.turretPose.getTranslation()));
+
+    SmartDashboard.putNumber("Dist from Hub", distanceFromHub.in(Inches));
+
     // m_turret.calculateSOTM(getRobotSpeeds());
     PosePublisher1.set(drivetrain.getState().Pose);
 
