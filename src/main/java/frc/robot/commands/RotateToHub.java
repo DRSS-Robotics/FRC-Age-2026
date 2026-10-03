@@ -123,7 +123,14 @@ public class RotateToHub extends Command {
     boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 85;
     SmartDashboard.putBoolean("Turret/Can Rotate to autoaim", canRotate);
 
-    m_turretSubsystem.setTurretPosition(rotationNeededFromCenter);
+    // If the robot is past the hub by 0.5 meters, turn the turret into ferrying mode.
+    // Ferrying mode angle is retrieved by the negated robot angle
+    if(distanceFromHub.getX() < -0.5){
+      m_turretSubsystem.setTurretPosition(robotPose.getRotation().unaryMinus().getDegrees());
+    }
+    else{
+      m_turretSubsystem.setTurretPosition(rotationNeededFromCenter);
+    }
   }
 
   @Override
@@ -189,8 +196,9 @@ public class RotateToHub extends Command {
 
   // Override to return true so it runs when the robot is disabled, on during testing
   // TODO: Remove when testing is done
-  @Override
-  public boolean runsWhenDisabled() {
-    return true;
-  }
+  // Commented it out prior to CORI
+  // @Override
+  // public boolean runsWhenDisabled() {
+  //   return true;
+  // }
 }

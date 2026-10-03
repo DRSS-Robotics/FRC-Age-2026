@@ -153,7 +153,7 @@ public class RobotContainer {
   // private final Pose2d initialPose = new Pose2d(17.5,0.5,new Rotation2d(0));
 
 
-  private final RotateToHub comm;
+  private final RotateToHub hubRotationCommand;
 
   private final Field2d gameField;
 
@@ -197,11 +197,9 @@ public class RobotContainer {
 
     
     drivetrain.setStateStdDevs(VecBuilder.fill(0.3,0.3,0.1));
-
-    // comm = new RotateToHub(m_turret, initialPose);
     
-    comm = new RotateToHub(m_turret, robotPoseSupplier);
-    CommandScheduler.getInstance().schedule(comm);
+    hubRotationCommand = new RotateToHub(m_turret, robotPoseSupplier);
+    CommandScheduler.getInstance().schedule(hubRotationCommand);
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -220,7 +218,7 @@ public class RobotContainer {
 
     m_operatorController.rightTrigger(0.05).whileTrue(
         new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
-            .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
+            .of(25670.0 * (binDouble(
                 Math.pow(m_operatorController.getRightTriggerAxis(),
                     0.75),
                 12) + 0.225))));
@@ -230,7 +228,7 @@ public class RobotContainer {
 
     // // back wall position
     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.530),
+        () -> DegreesPerSecond.of(23131),
         () -> false));
     // mid position
     // m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
@@ -245,11 +243,11 @@ public class RobotContainer {
 
 
 
-    // TODO: UNCOMMENT INTAKE BEFORE PUSHING
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
 
     m_operatorController.a().whileTrue(new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
-    m_operatorController.x().onTrue(Commands.runOnce(() -> {m_turret.disableAutomatedControl();}));
+    // Toggles Auto lock on hub, as a backup incase pose reading stops working
+    m_operatorController.x().onTrue(Commands.runOnce(() -> {if(m_turret.automatedControl){m_turret.disableAutomatedControl();}else{m_turret.enableAutomatedControl();}}));
 
     
 
