@@ -83,41 +83,6 @@ public class RotateToHub extends Command {
                                                     .minus(Degrees.of(robotPose.getRotation().getDegrees())
                                                     .plus(m_turretSubsystem.getTurretAngle())));
 
-    // Translation2d target = getTargetPosition();
-    // Translation2d robot = robotPose.getTranslation();
-
-    // double distance = target.getDistance(robot);
-
-    // // First estimate
-    // double flightTime = flightTimeMap.get(distance);
-
-    // Translation2d compensatedTarget = target.minus(
-    //     new Translation2d(
-    //         fieldVx * flightTime,
-    //         fieldVy * flightTime
-    //     )
-    // );
-
-    // // Recalculate effective shot distance
-    // double compensatedDistance =
-    //     compensatedTarget.getDistance(robot);
-
-    // // Better flight-time estimate
-    // flightTime = flightTimeMap.get(compensatedDistance);
-
-    // // Final compensated target
-    // compensatedTarget = target.minus(
-    //     new Translation2d(
-    //         fieldVx * flightTime,
-    //         fieldVy * flightTime
-    //     )
-    // );
-    // double shooterVx =
-    //     fieldVx - omega * turretOffsetField.getY();
-
-    // double shooterVy =
-    //     fieldVy + omega * turretOffsetField.getX();
-
     SmartDashboard.putNumber("Turret/Delta Angle", rotationNeeded.in(Degrees));
 
     boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 85;
@@ -125,7 +90,7 @@ public class RotateToHub extends Command {
 
     // If the robot is past the hub by 0.5 meters, turn the turret into ferrying mode.
     // Ferrying mode angle is retrieved by the negated robot angle
-    if(distanceFromHub.getX() < -0.5){
+    if(distanceFromHub.getX() < -0.5 && !DriverStation.isAutonomousEnabled()){
       m_turretSubsystem.setTurretPosition(robotPose.getRotation().unaryMinus().getDegrees());
     }
     else{

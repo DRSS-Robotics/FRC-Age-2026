@@ -30,6 +30,8 @@ public class AutoPowerShoot extends Command {
   private Supplier<Boolean> endOnTrue;
   private Supplier<Pose2d> turretPoseSupplier;
 
+  private AngularVelocity determinedSpeed;
+
   // Essentially works as a function: input distance from the hub, returns power that will shoot into the hub correctly
   private InterpolatingDoubleTreeMap shooterSpeedMap = new InterpolatingDoubleTreeMap();
 
@@ -49,22 +51,33 @@ public class AutoPowerShoot extends Command {
     shooterSpeedMap.put(169.0, 24823.9);
     shooterSpeedMap.put(178.0, 25670.2);
     shooterSpeedMap.put(5000.0, 25388.1);
+
+    Distance distanceFromHub = Meters.of(Constants.kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
+    determinedSpeed = DegreesPerSecond.of(shooterSpeedMap.get(distanceFromHub.in(Inches)));
   }
 
   @Override
   public void initialize() {
   }
 
+  // This is the standard AutoPowerShoot, always updating with position updates
+  // @Override
+  // public void execute() {
+  //   Distance distanceFromHub = Meters.of(Constants.kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
+  //   AngularVelocity speed = DegreesPerSecond.of(shooterSpeedMap.get(distanceFromHub.in(Inches)));
+  //   // Past vs before scale factor
+  //   double scaleFactor = 5.6418;
+  //   m_subsystem.runShooterMotors(speed);
+  //   SmartDashboard.putNumber("Dist from Hub", distanceFromHub.in(Inches));
+  //   SmartDashboard.putNumber("Shooter/Shooter Speed (DPS)", speed.in(DegreesPerSecond));
+  // }
+
+  // This is a version of AutoPowerShoot that only determines the speed based on distance at the beginning
   @Override
   public void execute() {
-    Distance distanceFromHub = Meters.of(Constants.kHubPoseCenter.getTranslation().getDistance(turretPoseSupplier.get().getTranslation()));
-    AngularVelocity speed = DegreesPerSecond.of(shooterSpeedMap.get(distanceFromHub.in(Inches)));
-    // m_subsystem.runShooterMotors(speed);
-    double scaleFactor = 5.6418;
-    m_subsystem.runShooterMotors(speed);
-    // m_subsystem.runShooterMotors(4250);
+    m_subsystem.runShooterMotors(determinedSpeed);
     SmartDashboard.putNumber("Dist from Hub", distanceFromHub.in(Inches));
-    SmartDashboard.putNumber("Shooter/Shooter Speed (DPS)", speed.in(DegreesPerSecond));
+    SmartDashboard.putNumber("Shooter/Shooter Speed (DPS)", determinedSpeed.in(DegreesPerSecond));
   }
 
   @Override

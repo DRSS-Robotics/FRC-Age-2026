@@ -165,6 +165,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("LongShoot", new AutoShootLongDistance(m_shooter));
     NamedCommands.registerCommand("MidShoot", new AutoShootMidDistance(m_shooter));
     NamedCommands.registerCommand("ShortShoot", new AutoShootShortDistance(m_shooter));
+    NamedCommands.registerCommand("AutoShootPower", new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
     NamedCommands.registerCommand("Shoot", new AutoShootShortDistance(m_shooter));
     // NamedCommands.registerCommand("HangLv1", new HangUpAutoCommand(m_hang));
     // NamedCommands.registerCommand("LowerHang", new HangDownAutoCommand(m_hang));
@@ -203,18 +204,9 @@ public class RobotContainer {
 
     configureBindings();
     ElasticTelemetry.getInstance();
-
   }
 
   private void configureBindings() {
-
-        //attached to driver control as we have no spots left on operator
-//    m_driverController.leftTrigger(0.05).whileTrue(
-//         new DriveShooterHood(m_shooter, () -> DegreesPerSecond
-//                 .of(ShooterConstants.kHoodMaxManualSpeedDPS * (binDouble(
-//                 Math.pow(m_driverController.getLeftTriggerAxis(),
-//                     0.75), 12)
-//                     ))));
 
     m_operatorController.rightTrigger(0.05).whileTrue(
         new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
@@ -295,18 +287,18 @@ public class RobotContainer {
 
     m_driverController.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-    m_driverController.leftTrigger().whileTrue(Commands.run(() ->
+    // m_driverController.leftTrigger().whileTrue(Commands.run(() ->
 
-    {
-      speedMultiplier = 1 / speedModifier;
-      drive
-          .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
-          .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
-    })).onFalse(Commands.run(() -> {
-      speedMultiplier = 1;
-      drive.withDeadband(MaxSpeed * 0.1)
-          .withRotationalDeadband(MaxAngularRate * 0.1);
-    }));
+    // {
+    //   speedMultiplier = 1 / speedModifier;
+    //   drive
+    //       .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
+    //       .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
+    // })).onFalse(Commands.run(() -> {
+    //   speedMultiplier = 1;
+    //   drive.withDeadband(MaxSpeed * 0.1)
+    //       .withRotationalDeadband(MaxAngularRate * 0.1);
+    // }));
 
     m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
       speedMultiplier = minSpeedMulti
