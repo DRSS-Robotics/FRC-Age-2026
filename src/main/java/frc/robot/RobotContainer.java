@@ -79,13 +79,13 @@ public class RobotContainer {
       NetworkTableInstance.getDefault().getTable("Turret"));
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
+  private double MaxAngularRate = RotationsPerSecond.of(0.25).in(RadiansPerSecond); // 1/4 of a rotation per
   // second
   // max
   // angular velocity
 
   private double speedMultiplier = 1;
-  private final double speedModifier = 0.35;
+  private final double speedModifier = 0.1;
   private final double minSpeedMulti = 0.175;
   private final double slowSpeedMulti = 0.25;
 
@@ -171,38 +171,38 @@ public class RobotContainer {
 
 
 
-    m_operatorController.rightTrigger(0.05).whileTrue(
-        new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
-            .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
-                Math.pow(m_operatorController.getRightTriggerAxis(),
-                    0.75),
-                12) + 0.225))));
+    // m_operatorController.rightTrigger(0.05).whileTrue(
+    //     new DriveLaunchMotor(m_shooter, () -> DegreesPerSecond
+    //         .of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.5 * (binDouble(
+    //             Math.pow(m_operatorController.getRightTriggerAxis(),
+    //                 0.75),
+    //             12) + 0.225))));
 
-    // back wall position
-    m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
-        () -> false));
-    // mid position
-    m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
-        () -> false));
-    // close position
-    m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
-        () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.315),
-        () -> false));
+    // // back wall position
+    // m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
+    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.415),
+    //     () -> false));
+    // // mid position
+    // m_operatorController.x().whileTrue(new ToggleLaunchMotor(m_shooter,
+    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.355),
+    //     () -> false));
+    // // close position
+    // m_operatorController.a().whileTrue(new ToggleLaunchMotor(m_shooter,
+    //     () -> DegreesPerSecond.of(ShooterConstants.kShooterMaxManualSpeedDPS * 0.315),
+    //     () -> false));
 
-    m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
-    m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
+    // m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
+    // m_operatorController.rightBumper().whileTrue(new SoupKickback(m_superstructure));
 
-    m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
-    m_operatorController.leftTrigger(0.05)
-        .whileTrue(new DriveTransferCommand(m_superstructure,
-            m_operatorController::getLeftTriggerAxis));
+    // m_operatorController.leftBumper().onTrue(new ToggleWallCommand(m_superstructure));
+    // m_operatorController.leftTrigger(0.05)
+    //     .whileTrue(new DriveTransferCommand(m_superstructure,
+    //         m_operatorController::getLeftTriggerAxis));
 
-    m_operatorController.povUp().whileTrue(new WallInterpCommand(m_superstructure, () -> 0., false));
-    m_operatorController.povLeft().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
-    m_operatorController.povRight().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
-    m_operatorController.povDown().whileTrue(new WallInterpCommand(m_superstructure, () -> 1., false));
+    // m_operatorController.povUp().whileTrue(new WallInterpCommand(m_superstructure, () -> 0., false));
+    // m_operatorController.povLeft().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
+    // m_operatorController.povRight().whileTrue(new WallInterpCommand(m_superstructure, () -> .5, true));
+    // m_operatorController.povDown().whileTrue(new WallInterpCommand(m_superstructure, () -> 1., false));
 
     drivetrain.setDefaultCommand(
         drivetrain.applyRequest(() -> drive
@@ -218,9 +218,9 @@ public class RobotContainer {
         drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
     m_driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-    m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
-        .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
-            -m_driverController.getLeftX()))));
+    // m_driverController.b().whileTrue(drivetrain.applyRequest(() -> point
+    //     .withModuleDirection(new Rotation2d(-m_driverController.getLeftY(),
+    //         -m_driverController.getLeftX()))));
 
 
     // Note that each routine should be run exactly once in a single log.
