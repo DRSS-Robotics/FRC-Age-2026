@@ -134,10 +134,10 @@ public class TurretSubsystem extends SubsystemBase {
         // Measured value to 0 the turret
         // talonConfigs.Feedback.FeedbackRotorOffset = ShooterConstants.kTurretEncoderOffset;
 
-        talonConfigs.Slot0.kP = 50.0;
+        talonConfigs.Slot0.kP = 0.0;
         talonConfigs.Slot0.kI = 0.0;
-        talonConfigs.Slot0.kD = 1.5;
-        talonConfigs.Slot0.kS = 1.0;
+        talonConfigs.Slot0.kD = 0.0;
+        talonConfigs.Slot0.kS = 0.0;
         talonConfigs.Slot0.kV = 0.0;
 
         m_turretMotor.getConfigurator().apply(talonConfigs);
