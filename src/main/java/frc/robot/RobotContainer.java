@@ -35,10 +35,12 @@ import frc.robot.commands.RotateToHub;
 import frc.robot.subsystems.shooter.Turret.TurretSubsystem;
 // import frc.robot.subsystems.shooter.Turret.TurretControl;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.QuestNavSystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -115,6 +117,11 @@ public class RobotContainer {
   .getSubTable("Robot Pose")
   .getStructTopic("Value", Pose2d.struct)
   .publish();
+  StructPublisher<Pose2d> PosePublisher2 = NetworkTableInstance.getDefault()
+  .getTable("SmartDashboard")
+  .getSubTable("QuestNav Readings")
+  .getStructTopic("all the readings", Pose2d.struct)
+  .publish();
   
   
   private double MaxSpeed = speedModifier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts
@@ -164,6 +171,8 @@ public class RobotContainer {
               ShooterConstants.kShooterMotorLeftId,
               ShooterConstants.kShooterMotorRightId, ShooterConstants.kHoodMotorId,
             NetworkTableInstance.getDefault().getTable("Turret"));
+
+        private final QuestNavSystem m_questNav;
         
         
         
@@ -222,6 +231,8 @@ public class RobotContainer {
     shooterSpeedMap.put(169.0, 24823.9);
     shooterSpeedMap.put(178.0, 25670.2);
     shooterSpeedMap.put(5000.0, 25388.1);
+
+    m_questNav = new QuestNavSystem();
   }
 
   private void configureBindings() {
@@ -373,6 +384,7 @@ public class RobotContainer {
   // This is all code for the Vision subsystem, specifically updating the poseEstimator
   public void questNavUpdate(Pose2d measuredPose, double timestamp){
     // poseEstimator.addVisionMeasurement(measuredPose, timestamp);
+
   }
   
   private ChassisSpeeds getRobotSpeeds()  {
@@ -385,7 +397,13 @@ public class RobotContainer {
     if(mt2.isValid){
       drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds, mt2.visionStdevs);
     }
-    // m_questNav.periodicUpdate();
+    // For each pose reading from QuestNav, add it to the pose estimator
+    List<VisionMeasurement> questNavMeasurements = m_questNav.periodicUpdate();
+    for(VisionMeasurement x : questNavMeasurements) {
+      // drivetrain.addVisionMeasurement(x.pose, x.timestampSeconds, x.visionStdevs);
+      PosePublisher2.set(x.pose);
+
+    }
     
 
     m_turret.updateTurretPose(drivetrain.getState().Pose);
