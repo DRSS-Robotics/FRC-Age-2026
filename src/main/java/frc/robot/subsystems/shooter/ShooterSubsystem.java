@@ -280,6 +280,7 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     // }
 
     //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
+    //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
 
     //turretPositionPublisher.set(getYawEncoder().in(Degrees));
    // turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
