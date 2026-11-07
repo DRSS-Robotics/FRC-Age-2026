@@ -63,7 +63,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public Pose2d turretPose = new Pose2d();
 
-    public Pose2d virtualTurretTarget = Constants.kHubPoseCenter;
+    // public Pose2d virtualTurretTarget = Constants.getHubPose().get();
 
     StructPublisher<Pose2d> turretPosePublisher = NetworkTableInstance.getDefault()
     .getTable("SmartDashboard")
@@ -143,7 +143,6 @@ public class TurretSubsystem extends SubsystemBase {
 
     }
 
-    // FELIX's FUNCTION
     // Takes the desired turret position in degrees and sets the variable to that, saving it for later
     public void setTurretPosition(double position) {
         setTurretPosition(Degrees.of(position));
@@ -162,7 +161,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     }
 
-    // Returns relative encoder's turret angle
+    // Returns relative encoder's turret angle from motor
     public Angle getTurretAngle() {
         return m_turretMotor.getPosition().getValue();
     }
@@ -238,6 +237,8 @@ public class TurretSubsystem extends SubsystemBase {
     //         )
     //     );
     // }
+
+
 
     @Override
     public void periodic() {

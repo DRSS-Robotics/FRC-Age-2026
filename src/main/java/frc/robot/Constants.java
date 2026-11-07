@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -16,17 +18,18 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 
 public final class Constants {
-  public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
+  // public static enum Driver {
+    //   kMax,
+    //   kGavin
+  // }
+  // public static final Driver driverForThisComp = Driver.kGavin;
+  
+  public static class DrivetrainConstants {
+
 
   }
-
-  public static enum Driver {
-    kMax,
-    kGavin
-  }
-
-   public static class VisionConstants {
+  
+  public static class VisionConstants {
     public static final String kLimelightName = "limelight";
     public static final String kLimelightStreamURL = "http://limelight.local:5800";
 
@@ -38,13 +41,10 @@ public final class Constants {
 
     public static final int kLimelightAprilTagPipeline = 1;
 
-    public static final Transform3d questNavOffset = new Transform3d(
-            new Translation3d(0,0,0), 
-            new Rotation3d(0,0,0));
+    // public static final Transform3d questNavOffset = new Transform3d(
+    //         new Translation3d(0,0,0), 
+    //         new Rotation3d(0,0,0));
   }
-
-
-  public static final Driver driverForThisComp = Driver.kGavin;
 
   public static class SuperstructureConstants {
     public static final int kIntakeMotorId = 15;
@@ -137,12 +137,21 @@ public final class Constants {
 
 
   public static Distance kFieldLengthMeters = Inches.of(651.22);
-  // if Blue alliance, use shorter distance, otherwise use longer
-  public static Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
-                                    kFieldLengthMeters.minus(Inches.of(182.11)) : 
-                                    Inches.of(182.11);
-  public static Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
+  public static Pose2d kHubPose;
 
 
-  public static double kGravIN;
+  // This command is needed because the DriverStation is not always connected when trying to get the pose of the hub.
+  public static Optional<Pose2d> getHubPose(){
+    if(kHubPose == null){
+      if(DriverStation.getAlliance().isPresent()){
+        // if Blue alliance, use shorter distance, otherwise use longer
+        Distance hubXPos = (DriverStation.getAlliance().get() == Alliance.Red) ? 
+                                        kFieldLengthMeters.minus(Inches.of(182.11)) : 
+                                        Inches.of(182.11);
+        Pose2d hubPose = new Pose2d(hubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
+        kHubPose = hubPose;   
+      }
+    }
+    return Optional.ofNullable(kHubPose);
+  }
 }

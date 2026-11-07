@@ -55,6 +55,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -134,8 +135,7 @@ public class RobotContainer {
 
   // private final Telemetry logger = new Telemetry(MaxSpeed);
 
-  private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_driverController = new CommandXboxController(0);
   private final CommandXboxController m_operatorController = new CommandXboxController(1);
 
   private final SuperstructureSubsystem m_superstructure = new SuperstructureSubsystem(
@@ -146,7 +146,7 @@ public class RobotContainer {
       NetworkTableInstance.getDefault().getTable("Superstructure"));
 
   private final SendableChooser<Command> autoChooser;
-  private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
+  // private final SendableChooser<Constants.Driver> driverChooser = new SendableChooser<Constants.Driver>();
 
   private final Pose2d initialPose = new Pose2d(2.0,2.0,new Rotation2d(Degrees.of(-0.9)));
   // private final Pose2d initialPose = new Pose2d(1.5,2,new Rotation2d(Math.PI/8));
@@ -200,7 +200,6 @@ public class RobotContainer {
     drivetrain.setStateStdDevs(VecBuilder.fill(0.3,0.3,0.1));
     
     hubRotationCommand = new RotateToHub(m_turret, robotPoseSupplier);
-    CommandScheduler.getInstance().schedule(hubRotationCommand);
 
     configureBindings();
     ElasticTelemetry.getInstance();
@@ -214,9 +213,6 @@ public class RobotContainer {
                 Math.pow(m_operatorController.getRightTriggerAxis(),
                     0.75),
                 12) + 0.225))));
-
-    // hood velocity control, currently proof of concept
-    // m_driverController.povDown().whileTrue(new DriveShooterHood(m_shooter, -1));
 
     // // back wall position
     m_operatorController.y().whileTrue(new ToggleLaunchMotor(m_shooter,
@@ -233,13 +229,14 @@ public class RobotContainer {
 
     
 
-
-
     m_operatorController.b().onTrue(new ToggleIntakeCommand(m_superstructure));
 
     m_operatorController.a().whileTrue(new AutoPowerShoot(m_shooter, turretPoseSupplier, () -> false));
+    // m_operatorController.a().onTrue(Commands.runOnce(() -> {}));
     // Toggles Auto lock on hub, as a backup incase pose reading stops working
     m_operatorController.x().onTrue(Commands.runOnce(() -> {if(m_turret.automatedControl){m_turret.disableAutomatedControl();}else{m_turret.enableAutomatedControl();}}));
+
+    m_turret.setDefaultCommand(hubRotationCommand);
 
     
 
@@ -301,8 +298,7 @@ public class RobotContainer {
     // }));
 
     m_driverController.rightTrigger().whileTrue(Commands.run(() -> {
-      speedMultiplier = minSpeedMulti
-          + (1 - m_driverController.getRightTriggerAxis()) * (1 - minSpeedMulti);
+      speedMultiplier = minSpeedMulti + MathUtil.clamp(1 - m_driverController.getRightTriggerAxis(), 0, minSpeedMulti);
       drive
           .withDeadband(MaxSpeed * 0.1 * speedMultiplier)
           .withRotationalDeadband(MaxAngularRate * 0.1 * speedMultiplier);
