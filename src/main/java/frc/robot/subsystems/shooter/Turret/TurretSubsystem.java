@@ -28,7 +28,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -43,19 +42,15 @@ import frc.robot.Constants.SuperstructureConstants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
-
-import java.util.function.Supplier;
 
 public class TurretSubsystem extends SubsystemBase {
     private TalonFX m_turretMotor;
     private Slot0Configs turretMotorConfigs;
 
     public boolean automatedControl = true;
-    private Angle desiredPosition = Degrees.of(0);
+    private Angle desiredPosition = Degrees.of(-45);
 
     private final VelocityVoltage m_velocityControl = new VelocityVoltage(0.0);
 
@@ -68,7 +63,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public Pose2d turretPose = new Pose2d();
 
-    public Pose2d virtualTurretTarget = Constants.kHubPoseCenter;
+    // public Pose2d virtualTurretTarget = Constants.getHubPose().get();
 
     StructPublisher<Pose2d> turretPosePublisher = NetworkTableInstance.getDefault()
     .getTable("SmartDashboard")
@@ -76,7 +71,6 @@ public class TurretSubsystem extends SubsystemBase {
     .getStructTopic("Turret Pose", Pose2d.struct)
     .publish();
 
-    Supplier<Pose2d> robotPoseSupplier;
 
     // SIM code
     private static final DCMotor MOTOR = DCMotor.getKrakenX60(1);
@@ -91,7 +85,7 @@ public class TurretSubsystem extends SubsystemBase {
                 MOTOR
             );
 
-    public TurretSubsystem(int turretMotorID, Supplier<Pose2d> robotPoseSupplier) {
+    public TurretSubsystem(int turretMotorID) {
 
         m_turretMotor = new TalonFX(turretMotorID);
 
@@ -100,8 +94,6 @@ public class TurretSubsystem extends SubsystemBase {
         // Change motor to CounterClockwise so positive voltage does in positive encoder reading
         talonConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         talonConfigs.Feedback.SensorToMechanismRatio = ShooterConstants.kTurretGearRatio;
-
-        this.robotPoseSupplier = robotPoseSupplier;
 
         // talonConfigs.MotorOutput.Inverted =
         // com.ctre.phoenix6.signals.InvertedValue.Clockwise_Positive;
@@ -148,9 +140,9 @@ public class TurretSubsystem extends SubsystemBase {
 
         setTurretPosition(desiredPosition);
 
+
     }
 
-    // FELIX's FUNCTION
     // Takes the desired turret position in degrees and sets the variable to that, saving it for later
     public void setTurretPosition(double position) {
         setTurretPosition(Degrees.of(position));
@@ -169,7 +161,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     }
 
-    // Returns relative encoder's turret angle
+    // Returns relative encoder's turret angle from motor
     public Angle getTurretAngle() {
         return m_turretMotor.getPosition().getValue();
     }
@@ -198,109 +190,6 @@ public class TurretSubsystem extends SubsystemBase {
 
         turretPosePublisher.set(turretPose);
     }
-
-    public void RotateToHub(){
-        // get field pose of turret with the rotation of the robot 
-    // TODO: actually add in realistic pose, instead of static positions
-    // Pose2d robotPose = poseEstimator.getEstimatedPosition();
-    Pose2d robotPose = robotPoseSupplier.get();
-    
-    // add the turret relative pose to the robot pose, where the turret pose is rotated by robot rotation with turret yaw offset
-    // the rotation of turret pose is the relative plus robot rotation
-
-    // fill this out with a reference to rad per second, whether from pigeon or pose
-    double omegaRadiansPerSecond = 0;
-
-    Translation2d turretLinearMomentum = new Translation2d(
-        ShooterConstants.kShooterSideOffset.times(-omegaRadiansPerSecond),
-        ShooterConstants.kShooterForwardOffset.times(omegaRadiansPerSecond)
-    );
-
-    Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
-                                    Constants.kFieldLengthMeters.minus(Inches.of(182.11)) : 
-                                    Inches.of(182.11);
-    Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
-    Translation2d distanceFromHub = kHubPoseCenter.getTranslation().minus(turretPose.getTranslation());
-    // Angle hubAzimuth = Degrees.of(MathUtil.inputModulus(
-    //                               Radians.of(Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX())))
-    //                               .plus(hubOffsetAngle(turretPose)).in(Degrees), -180, 180));
-
-    Angle hubAzimuth = hubOffsetAngle(turretPose);
-
-        // The system setup to find the angle input needed for turret rotation to face the hub is a bit strange
-        // It will take the turret's initial offset (typically 180 deg) and subtract the turret's absolute rotation.
-        // This is the most important value, because it tells exactly what angle the turret should go to.
-        Angle rotationNeededFromCenter = normalizeAngle(hubAzimuth.plus(ShooterConstants.kShooterYawOffset)
-                                                        .minus(Degrees.of(robotPose.getRotation().getDegrees())));
-        
-        // This value is not really used in the code, but can be displayed to show the error of where
-        // it should be versus where it currently is
-        Angle rotationNeeded = normalizeAngle(hubAzimuth.plus(ShooterConstants.kShooterYawOffset)
-                                                        .minus(Degrees.of(robotPose.getRotation().getDegrees())
-                                                        .plus(getTurretAngle())));
-
-        SmartDashboard.putNumber("Turret/Delta Angle", rotationNeeded.in(Degrees));
-
-        boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 88;
-        SmartDashboard.putBoolean("Turret/Can Rotate to autoaim", canRotate);
-
-        // If the robot is past the hub by 0.5 meters, turn the turret into ferrying mode.
-        // Ferrying mode angle is retrieved by the negated robot angle
-        // if(((distanceFromHub.getX() < -0.5 && DriverStation.getAlliance().get() == Alliance.Blue) ||
-        //     (distanceFromHub.getX() > 0.5 && DriverStation.getAlliance().get() == Alliance.Red))
-        //     && !DriverStation.isAutonomousEnabled()){
-        //     setTurretPosition(robotPose.getRotation().unaryMinus().getDegrees());
-        // }
-        // else{
-            setTurretPosition(rotationNeededFromCenter);
-        // }
-    }
-
-    // This function gives the angle needed to rotate from the top axis (X+ axis, or forward in most cases)
-  // to the hub, given the turret's pose on the field
-  public Angle hubOffsetAngle(Pose2d turretPose){
-    Distance kHubXPos = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) ? 
-                                    Constants.kFieldLengthMeters.minus(Inches.of(182.11)) : 
-                                    Inches.of(182.11);
-    Pose2d kHubPoseCenter = new Pose2d(kHubXPos.in(Meters),Inches.of(158.84).in(Meters),new Rotation2d(0));
-    Translation2d distanceFromHub = kHubPoseCenter.getTranslation().minus(turretPose.getTranslation());
-    
-    // getting variables for which quadrant the turret is in relative to the hub
-    boolean posX = (distanceFromHub.getX() > 0);
-    boolean posY = (distanceFromHub.getY() > 0);
-
-    double angleOffset = 0;
-    double angle = Math.atan(distanceFromHub.getY() / distanceFromHub.getX());
-
-    // Coordinate angle offset jank: because atan only returns values from -pi/2 to pi/2,
-    // we need to offset the angle based on which quadrant the turret is in relative to the hub
-    // Also, if the angle returned from atan is not meant to add onto the corected axis, we need to subtract it from pi/2
-    // which is why this is handled in a function. Janky solution, but best I could think of
-    if(posX && posY){
-      angleOffset = 0;
-      angle = Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
-    } else if(posX && !posY){
-      angleOffset = 3 * Math.PI / 2;
-      angle = Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
-    } else if(!posX && !posY){
-      angleOffset = Math.PI;
-      angle = Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
-    } else if(!posX && posY){
-      angleOffset = Math.PI / 2;
-      angle = Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
-    }
-
-    // the angleModulus is to make sure the angle is between -pi and pi
-    return normalizeAngle(angle + angleOffset);
-  }
-
-  public Angle normalizeAngle(double angle){
-    return Radians.of(MathUtil.angleModulus(angle));
-  }
-
-  public Angle normalizeAngle(Angle angle){
-    return Radians.of(MathUtil.angleModulus(angle.in(Radians)));
-  }
 
 
     // For Shoot on the Move, will likely need to be iterated a few times because when changing the 
@@ -349,13 +238,13 @@ public class TurretSubsystem extends SubsystemBase {
     //     );
     // }
 
+
+
     @Override
     public void periodic() {
 
-
         if(DriverStation.isEnabled()){
             if(automatedControl){
-                RotateToHub();
                 m_turretMotor.setControl(positionRequest.withPosition(turretSetpoint.in(Rotations)));
             }
             else{

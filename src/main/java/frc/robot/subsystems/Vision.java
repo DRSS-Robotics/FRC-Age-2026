@@ -75,6 +75,8 @@ public class Vision extends SubsystemBase {
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
         drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
+
+    // These methods are for the blue alliance because that is where the field coordinates are centered. The red methods are for the red coordinate system, which is not used anymore.
     LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at
@@ -84,6 +86,9 @@ public class Vision extends SubsystemBase {
       MT1Publisher.set(mt1.pose);
       MT2Publisher.set(mt2.pose);
       Matrix<N3,N1> stdevs;
+
+      // Scaling stdevs (Standard Deviations) based on the average tag distance from the sensor
+      // Then, we can assign different confidences to readings based on if they are closer or farther
       // These should be in meters
       if(mt2.avgTagDist > 4){
         stdevs = VecBuilder.fill(1.5,1.5,999999);
@@ -101,7 +106,6 @@ public class Vision extends SubsystemBase {
       // when running this, which I assumed would adjust pose for PathPlanner,
       // it messed up the field oriented swerve drive, which I guess should've been expected
       // so I commented it out for now, but that was when pose wasn't working
-
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
       SmartDashboard.putNumber("Vision/Avg Tag Dist", mt2.avgTagDist);
