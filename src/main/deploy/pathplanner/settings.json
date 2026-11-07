@@ -3,6 +3,7 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
+    "Adrian",
     "AutoPath_10",
     "Auto_11_Paths",
     "Auto_12_Paths",
@@ -15,6 +16,7 @@
     "Auto_6_Paths",
     "Auto_7_Paths",
     "Auto_9_Paths",
+    "TurretPaths",
     "On-the-Fly"
   ],
   "autoFolders": [
