@@ -33,12 +33,12 @@ public class ToggleLaunchMotor extends Command {
 
   @Override
   public void execute() {
-    m_subsystem.runLaunchMotors(speed.get());
+    m_subsystem.runShooterMotors(speed.get());
   }
 
   @Override
   public void end(boolean interrupted) {
-    m_subsystem.runLaunchMotors(
+    m_subsystem.runShooterMotors(
         DegreesPerSecond.of(0));
   }
 

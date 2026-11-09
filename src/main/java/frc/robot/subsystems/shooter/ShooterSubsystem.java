@@ -1,27 +1,48 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SuperstructureConstants;
+// import frc.robot.subsystems.shooter.Turret.TurretControl;
 import frc.robot.TestableSubsystem;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
-
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem {
 
@@ -39,58 +60,83 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     
     private TrapezoidProfile.State launchVelocityGoal = new TrapezoidProfile.State();
     private TrapezoidProfile.State launchVelocitySetpoint = new TrapezoidProfile.State();
+    private final CommandXboxController m_operatorController = new CommandXboxController(1);
     
-    private TalonFX m_yawMotor;
-    private Slot0Configs yawMotorPositionConfigs;
-    private Slot1Configs yawMotorVelocityConfigs;
-    private PositionVoltage yawPositionRequest;
-    private VelocityVoltage yawVelocityRequest;
-    private Angle yawTargetPosition;
+    //private TalonFX m_yawMotor;
+    // private Slot0Configs yawMotorPositionConfigs;
+    // private Slot1Configs yawMotorVelocityConfigs;
+    // private PositionVoltage yawPositionRequest;
+    // private VelocityVoltage yawVelocityRequest;
+    // private Angle yawTargetPosition;
 
-    private AngularVelocity yawMotorSetpoint = DegreesPerSecond.of(0);
-    private TrapezoidProfile.State yawVelocityGoal = new TrapezoidProfile.State();
-    private TrapezoidProfile.State yawVelocitySetpoint = new TrapezoidProfile.State();
+    // private AngularVelocity yawMotorSetpoint = DegreesPerSecond.of(0);
+    // private TrapezoidProfile.State yawVelocityGoal = new TrapezoidProfile.State();
+    // private TrapezoidProfile.State yawVelocitySetpoint = new TrapezoidProfile.State();
     
     private TalonFX m_hoodMotor;
     private Slot0Configs hoodMotorVelocityConfigs;
+    private Slot1Configs hoodMotorPositionConfigs;
   private PositionVoltage hoodPositionRequest;
   private VelocityVoltage hoodVelocityRequest;
+  private boolean hoodPositional = false;
+
+  private Angle hoodDesiredPosition = Degrees.of(0.0);
   private AngularVelocity hoodMotorSetpoint = DegreesPerSecond.of(0);
   private TrapezoidProfile.State hoodVelocityGoal = new TrapezoidProfile.State();
   private TrapezoidProfile.State hoodVelocitySetpoint = new TrapezoidProfile.State();
+
+  // private TurretControl m_turretControl;
 
 
   private DoublePublisher turretPositionPublisher;
   private DoublePublisher turretSpeedPublisher;
 
-  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int yawMotorId, int hoodMotorId, NetworkTable table) {
+  private final MotionMagicVelocityVoltage launchMotorRequest = new MotionMagicVelocityVoltage(0).withSlot(0);
 
+  public ShooterSubsystem(int launchMotorIdL, int launchMotorIdR, int hoodMotorId, NetworkTable table) {
+    
     m_launchMotorL = new TalonFX(launchMotorIdL);
-    launchMotorConfigs = new Slot0Configs();
-    // Placeholder PID values
-    launchMotorConfigs.kS = 0.2;
-    launchMotorConfigs.kV = 0.8;
-    launchMotorConfigs.kP = 0.04;
-    launchMotorConfigs.kI = 0;
-    launchMotorConfigs.kD = 0;
-
     //invert the left motor to match the right motor's direction
     directionalConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
-    m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
     m_launchMotorL.getConfigurator().apply(directionalConfigs);
     launchRequestL = new VelocityVoltage(0).withSlot(0);
     
     m_launchMotorR = new TalonFX(launchMotorIdR);
     directionalConfigs.Inverted = InvertedValue.Clockwise_Positive;
-    m_launchMotorR.getConfigurator().apply(launchMotorConfigs);
     m_launchMotorR.getConfigurator().apply(directionalConfigs);
     launchRequestR = new VelocityVoltage(0).withSlot(0);
 
+    var launchMotorConfigs = new TalonFXConfiguration();
+
+    launchMotorConfigs.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    launchMotorConfigs.Feedback.SensorToMechanismRatio = 1.0;
+
+    // set slot 0 gains
+    var slot0Configs = launchMotorConfigs.Slot0;
+    slot0Configs.kS = 0.0;
+    slot0Configs.kV = 0.12;
+    slot0Configs.kP = 0.05;
+    slot0Configs.kI = 0.0;
+    slot0Configs.kD = 0.0;
+
+    // set Motion Magic Velocity settings
+    var motionMagicConfigs = launchMotorConfigs.MotionMagic;
+    motionMagicConfigs.MotionMagicAcceleration = 200; // Target acceleration of 400 rps/s (0.25 seconds to max)
+    motionMagicConfigs.MotionMagicJerk = 1000; // Target jerk of 4000 rps/s/s (0.1 seconds)
+
+    m_launchMotorL.getConfigurator().apply(launchMotorConfigs);
+    m_launchMotorR.getConfigurator().apply(launchMotorConfigs);
+
+    // Set the right motor to just follow the left motor
+    m_launchMotorR.setControl(new Follower(ShooterConstants.kShooterMotorLeftId, MotorAlignmentValue.Opposed));
+
+
     m_hoodMotor = new TalonFX(hoodMotorId);
     
+    hoodMotorPositionConfigs = new Slot1Configs();
     hoodMotorVelocityConfigs = new Slot0Configs();
     //placeholder ids again 
-    hoodMotorVelocityConfigs.kS = 0.2;
+    hoodMotorVelocityConfigs.kS = 0.4;
     hoodMotorVelocityConfigs.kV = 0;
     hoodMotorVelocityConfigs.kP = 1.0;
     hoodMotorVelocityConfigs.kI = 0;
@@ -98,59 +144,64 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     m_hoodMotor.getConfigurator().apply(hoodMotorVelocityConfigs);
     directionalConfigs.Inverted = InvertedValue.Clockwise_Positive;
     m_hoodMotor.getConfigurator().apply(directionalConfigs);
+    m_hoodMotor.getConfigurator().apply(hoodMotorPositionConfigs);
     hoodVelocityRequest = new VelocityVoltage(0).withSlot(0);
+    hoodPositionRequest = new PositionVoltage(0).withSlot(1);
 
-    m_yawMotor = new TalonFX(yawMotorId);
-    yawMotorPositionConfigs = new Slot0Configs();
-    // Placeholder PID values
-    yawMotorPositionConfigs.kV = 0;
-    yawMotorPositionConfigs.kP = 1.0;
-    yawMotorPositionConfigs.kI = 0;
-    yawMotorPositionConfigs.kD = 0;
-    m_yawMotor.getConfigurator().apply(yawMotorPositionConfigs);
+    // m_yawMotor = new TalonFX(yawMotorId);
+    // yawMotorPositionConfigs = new Slot0Configs();
+    // // Placeholder PID values
+    // yawMotorPositionConfigs.kV = 0;
+    // yawMotorPositionConfigs.kP = 1.0;
+    // yawMotorPositionConfigs.kI = 0;
+    // yawMotorPositionConfigs.kD = 0;
+    // m_yawMotor.getConfigurator().apply(yawMotorPositionConfigs);
 
-    yawMotorVelocityConfigs = new Slot1Configs();
-    // Placeholder PID values
-    yawMotorVelocityConfigs.kS = 0.2;
-    yawMotorVelocityConfigs.kV = 0;
-    yawMotorVelocityConfigs.kP = 1.0;
-    yawMotorVelocityConfigs.kI = 0;
-    yawMotorVelocityConfigs.kD = 0;
-    m_yawMotor.getConfigurator().apply(yawMotorVelocityConfigs);
+    // yawMotorVelocityConfigs = new Slot1Configs();
+    // // Placeholder PID values
+    // yawMotorVelocityConfigs.kS = 0.2;
+    // yawMotorVelocityConfigs.kV = 0;
+    // yawMotorVelocityConfigs.kP = 0.1;
+    // yawMotorVelocityConfigs.kI = 0;
+    // yawMotorVelocityConfigs.kD = 0;
+    // m_yawMotor.getConfigurator().apply(yawMotorVelocityConfigs);
 
-    yawPositionRequest = new PositionVoltage(0).withSlot(0);
-    yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
+    // yawPositionRequest = new PositionVoltage(0).withSlot(0);
+    // yawVelocityRequest = new VelocityVoltage(0).withSlot(1);
+
+
+    // m_turretControl = new TurretControl(ShooterConstants.kYawMotorId, ShooterConstants.kHoodMotorId);
 
     turretPositionPublisher = table.getDoubleTopic("turretPosition").publish();
     turretSpeedPublisher = table.getDoubleTopic("turretFlywheelSpeed").publish();
   }
 
   // in degrees
-  public void setYawMotorPosition(double speed) {
-    setYawMotorPosition(Degrees.of(speed));
-  }
+  // public void setYawMotorPosition(double speed) {
+  //   setYawMotorPosition(Degrees.of(speed));
+  // }
 
-  public void setYawMotorPosition(Angle pos) {
-    double correctedAngle = pos.in(Degrees) % 360;
-    // m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
-  }
+  // public void setYawMotorPosition(Angle pos) {
+  //   double correctedAngle = pos.in(Degrees) % 360;
+  //   // m_yawMotor.setControl(yawPositionRequest.withPosition(Degrees.of(correctedAngle)));
+  // }
 
-  // in degrees per second
+  // // in degrees per second
   public void driveYawMotor(double degreesPerSecond) {
     // driveYawMotor(DegreesPerSecond.of(degreesPerSecond));
   }
 
-  public void driveYawMotor(AngularVelocity speed) {
-    // m_yawMotor.setControl(yawVelocityRequest.withVelocity(speed));
-  }
+  // public void driveYawMotor(AngularVelocity speed) {
+  //   // m_yawMotor.setControl(yawVelocityRequest.withVelocity(speed));
+  // }
 
-  public Angle getYawEncoder() {
-    return m_yawMotor.getPosition(true).getValue();
-  }
+  // public Angle getYawEncoder() {
+  //   return m_yawMotor.getPosition(true).getValue();
+  // }
 
-  public Angle getYawSetpoint() {
-    return yawTargetPosition;
-  }
+  // public Angle getYawSetpoint() {
+  //   return yawTargetPosition;
+  // }
 
   public AngularVelocity getLaunchMotorSpeed() {
     return m_launchMotorL.getVelocity(true).getValue();
@@ -160,13 +211,12 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
     return launchMotorSetpoint;
   }
 
-  public void runLaunchMotors(double degreesPerSecond) {
-    runLaunchMotors(DegreesPerSecond.of(degreesPerSecond));
+  public void runShooterMotors(double degreesPerSecond) {
+    runShooterMotors(DegreesPerSecond.of(degreesPerSecond));
   }
 
-  public void runLaunchMotors(AngularVelocity speed) {
+  public void runShooterMotors(AngularVelocity speed) {
     launchMotorSetpoint = speed;
-    launchVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
   }
   
   //hood control code
@@ -182,44 +232,61 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
   //   return hoodMotorSetPoint;
   // }
   
-  // public void runHoodMotors(double degreesPerSecond) {
-  //   runHoodMotors(DegreesPerSecond.of(degreesPerSecond));
-  // }
+  public void runHoodMotors(double degreesPerSecond) {
+    runHoodMotors(DegreesPerSecond.of(degreesPerSecond));
+  }
   
   public void runHoodMotors(AngularVelocity speed) {
     hoodMotorSetpoint = speed;
     hoodVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
   }
 
-     public void runYawMotor(AngularVelocity speed) {
-    yawMotorSetpoint = speed;
-    yawVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
+  public void setHoodMotorPosition(Angle position){
+    hoodDesiredPosition = position;
   }
+
+  //    public void runYawMotor(AngularVelocity speed) {
+  //   yawMotorSetpoint = speed;
+  //   yawVelocityGoal = new TrapezoidProfile.State(speed.in(DegreesPerSecond), 0);
+  // }
 
   @Override
   public void periodic() {
-    if (getYawEncoder().isNear(Degrees.of(0), Degrees.of(5)) ||
-        getYawEncoder().isNear(Degrees.of(360), Degrees.of(5))) {
-      driveYawMotor(0);
-    }
+    // if (getYawEncoder().isNear(Degrees.of(0), Degrees.of(5)) ||
+    //     getYawEncoder().isNear(Degrees.of(360), Degrees.of(5))) {
+    //   driveYawMotor(0);
+    // }
 
-    launchVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, launchVelocitySetpoint,
-        launchVelocityGoal);
-    hoodVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, hoodVelocitySetpoint,
-        hoodVelocityGoal);
-   // yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, yawVelocitySetpoint,
-   //     yawVelocityGoal);
+    // launchVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, launchVelocitySetpoint,
+    //     launchVelocityGoal);
+    // hoodVelocitySetpoint = launchTrapezoidProfile.calculate(0.02, hoodVelocitySetpoint,
+    //     hoodVelocityGoal);
+    // yawVelocitySetpoint = launchTrapezoidProfile.calculate(0.2, yawVelocitySetpoint,
+    //     yawVelocityGoal);
+
+    m_launchMotorL.setControl(launchMotorRequest.withVelocity(launchMotorSetpoint.in(RotationsPerSecond)));
+    // m_launchMotorR.setControl(launchMotorRequest.withVelocity(launchMotorSetpoint.in(DegreesPerSecond)));
+    // m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
+    // m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
 
 
-    m_launchMotorL.setControl(launchRequestL.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
-    m_launchMotorR.setControl(launchRequestR.withVelocity(DegreesPerSecond.of(launchVelocitySetpoint.position)));
-
-    m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));  
+    // If the shooter hood is being controlled positionally, set the control to a position request
+    // Otherwise, use the velocity request with the Trapezoidal Profile
+    // if(hoodPositional){
+    //   m_hoodMotor.setControl(hoodPositionRequest.withPosition(hoodDesiredPosition.in(Rotations)));
+    // }
+    // else{
+    //   m_hoodMotor.setControl(hoodVelocityRequest.withVelocity(DegreesPerSecond.of(hoodVelocitySetpoint.position)));
+    // }
 
     //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
+    //m_yawMotor.setControl(yawVelocityRequest.withVelocity(DegreesPerSecond.of(yawVelocitySetpoint.position)));  
 
-    // turretPositionPublisher.set(getYawEncoder().in(Degrees));
-    turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
+    //turretPositionPublisher.set(getYawEncoder().in(Degrees));
+   // turretSpeedPublisher.set(Math.abs(getLaunchMotorSpeed().in(DegreesPerSecond)));
+    SmartDashboard.putNumber("Shooter/Commanded Shooter DPS", launchMotorSetpoint.in(DegreesPerSecond));
+    SmartDashboard.putNumber("Shooter/Shooter SpeedL (DPS) read", getLaunchMotorSpeed().in(DegreesPerSecond));
+    SmartDashboard.putNumber("Shooter/Shooter SpeedR (DPS) read", m_launchMotorR.getVelocity(true).getValue().in(DegreesPerSecond));
 
   }
 
@@ -247,17 +314,17 @@ public class ShooterSubsystem extends SubsystemBase implements TestableSubsystem
 
           @Override
           public TestResult getCurrentResult() {
-            Angle currentYawMotorAngle = m_yawMotor.getPosition().getValue();
+           // Angle currentYawMotorAngle = m_yawMotor.getPosition().getValue();
             if (Timer.getFPGATimestamp()
                 - startTime >= ShooterConstants.kMaxTestYawMotorTimeToReachPosition) {
               output = "The yaw motor took too long to get to the desired position.";
               return TestResult.KNOWN_FAILURE;
 
             }
-            if (currentYawMotorAngle.isNear(ShooterConstants.kTestYawMotorTargetPosition, maxAllowedError)) {
-              output = "The yaw motor succesfully moved to the desired position in the specified amount of time. ";
-              return TestResult.SUCCESS;
-            }
+            // if (currentYawMotorAngle.isNear(ShooterConstants.kTestYawMotorTargetPosition, maxAllowedError)) {
+            //   output = "The yaw motor succesfully moved to the desired position in the specified amount of time. ";
+            //   return TestResult.SUCCESS;
+            // }
             return TestResult.IN_PROGRESS;
           }
         },

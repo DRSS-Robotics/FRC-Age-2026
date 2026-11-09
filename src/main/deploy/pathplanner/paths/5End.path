@@ -8,52 +8,36 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.6267902995720425,
-        "y": 1.2855349500713271
+        "x": 6.720633333333333,
+        "y": 0.7608666666666671
       },
       "isLocked": false,
       "linkedName": "5pathNew1"
     },
     {
       "anchor": {
-        "x": 5.384679029957203,
-        "y": 0.5739087018544944
+        "x": 5.531811111111112,
+        "y": 0.6244444444444435
       },
       "prevControl": {
-        "x": 6.549158345221112,
-        "y": 0.7857792439372331
+        "x": 6.126222222222222,
+        "y": 0.6341888888888878
       },
       "nextControl": {
-        "x": 4.220199714693294,
-        "y": 0.3620381597717555
+        "x": 4.411699292139026,
+        "y": 0.6060819556088357
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.2794008559201138,
-        "y": 1.013823109843081
+        "x": 4.031166666666667,
+        "y": 0.6244444444444435
       },
       "prevControl": {
-        "x": 2.616154437267139,
-        "y": 0.633895992425924
-      },
-      "nextControl": {
-        "x": 1.7747931526390868,
-        "y": 1.583124108416548
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 0.9984736091298143,
-        "y": 1.013823109843081
-      },
-      "prevControl": {
-        "x": 1.7877318116975744,
-        "y": 2.1394864479315254
+        "x": 5.629255555555557,
+        "y": 0.6829111111111104
       },
       "nextControl": null,
       "isLocked": false,
@@ -62,15 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 1.010660980810239,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 1.5607675906183367,
+      "waypointRelativePos": 0.75,
       "rotationDegrees": 0.0
     }
   ],
@@ -87,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -138.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "Auto_5_Paths",

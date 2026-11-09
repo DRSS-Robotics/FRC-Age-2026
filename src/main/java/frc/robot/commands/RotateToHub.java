@@ -4,40 +4,105 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.shooter.TurretControl;
 import frc.robot.LimelightHelpers;
+import frc.robot.subsystems.shooter.Turret.TurretSubsystem;
+import frc.robot.Constants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers.RawFiducial;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+
+import java.util.function.Supplier;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.estimator.PoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class RotateToHub extends Command {
 
-  private final TurretControl m_subsystem;
+  private final TurretSubsystem m_turretSubsystem;
 
-  public RotateToHub(TurretControl turret) {
-    m_subsystem = turret;
+  private PoseEstimator poseEstimator;
+
+  private Pose2d mainPose;
+
+  private Supplier<Pose2d> robotPoseSupplier;
+
+  public RotateToHub(TurretSubsystem turret, Supplier<Pose2d> poseSupplier) {
+    m_turretSubsystem = turret;
+    robotPoseSupplier = poseSupplier;
+
     addRequirements(turret);
   }
   
   @Override
   public void execute() {
-    //Thorughbore encoder specs
-    double totalTicksPerRev = 8192;
-    //Calculates how many ticks it takes to rotate 1 degree
-    double ticksPerDegree = totalTicksPerRev/360;
-    //Get the april tag target values
-    RawFiducial[] fiducials = LimelightHelpers.getRawFiducials(VisionConstants.kLimelightName);
-    double targetOffsetHorizontal = fiducials[0].txnc;
-    double targetOffsetDistance = fiducials[0].distToRobot;
-    //Gets the secant of distToRobot/txnc to find the offset angle to the hub
-    double targetAngle = Math.toDegrees(1/Math.cos(targetOffsetDistance/targetOffsetHorizontal));
-    //Determine how many ticks are needed to turn to the target angle
-    double targetTicks = targetAngle * ticksPerDegree;
-    //speed that turret rotates
-    double speed = 0.3;
-    //Sets the motor position to the target angle
-    m_subsystem.runTurretMotor(speed, targetTicks);
+    // If the alliance cannot be retrieved, throw an error and end the execution
+    if(!DriverStation.getAlliance().isPresent()){
+      DriverStation.reportError("DriverStation did not report alliance color, cannot find pose of the Hub.", true);
+      return;
+    }
+
+    // get field pose of turret with the rotation of the robot 
+    // TODO: actually add in realistic pose, instead of static positions
+    // Pose2d robotPose = poseEstimator.getEstimatedPosition();
+    Pose2d robotPose = robotPoseSupplier.get();
+    
+    // add the turret relative pose to the robot pose, where the turret pose is rotated by robot rotation with turret yaw offset
+    // the rotation of turret pose is the relative plus robot rotation
+    Pose2d turretPose = m_turretSubsystem.turretPose;
+
+    // fill this out with a reference to rad per second, whether from pigeon or pose
+    double omegaRadiansPerSecond = 0;
+
+    Translation2d turretLinearMomentum = new Translation2d(
+        ShooterConstants.kShooterSideOffset.times(-omegaRadiansPerSecond),
+        ShooterConstants.kShooterForwardOffset.times(omegaRadiansPerSecond)
+    );
+
+    Translation2d distanceFromHub = Constants.getHubPose().get().getTranslation().minus(turretPose.getTranslation());
+    // Angle hubAzimuth = Degrees.of(MathUtil.inputModulus(
+    //                               Radians.of(Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX())))
+    //                               .plus(hubOffsetAngle(turretPose)).in(Degrees), -180, 180));
+
+    Angle hubAzimuth = hubOffsetAngle(turretPose, distanceFromHub);
+
+    // The system setup to find the angle input needed for turret rotation to face the hub is a bit strange
+    // It will take the turret's initial offset (typically 180 deg) and subtract the turret's absolute rotation.
+    // This is the most important value, because it tells exactly what angle the turret should go to.
+    Angle rotationNeededFromCenter = normalizeAngle(hubAzimuth.plus(ShooterConstants.kShooterYawOffset)
+                                                    .minus(Degrees.of(robotPose.getRotation().getDegrees())));
+    
+    // This value is not really used in the code, but can be displayed to show the error of where
+    // it should be versus where it currently is
+    Angle rotationNeeded = normalizeAngle(hubAzimuth.plus(ShooterConstants.kShooterYawOffset)
+                                                    .minus(Degrees.of(robotPose.getRotation().getDegrees())
+                                                    .plus(m_turretSubsystem.getTurretAngle())));
+
+    SmartDashboard.putNumber("Turret/Delta Angle", rotationNeeded.in(Degrees));
+
+    boolean canRotate = Math.abs(rotationNeeded.in(Degrees)) < 90;
+    SmartDashboard.putBoolean("Turret/Can Rotate to autoaim", canRotate);
+
+    // If the robot is past the hub by 0.5 meters, turn the turret into ferrying mode.
+    // Ferrying mode angle is retrieved by the negated robot angle
+    if(distanceFromHub.getX() < -0.5 && !DriverStation.isAutonomousEnabled()){
+      m_turretSubsystem.setTurretPosition(robotPose.getRotation().unaryMinus().getDegrees());
+    }
+    else{
+      m_turretSubsystem.setTurretPosition(rotationNeededFromCenter);
+    }
   }
 
   @Override
@@ -45,12 +110,65 @@ public class RotateToHub extends Command {
     return false;
   }
 
-  @Override
-    public void end(boolean interrupted) {
+  public static double mapUnclamped(double val, double inMin, double inMax, double outMin, double outMax){
+    return outMin + ((val - inMin) * (outMax - outMin)) / (inMax - inMin);
+  }
+
+  // This function gives the angle needed to rotate from the top axis (X+ axis, or forward in most cases)
+  // to the hub, given the turret's pose on the field
+  public Angle hubOffsetAngle(Pose2d turretPose, Translation2d distanceFromHub){
+    // getting variables for which quadrant the turret is in relative to the hub
+    boolean posX = (distanceFromHub.getX() > 0);
+    boolean posY = (distanceFromHub.getY() > 0);
+
+    double angleOffset = 0;
+    double angle = Math.atan(distanceFromHub.getY() / distanceFromHub.getX());
+
+    // Coordinate angle offset jank: because atan only returns values from -pi/2 to pi/2,
+    // we need to offset the angle based on which quadrant the turret is in relative to the hub
+    // Also, if the angle returned from atan is not meant to add onto the corected axis, we need to subtract it from pi/2
+    // which is why this is handled in a function. Janky solution, but best I could think of
+    if(posX && posY){
+      angleOffset = 0;
+      angle = Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
+    } else if(posX && !posY){
+      angleOffset = 3 * Math.PI / 2;
+      angle = Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
+    } else if(!posX && !posY){
+      angleOffset = Math.PI;
+      angle = Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
+    } else if(!posX && posY){
+      angleOffset = Math.PI / 2;
+      angle = Math.PI/2-Math.abs(Math.atan(distanceFromHub.getY() / distanceFromHub.getX()));
     }
+
+    // the angleModulus is to make sure the angle is between -pi and pi
+    return normalizeAngle(angle + angleOffset);
+  }
+
+  public Angle normalizeAngle(double angle){
+    return Radians.of(MathUtil.angleModulus(angle));
+  }
+
+  public Angle normalizeAngle(Angle angle){
+    return Radians.of(MathUtil.angleModulus(angle.in(Radians)));
+  }
+
+
+  @Override
+  public void end(boolean interrupted) {
+  }
 
   @Override
   public InterruptionBehavior getInterruptionBehavior() {
     return InterruptionBehavior.kCancelIncoming;
   }
+
+  // Override to return true so it runs when the robot is disabled, on during testing
+  // TODO: Remove when testing is done
+  // Commented it out prior to CORI
+  // @Override
+  // public boolean runsWhenDisabled() {
+  //   return true;
+  // }
 }

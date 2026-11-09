@@ -5,10 +5,21 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.math.numbers.*;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.LimelightHelpers;
 
@@ -19,14 +30,14 @@ public class Vision extends SubsystemBase {
 
   private HttpCamera limelight;
 
-  private SwerveDrivePoseEstimator poseEstimator;
   private CorePigeon2 pigeon;
   private CommandSwerveDrivetrain drivetrain;
+  private StructPublisher<Pose2d> MT1Publisher;
+  private StructPublisher<Pose2d> MT2Publisher;
   
 
   /** Creates a new Vision subsystem */
-  public Vision(SwerveDrivePoseEstimator poseEstimator, CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
-    this.poseEstimator = poseEstimator;
+  public Vision(CorePigeon2 pigeon, CommandSwerveDrivetrain drivetrain) {
     this.pigeon = pigeon;
     this.drivetrain = drivetrain;
 
@@ -45,6 +56,10 @@ public class Vision extends SubsystemBase {
         /* roll offset */ 0,
         /* pitch offset */ VisionConstants.kLimelightPitchOffset.in(Degrees),
         /* yaw offset */ VisionConstants.kLimelightYawOffset.in(Degrees));
+    
+    LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName,1);
+    MT1Publisher = NetworkTableInstance.getDefault().getStructTopic("Vision/MegaTag1", Pose2d.struct).publish();
+    MT2Publisher = NetworkTableInstance.getDefault().getStructTopic("Vision/MegaTag2", Pose2d.struct).publish();
 
     
   }
@@ -52,28 +67,51 @@ public class Vision extends SubsystemBase {
   /** Set the Limelight's pipeline */
   public void setLimelightPipeline(int index) {
     LimelightHelpers.setPipelineIndex(VisionConstants.kLimelightName, index);
-    System.out.println("VISION: Set Limelight pipeline to " + index);
   }
 
-  public void limelightPeriodic(){
+  public VisionMeasurement limelightPeriodic(){
 
     // Use April tag data to update swerve drive pose estimate (MegaTag2)
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        pigeon.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-        .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
+        drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+
+
+    // These methods are for the blue alliance because that is where the field coordinates are centered. The red methods are for the red coordinate system, which is not used anymore.
+    LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
     // only update if angular velocity is less than 360 degrees per second and at
-    // least 1 tag is detected
-    if (Math.abs(pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 0) {
-      // CHECK IF THIS IS ACTUALLY CHANGING ROBOT CONTAINER POSE ESTIMATOR
-      poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    // least 2 tags are detected
+
+    if (Math.abs(pigeon.getAngularVelocityZWorld().getValue().in(DegreesPerSecond)) < 360 && mt2.tagCount > 1) {
+      MT1Publisher.set(mt1.pose);
+      MT2Publisher.set(mt2.pose);
+      Matrix<N3,N1> stdevs;
+
+      // Scaling stdevs (Standard Deviations) based on the average tag distance from the sensor
+      // Then, we can assign different confidences to readings based on if they are closer or farther
+      // These should be in meters
+      if(mt2.avgTagDist > 4){
+        stdevs = VecBuilder.fill(1.5,1.5,999999);
+      }
+      else if(mt2.avgTagDist > 2){
+        stdevs = VecBuilder.fill(1.0,1.0,999999);
+      }
+      else if(mt2.avgTagDist > 1){
+        stdevs = VecBuilder.fill(0.5,0.5,999999);
+      }
+      else{
+        stdevs = VecBuilder.fill(0.3,0.3,999999);
+      }
       
       // when running this, which I assumed would adjust pose for PathPlanner,
       // it messed up the field oriented swerve drive, which I guess should've been expected
       // so I commented it out for now, but that was when pose wasn't working
       // so TODO: test that out sometime 
       // drivetrain.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+      SmartDashboard.putNumber("Vision/Avg Tag Dist", mt2.avgTagDist);
+      return new VisionMeasurement(mt2.pose, mt2.timestampSeconds, stdevs, true);
     }
+    return new VisionMeasurement(null, 0, null, false);
 
   }
 

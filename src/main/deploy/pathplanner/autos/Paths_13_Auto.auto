@@ -13,12 +13,6 @@
                 "data": {
                   "pathName": "13Start"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "OutIntake"
-                }
               }
             ]
           }
